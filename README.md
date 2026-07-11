@@ -5,3 +5,4 @@
 ## 已收录
 
 - [S6VU8IS7 — Hardware-in-the-Loop Simulation of ANPC Based on Modified Predictor–Corrector Method](papers/S6VU8IS7-hardware-in-the-loop-simulation-of-anpc.md)
+- [23XSBNW6 — Data-Driven Modeling of MMC Based on HHT and CNN-LSTM-AM](papers/23XSBNW6-data-driven-mmc-hht-cnn-lstm-am.md)
