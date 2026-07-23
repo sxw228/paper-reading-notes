@@ -1,149 +1,158 @@
 # A High-Stability Real-Time Simulation Model for DC–AC Power Electronic Converters and Digital Twin Applications
 
-- 作者：Mingwang Xu、Wei Gu、Keyan Liu、Fei Zhang、Wei Liu
-- 出处：*IEEE Transactions on Industrial Electronics*，2025
+- 作者：Mingwang Xu, Wei Gu, Keyan Liu, Fei Zhang, Wei Liu
+- 出处：IEEE Transactions on Industrial Electronics，accepted article
+- 年份：2025
 - DOI：10.1109/TIE.2025.3634404
 - Zotero key：HMZB9NFG
-- 证据说明：公式、表格和报告数字已由 fidelity 逐项核验；普通正文 claim 仍按论文章节、图、表或段落定位，不视为逐句认证。
+
+> 公式、报告数字和关键事实均直接取自源 PDF，并在本卡引用范围内绑定可定位证据；未引用内容未做全篇转换或认证。
 
 ## § 1 — 研究问题与重要性
 
-**论文直接陈述。** 大规模电力电子系统的实时仿真（RTS）有一个长期冲突：模型若保留开关细节和隐式求解，矩阵会高维、随开关变化且难以并行；模型若用接口延迟把 AC、DC 子网拆开，计算会变快，却可能牺牲精度和数值稳定性。论文要解决的是：能否为三相 DC–AC converter 建立一种**无接口时间延迟、端口导纳恒定、节点维数低、可并行，同时具有更大数值稳定域**的模型，并把它放进与真实 prototype 闭环交互的 digital twin（DT）平台。（Introduction A–C；Section II-A；Fig. 2）
+这篇论文要解决的核心矛盾是：电力电子变流器的 real-time simulation（RTS）既要把交流侧和直流侧解耦，以便并行计算，又不能靠接口延时换取解耦，否则会损失数值精度和稳定性；同时，模型还要足够轻量，才能嵌入 digital twin（DT）并实时接入物理样机。作者将目标压缩为四个同时成立的性质：无接口时间延迟、固定导纳矩阵、低维端口节点和较大的数值稳定域，并以物理控制器、三相两电平 DC–AC 样机、OP4610 与高速 I/O 构成 DT 平台验证它。[pdf:E01]（物理页 1，Abstract 与 Introduction）
 
-物理上，这不是单纯“把公式算快一点”。实时仿真每个时间步都有硬截止时间；若开关动作导致网络矩阵反复重构或求逆，converter 数量一多便可能错过截止时间。若 AC、DC 两侧通过上一拍数据交换，虽然容易并行，却等于人为给能量和控制信号加了一拍延迟，在高开关频率、强耦合或刚性系统中会改变真实动态。论文的目标是让两侧在同一拍内闭合电气关系，又不把它们重新绑回一个大的串行求解。（Introduction A–B；Section II-A，Eqs. (7)–(15)，fidelity items `EQ07`–`EQ15`）
-
-**论文直接陈述。** DT 部分进一步处理传统 HIL 的两个缺口：理想化仿真不包含真实测量噪声、谐波和器件偏差，也不能持续监测 physical prototype；而已有 converter DT 常依赖 PSO、遗传算法或 Kalman filter 做参数辨识，计算成本和等效电路可扩展性仍是问题。作者因此把实时模型、在线 L/C 参数估计、physical controller、converter prototype 和高速 I/O 放到同一平台中。（Introduction C；Section III-A；Table I，fidelity item `T01`）
+这个问题重要，不只是因为“仿真更快”。EMT/开关级模型在每个微秒级步长都必须求解网络；若开关动作让大矩阵随时间变化，系统规模增大后，矩阵更新和求解会成为实时性的瓶颈。若简单在接口插入一个步长的延时，交流、直流子网虽然可以分开算，却可能把非物理的相位滞后和数值能量注入闭环。DT 又比普通 HIL 多了一层要求：虚拟模型必须持续吸收物理对象的采样数据、更新关键参数，并把监测或控制结果反馈给真实对象。因此，稳定、可并行的端口模型是“实时跑起来”和“可信地贴近物理对象”之间的连接件。[pdf:E01]（物理页 1，Introduction）[pdf:E02]（物理页 2，贡献列表与 Fig. 1）
 
 ## § 2 — 前人工作与不足
 
-**相关文献中的已有结论，按论文综述复述。** 带接口延迟的方法中，transmission-line decoupling 受线路长度约束；controlled-source one-step delay 方法 [5] 简单且快，但论文认为精度和稳定性不足；forward Euler decoupling [8] 也有同类问题；latency insertion method（LIM）[9], [10] 改善了精度和稳定性，却需要人工延迟元件并受拓扑约束。后续 leapfrog/half-step FPGA solver [12], [13] 延续了 LIM 思路，但本文仍将这一类概括为不能普遍保证高稳定性。（Introduction A，引用 [4]–[13]）
+论文把既有变流器 RTS 模型分成两类。第一类显式引入接口延时：transmission-line decoupling 受线路长度约束；one-step time-delay 方法结构简单、应用广，但精度和稳定性不足；forward Euler 解耦同样稳定域有限；latency insertion method（LIM）改善稳定性，却要求人为延时元件并受拓扑限制。作者的判断是，这一类方法通常不能保证 absolute stability，尤其不适合大规模、高开关频率和刚性系统。[pdf:E01]（物理页 1，Section I-A）
 
-无接口延迟的方法走另一条路。OPAL-RT eHS 的 state-space nodal（SSN）和 RTDS universal converter model（UCM）通过增加串行步骤或 AC/DC 联立求解获得更强稳定性，但不做细粒度电路解耦，并行机会有限。prediction-correction 模型 [16], [17] 提高效率，却被本文认为没有同时保住高稳定性；boundary-variable 方法 [18] 依赖线性叠加；direct interface 方法 [19] 能纳入控制动态，但作者指出它不具备本文所追求的恒定导纳和细粒度解耦。（Introduction B）
+第二类消除接口延时。SSN 和 UCM 通过隐式积分、附加串行求解或交流直流两侧联立求解取得强稳定性，但没有真正解耦，因而并行加速空间有限。prediction-correction 型无延时解耦提高了效率，却牺牲高稳定性；基于边界变量和叠加定理的方法更偏向线性系统；direct interface 方法虽然纳入控制动态，但仍没有同时闭合稳定性和效率。这里的真正缺口不是“没人做无延时”，而是已有方法分别守住稳定、无延时或并行中的一部分，没有同时守住三者。[pdf:E02]（物理页 2，Section I-B）
 
-**论文直接陈述。** 本文与最关键 baseline 的区别不是某一个误差数字，而是折中点不同：相对 SSN，它接受少量 decoupling 误差来换取更高并行度；相对 [16]，它用显式解析半步预测扩大稳定域；相对 [5] 和 LIM，它不在接口插入一拍延迟；相对 switching-function model，它仍保留开关 on/off 电阻。（Section II-A，Figs. 3–4；Section IV-A/B，Tables II–VI，fidelity items `T02`–`T06`）
-
-需要保留两条证据边界。第一，本文对 prior work 的评价来自作者自己的综述，本卡没有逐篇复核 [4]–[31]。第二，论文展示的是特定 converter、拓扑和平台上的比较，不能据此推出所有 SSN、LIM 或 DT 实现都具有相同缺点。
+DT 侧的既有工作多聚焦参数辨识、状态估计或健康监测，常用 PSO、遗传算法、Kalman filter 或 reduced-order 模型。作者认为这些路线要么依赖迭代、计算代价较高，要么缺少可扩展到大规模电网的等值电路结构；普通 HIL 模型也通常没有与真实样机形成持续的物理交互。论文自己的平台则把变流器动态跟踪、controller support 和 condition monitoring 放到同一框架中，但 Table I 只是功能表级的横向比较，并不是统一硬件、统一数据集上的量化 benchmark。[pdf:E02]（物理页 2，Section I-C）[pdf:E06]（物理页 6，Table I）
 
 ## § 3 — 重建作者的思考路径
 
-下面是**基于证据的合理推断**，不是作者逐字写出的发明过程。
+可以把作者可能的思考路径重建为四步。第一步，承认电力电子 RTS 的计算瓶颈本质上来自开关造成的时变系统矩阵；若每次开关都重构大规模节点方程，实时步长很快失守。第二步，观察传统解耦把“现在的端口量”换成“上一步的端口量”，虽然切断计算依赖，却把延时带进物理接口；而 SSN/UCM 反过来保住稳定性，却又恢复串行或联立求解。第三步，不再直接在接口量上做妥协，而是寻找一种离散化，使端口的即时输入只乘固定系数，把开关状态和历史状态都压入等效历史源。这样，交流侧和直流侧仍使用同一时刻的端口量，端口导纳却不随开关变化。[pdf:E02]（物理页 2，Eq. (1) 前后的模型动机）[pdf:E03]（物理页 3，Eq. (7)–(15) 与 Fig. 2）
 
-第一步，从已有 companion model 经验出发，一个研究者会发现真正拖慢多 converter EMT 的不只是状态方程本身，而是开关使系统矩阵变化，迫使网络层重组；因此应尽量把“会变的部分”从需要 stamp 到全局网络的导纳中移走。第二步，又不能像 one-step delay 那样用旧接口量直接断开 AC/DC，因为这样会改变当前拍的耦合；于是需要把当前拍端口关系写成“固定导纳 × 当前拍端口量 + 上一拍可预先计算的历史源”。第三步，标准显式积分虽然并行友好但稳定域小，隐式积分稳定却会引入联立求解；于是可先用矩阵指数做半步状态预测，再用 central/trapezoidal 积分完成整步校正，把非线性/开关影响压入历史项，同时让当前拍系数保持固定。（Section II-A，Eqs. (3)–(12)，fidelity items `EQ03`–`EQ12`）
-
-第四步，一旦 converter 的 AC、DC 端口都成为低维 companion circuits，就可以分别与两侧网络并行求解，并复用同一模型反推内部电流、电压。第五步，真实 prototype 的 L、C 漂移会让 DT 失配，所以用相邻采样点的电压、电流和开关状态直接解出参数，避免迭代优化。最后，industrial controller 内部 PI 参数往往不可见，与其假装复制未知控制器，不如建立可运行的 MPC-based DT controller；它既为 DT 提供控制模型，也能在 physical controller 失效时接管 PWM。（Section II-B/C；Section III-A；Fig. 5）
+第四步，把这个计算结构延伸成 DT：由物理样机提供采样数据，用非迭代离散公式在线估计滤波电感、电容，再把参数写回变流器与控制器模型。若真实控制器内部 PI 参数和结构不可见，就用可观测 I/O 构造 MPC 型数字控制器，作为行为层面的替代和故障时的备用控制源。[pdf:E04]（物理页 4，Eq. (17)–(25)）[pdf:E05]（物理页 5，Eq. (26)–(27)、Fig. 5–7）
 
 ## § 4 — 核心 Intuition
 
-把 converter 想成给 AC 网和 DC 网各露出一个端口：端口的“硬件骨架”用不会随开关变化的导纳表示，开关动作和过去状态造成的影响则塞进每拍更新的历史源。这样两个子网仍用当前拍电压、电流闭合，不需要人为等一拍，又能在同一时间并行求解。半步解析预测的作用，是在不引入全局迭代的前提下，让状态更新比普通显式方法更不容易数值发散。（Section II-A，Eqs. (7)–(16)，fidelity items `EQ07`–`EQ16`）
+核心 intuition 是：不要用接口延时来切断交流侧与直流侧的计算依赖，而要用 companion circuit（伴随等值电路）把“当步输入”与“历史贡献”分开。只要当步端口输入对应的导纳项保持常数，开关状态就可以留在历史源更新中，两个子网便能在同一时间步并行求解，同时避免接口的一步延迟。[pdf:E03]（物理页 3，Eq. (7)–(15) 与 Fig. 2）
 
 ## § 5 — 具体方法与完整 Pipeline
 
-以论文的三相两电平 DC–AC prototype 为例，一次完整运行可拆成以下链路。
+以论文的三相两电平 DC–AC 变流器为例，完整 pipeline 如下。
 
-1. **建立开关级状态模型。** 六个 switches 用 binary resistors 表示，状态取 DC-link capacitor voltage 与三相 AC-side currents；switching states (k_a,k_b,k_c) 进入状态矩阵 (A) 的非对角项，输入矩阵 (B) 保持固定。（Section II-A，Fig. 1，Eqs. (1)、(2)、(9)、(10)，fidelity items `EQ01`、`EQ02`、`EQ09`、`EQ10`）
-2. **先预测半步，再完成整步。** 在 ([t,t+\Delta t/2]) 内用矩阵指数显式预测半步状态，随后对状态项用 central integral、对输入项用 trapezoidal integral，得到 (x(t+\Delta t)=Y u(t+\Delta t)+R x(t)+T u(t))。物理意义是：当前拍端口作用由固定 (Y) 承担，所有已经知道的旧状态和旧输入合并成 history term。（Section II-A，Eqs. (3)–(8)，fidelity items `EQ03`–`EQ08`）
-3. **拆成 AC/DC companion ports。** 作者把状态分成 DC-side 与 AC-side 两个子系统，把 (R x(t)+T u(t)) 预计算为两个历史源。三相 AC port 形成电压差驱动的 Norton-like current relation，DC port 形成 current-driven capacitor voltage relation；Fig. 2 给出完整 equivalent circuit。两侧使用当前拍变量，因而没有 interface time delay，又能并行求解。（Section II-A，Fig. 2，Eqs. (11)–(15)，fidelity items `EQ11`–`EQ15`）
-4. **用真实采样更新关键参数。** physical converter 的相电流、capacitor voltage、DC current 和 switching states 经高速 I/O 送入 OP4610。作者把 inductor、DC-side capacitor、filter capacitor 的微分关系做 trapezoidal discretization，直接计算 \(\hat L\)、\(\hat C_{dc}\)、\(\hat C\)；缺少 load-current sensor 时，先用已知 $L_{load},R_{load}$ 估计 $i_L$。（Section II-B，Eqs. (17)–(25)，fidelity items `EQ17`、`EQ18`、`EQ19`、`EQ20`、`EQ21`、`EQ22`、`EQ23`、`EQ24`、`EQ25`）
-5. **同步更新 DT converter 与 DT controller。** 估计参数回写实时模型；controller 侧先由 capacitor equation 预测未测的 load current，再由 finite-control-set MPC 在候选 switching states 中选择使 \(\alpha\beta\) capacitor voltage 最接近 reference 的状态。（Section II-C，Fig. 5，Eqs. (26)、(27)，fidelity items `EQ26`、`EQ27`）
-6. **形成物理—数字闭环。** physical controller 正常时驱动 prototype，DT 同步监测、复现内部 arm voltage/current 并做动态跟踪；若 physical controller 无法输出 PWM，DT controller 经同一 digital I/O 接管。论文的实现平台是带 Kintex-7 FPGA 与 6-core 3.8-GHz AMD Ryzen CPU 的 OP4610，prototype 参数和 10-µs DT step 见 Table VII。（Section III-A；Section V；Table VII，fidelity item `T07`；报告数字组 `N05`）
+1. **建立开关级状态模型。** 六个开关用二值电阻表示，状态向量包含直流侧电容电压和三相交流电流；开关状态 \(k_a,k_b,k_c\) 进入状态矩阵 \(A\) 的非对角元素，输入矩阵 \(B\) 保持固定。[pdf:E02]（物理页 2，Fig. 1 与 Eq. (1)）[pdf:E03]（物理页 3，Eq. (2)、(9)、(10)）
+2. **做半步预测。** 从状态方程的解析积分形式出发，在 \([t,t+\Delta t/2]\) 对非线性输入作显式近似，得到半步预测状态 \(\hat{x}(t+\Delta t/2)\)。这一步的作用不是输出最终状态，而是给整步积分提供中点状态。[pdf:E03]（物理页 3，Eq. (3)、(4)）
+3. **形成整步更新。** 对状态项使用 central integration，对输入项使用 trapezoidal integration，再消去半步状态，得到 \(x(t+\Delta t)=Y u(t+\Delta t)+R x(t)+T u(t)\)。其中 \(Y=\Delta t B/2\) 是当步端口输入的固定系数；\(R x(t)+T u(t)\) 是可预先更新的历史项。[pdf:E03]（物理页 3，Eq. (5)–(8)）
+4. **拆成端口伴随电路。** 将状态分为直流侧 \(x_1\) 与交流侧 \(x_2\)，得到两个只通过当步端口量连接的 companion circuits。交流侧表现为等效电阻与三相历史电流源，直流侧表现为等效电阻与历史电压源。两侧没有使用上一时间步的接口量，因此作者称其“without interface time-delay”，且可以并行求解。[pdf:E03]（物理页 3，Eq. (11)–(15) 与 Fig. 2）
+5. **在线更新 DT 参数。** OP4610 从物理样机采集电压、电流和 PWM；电感 \(L\)、直流电容 \(C_{dc}\) 与滤波电容 \(C\) 分别由离散化电路方程直接计算。由于样机没有负载侧电流传感器，滤波电容估计先用已知负载 \(L_{load},R_{load}\) 重建负载电流。[pdf:E04]（物理页 4，Eq. (17)–(25)）
+6. **建立数字控制器。** 数字控制器先由电容电压和变流器侧电流预测未测的负载电流，再用 MPC 在候选电压矢量中最小化 \(\alpha\beta\) 平面电压误差，选出下一采样时刻的开关状态。作者选择这一行为模型，是因为工业 PI 控制器的内部参数和结构可能不公开。[pdf:E05]（物理页 5，Eq. (26)、(27) 与 Fig. 5）
+7. **闭合物理与数字空间。** 物理控制器正常时直接驱动样机；OP4610 同时采样并运行 DT converter/controller。采样数据越界时平台判定物理侧异常并停机；物理数据正常而数字输出异常时，判定模型需要改进；物理控制器失效时，数字控制器可接管 PWM。[pdf:E05]（物理页 5，Fig. 6–7）[pdf:E06]（物理页 6，closed-loop 描述）
 
-论文确实报告了 KU060 FPGA 上的 execution time 与 LUT/DSP/RAM/FF 占用，但**没有报告** fixed-point 位宽、量化误差、pipeline 深度、clock frequency、timing closure、矩阵指数如何在 FPGA 上实现，也没有多速率调度设计。因此可以确认“模型被映射并计量资源”，不能补写一套论文没有给出的 RTL architecture。（Section IV-B，Tables V–VI，fidelity items `T05`、`T06`）
+论文报告的实现平台是 OP4610，内部含 Kintex-7 FPGA 与 6 核 3.8 GHz AMD Ryzen CPU；实验样机额定直流侧电压为 50 V，开关频率 5 kHz，RTS 步长 10 µs。论文没有给出 RTL 流水线、定点字长、量化误差、矩阵指数的 FPGA 计算实现或多速率调度细节，因此不能从本文判断其数值格式与时序裕量。[pdf:E08]（物理页 8，平台说明）[pdf:E09]（物理页 9，Table VII）
 
 ## § 6 — 核心数学推导（无形式化数学则跳过）
 
-先讲物理图景。连续 converter 在一个时间步内同时受自身储能状态、开关连接和外部端口激励影响。作者的数学目标是把整步更新拆成两部分：一部分只依赖过去、可在网络求解前算好；另一部分线性依赖当前拍端口量、可作为固定 companion admittance stamp 进入网络。
-
-连续模型为
+核心推导从线性时变开关状态方程
 
 \[
-\dot x(t)=A x(t)+B u(t),
+\dot{x}(t)=A x(t)+B u(t)
 \]
 
-其中 (A) 含 switching states，(B) 由固定 circuit parameters 构成；三相主回路的具体 KVL/KCL 展开见 Eq. (2)。（Section II-A，Eqs. (1)、(2)，fidelity items `EQ01`、`EQ02`）精确的 variation-of-constants 形式是 Eq. (3)（`EQ03`）。作者不直接求整步隐式解，而先用
+开始。这里 \(x\) 是电容电压与电感电流构成的储能状态，\(u\) 是端口激励，\(A\) 包含开关状态，\(B\) 由固定电路参数构成。它的精确一步解含矩阵指数与对输入轨迹的积分；作者并不直接计算整段输入，而是在半步上显式近似 \(u(\tau)\)，得到预测器
 
 \[
-\hat x(t+\Delta t/2)=e^{A\Delta t/2}x(t)+A^{-1}(e^{A\Delta t/2}-E)Bu(t)
+\hat{x}\!\left(t+\frac{\Delta t}{2}\right)
+=e^{\frac{\Delta t}{2}A}x(t)
++A^{-1}\!\left(e^{\frac{\Delta t}{2}A}-E\right)Bu(t).
 \]
 
-预测半步状态（Eq. (4)，`EQ04`），再把 Eq. (5) 的 (Ax) 部分做 midpoint/central approximation，把 (Bu) 部分做 trapezoidal approximation，得到 Eq. (6)（fidelity items `EQ05`、`EQ06`）。代入半步预测后形成
+物理上，这相当于先沿当前开关拓扑把储能状态推进半步，再用这个中点估计代表整步内部的状态作用。[pdf:E03]（物理页 3，Eq. (1)–(4)）
+
+随后将原微分方程在整步积分。状态项用中点值，输入项用梯形平均：
+
+\[
+x(t+\Delta t)=x(t)+\Delta t A\hat{x}\!\left(t+\frac{\Delta t}{2}\right)
++\frac{\Delta t}{2}B\left[u(t+\Delta t)+u(t)\right].
+\]
+
+代入半步预测器后，整理成
 
 \[
 x(t+\Delta t)=Y u(t+\Delta t)+R x(t)+T u(t),
 \]
 
-其中 (Y=\Delta t B/2)，而 (R,T) 吸收 (A) 和矩阵指数的作用（Eqs. (7)、(8)，fidelity items `EQ07`、`EQ08`）。关键工程意义是：只要 (B) 与步长不变，stamp 到端口网络的 (Y) 就不随 switch state 变化；变化的 (A) 只改变当拍 history calculation。
-
-将 (x) 和 (u) 按 DC/AC 子系统分块后，Eq. (11) 把当前拍关系写成两个 history sources 加同一个 (Y) 作用，Eq. (12) 明确 history term 只用 (t) 时刻数据（fidelity items `EQ11`、`EQ12`）。对三相 converter 展开后，Eq. (13) 是 AC-side current companion relation，Eq. (14) 是 DC-side capacitor voltage relation；Eq. (15) 给出对应 equivalent resistances（fidelity items `EQ13`、`EQ14`、`EQ15`）。这一步把抽象状态更新变成了可以直接接回电路网络的低维端口。
-
-对 homogeneous state update，作者给出的稳定条件是
-
 \[
-\left|1+\lambda\Delta t e^{\lambda\Delta t/2}\right|<1,
+R=E+\Delta t A e^{\frac{\Delta t}{2}A},\qquad
+T=\left[\frac{\Delta t}{2}+\Delta t\left(e^{\frac{\Delta t}{2}A}-E\right)\right]B,\qquad
+Y=\frac{\Delta t}{2}B.
 \]
 
-其中 \(\lambda\) 是 system eigenvalue（Eq. (16)，fidelity item `EQ16`）。Fig. 3 将满足条件的复平面区域画为 proposed model 的 stability region；作者报告其覆盖范围比 Fig. 4 中三种 decoupling models 扩大 20 倍以上（Section II-A，Figs. 3–4；报告数字组 `N02`）。这证明的是该 amplification factor 在所画区域内收缩，不自动等价于任意时变 switching sequence、任意 nonnormal matrix 或任意多 converter interconnection 都全局稳定。
+最关键的结构是 \(Y\) 不含开关状态，因此外部网络看到的当步导纳保持固定；开关相关性进入 \(R,T\) 所生成的历史源。固定导纳不是说系统完全时不变，而是说网络组装时不必因每次开关重新改变端口导纳。[pdf:E03]（物理页 3，Eq. (5)–(12)）
 
-参数监测部分则是“从动态方程反解元件值”：Eqs. (17)–(21) 由相电流差和 DC capacitor charge balance 解出 \(\hat L\)、\(\hat C_{dc}\)（fidelity items `EQ17`、`EQ18`、`EQ19`、`EQ20`、`EQ21`）；Eqs. (22)–(25) 在无 load-current sensor 时结合 load model 解出 filter \(\hat C\)（`EQ22`、`EQ23`、`EQ24`、`EQ25`）。controller 部分用 Eq. (26) 预测 load current，以 Eq. (27) 的 squared voltage-tracking error 选择 switching state（`EQ26`、`EQ27`）。这些反解式没有迭代，但当分母中的相邻采样差很小时会对噪声敏感；论文没有给出专门的 conditioning analysis。
+对文中的 VSC，交流侧三相电流和直流侧电压被进一步写成 companion form，作者据此给出等效 \(R_{eq\_L}\) 与 \(R_{eq\_C}\)，并用
+
+\[
+\left|1+\lambda\Delta t\,e^{\lambda\Delta t/2}\right|<1
+\]
+
+定义标量测试方程下的稳定域。Fig. 3 的灰色区域是这一不等式在复平面中的取值范围；作者报告其覆盖面积比三种既有解耦模型大 20 倍以上。[pdf:E03]（物理页 3，Eq. (13)–(16)）[pdf:E04]（物理页 4，Fig. 3–4 与相邻正文）
+
+这里有两个需要读者保留的数学警告。第一，Eq. (16) 是固定 \(\lambda\) 的线性标量稳定性判据，不能自动等价为任意开关序列下时变系统的统一稳定证明。第二，按 PDF 排印，Eq. (15) 的 \(R_{eq\_L}=(6L-4L\Delta t R_{on})/\Delta t\) 中两项量纲表面上不一致；本文没有给出归一化说明。因而复现时应先核对作者实现或勘误，不能盲抄这一式。两点都是基于公式本身的审慎判断，而非作者明确承认的限制。[pdf:E03]（物理页 3，Eq. (15)、(16)）
 
 ## § 7 — 实验设计与结论
 
-**问题 1：模型是否兼顾 accuracy、stability 和 scalability？** → 作者在 Fig. 8 的 multi-converter open-loop system 上比较 detailed model、[5]、LIM [9]、SSN [22]、modified-Euler model [16] 与 proposed model，覆盖 startup、两段 steady state 和 load step transient；再增加 PCC converter 数量测 simulation time。（Section IV-A，Figs. 8–11）→ proposed model 的四段 MRE 为 0.81%、1.43%、1.41%、1.55%，优于 [5]、[9]、[16]，但多数工况不及 SSN；AC current THD 为 2.32%，接近 detailed model 的 2.35%。100 converters 时，其 PC execution time 为 1953.2 µs，低于 SSN 的 2298.8 µs 和 detailed model 的 4398.9 µs，但高于 [16] 的 1821.9 µs。（Tables II、III、V，fidelity items `T02`、`T03`、`T05`；报告数字组 `N04`）答案不是“每项最好”，而是作者展示了一个更均衡的折中。
+**问题 1：离线仿真是否兼顾精度与大规模效率？** 作者在 Fig. 8 的多变流器系统中，以 detailed model 为参考，比较 one-step delay、LIM、SSN、modified Euler 和本文模型。系统采用 10 kV 电网、0.007 H 电感、5000 µF 直流电容、2 kHz 开关频率与 10 µs 步长；0.3 s 时负载从 30 Ω 变为 20 Ω。答案是：本文模型在启动、两个稳态段和暂态段的 MRE 分别为 0.81%、1.43%、1.41%、1.55%，精度次于 SSN，但明显好于 one-step delay；其交流侧电流 THD 为 2.32%，接近 detailed model 的 2.35%。在 100 个变流器时，Fig. 11 显示其效率超过 LIM 与 SSN，但论文只给曲线，没有把该点数值制表。[pdf:E06]（物理页 6，测试设置）[pdf:E07]（物理页 7，Table II–III 与 Fig. 11）
 
-**问题 2：它能否真正按实时截止时间运行，FPGA 代价多大？** → RT-LAB RTS 用 1-µs step 比较 [16]、SSN 与 proposed model；另在 KU060 上测 Fig. 8 单 converter 的 per-step execution time 和资源。（Section IV-B，Fig. 12）→ proposed model 对 (U_{dc})、(I_a) 的 MRE 分别为 0.60%、0.11%，介于 [16] 与 SSN 之间；KU060 execution time 为 0.28 µs，LUT/DSP/RAM/FF 分别占 16.3%/8.0%/10.5%/5.2%。它比 [16] 多用一些资源，但比 SSN 少用 DSP、RAM 和 FF。（Tables IV–VI，fidelity items `T04`–`T06`；报告数字组 `N04`、`N05`）论文没有给出多 converter FPGA timing、clock margin 或 fixed-point sensitivity，因此不能外推为任意规模都满足 sub-microsecond deadline。
+**问题 2：模型能否在实时平台上按微秒步长执行？** 作者在 RT-LAB 上以 1 µs 步长比较本文模型、modified Euler 与 SSN；本文模型对 \(U_{dc}\) 和 \(I_a\) 的 MRE 为 0.60% 和 0.11%，介于 SSN 的 0.22%/0.07% 与 modified Euler 的 0.88%/0.18% 之间。另一个 FPGA 测试按 Table V 标题所示的 10 µs 时间步统计平均执行时间，单变流器本文模型为 0.28 µs，modified Euler 为 0.22 µs，SSN 为 0.65 µs。答案是实时预算有余量，但论文在同一页同时出现 1 µs RTS 工况和“10 µs 每步执行时间”表，二者不能混作同一个实验条件。[pdf:E07]（物理页 7，RTS 设置）[pdf:E08]（物理页 8，Table IV–V）
 
-**问题 3：DT 是否能监测真实元件和内部开关量？** → Case 1 用 physical samples 在线估计 A-phase filter L/C；Case 2 用模型重建 upper-arm switch voltage/current，并与 standalone RTS 比较。（Section V-A，Figs. 14–16）→ 作者报告 component-monitoring delay 约 800 µs；DT switch conduction current 为 0.8 A，RTS 为 0.604 A，并把差异归因于真实噪声与谐波。（报告数字组 `N05`、`N06`；Table VIII，fidelity item `T08`）这里证明了特定实验台上的可观测性，不等于已经证明估计器在参数突变或强噪声下无偏。
+**问题 3：FPGA 资源是否支持并行优势？** 在同一 KU060 上，本文模型使用 16.3% LUT、8.0% DSP、10.5% RAM、5.2% FF；modified Euler 更省资源，SSN 则使用 20.0% LUT、13.7% DSP、11.4% RAM、10.5% FF。答案不是“资源最少”，而是本文模型用略高于 modified Euler 的资源换取更大的稳定域，并显著低于 SSN 的 DSP 与 FF 占用。[pdf:E08]（物理页 8，Table VI）
 
-**问题 4：DT 是否比脱离实物反馈的 RTS 更贴近动态过程？** → Case 3 将 DC voltage 从 100 V 阶跃到 50 V；Case 4 将 load-voltage reference 从 13 V 降至 5 V，再升至 10 V，比较 physical prototype、DT 与 RTS。（Section V-B，Figs. 17–20）→ DT 的 waveform 更接近实测，而 RTS 更平滑；Case 3 和 Case 4 的相关 MRE 分别为 5.2% 和 3.8%。（Table VIII，fidelity item `T08`；报告数字组 `N06`、`N07`、`N09`）由于 DT 直接消费 physical feedback，“更接近实测”部分可能来自 measurement anchoring，不能单独证明未反馈的 converter model 本体更准确。
+**问题 4：DT 能否监测样机并跟踪动态变化？** 三相样机的参数见 Table VII；Case 1 监测 0.005 H 电感与 10 µF 电容，报告约 800 µs 测试延迟；Case 2 对桥臂电压电流进行在线观测，DT 开关导通电流为 0.8 A，普通 RTS 为 0.604 A；Case 3 将直流电压从 100 V 降至 50 V；Case 4 将负载电压参考从 13 V 降到 5 V，再升到 10 V。作者的答案是 DT 波形更接近物理样机，而普通 RTS 更平滑；Table VIII 给出的 Case 1 电感/电容幅值 MRE 为 4.1%/2.2%，Case 3、4 为 5.2% 和 3.8%。[pdf:E09]（物理页 9，Table VII、Fig. 14–15）[pdf:E10]（物理页 10，Fig. 17–20）[pdf:E12]（物理页 12，Table VIII）
 
-**问题 5：故障工况能否为 protection design 提供可信 transient？** → Case 5 短路 A-phase load，Case 6 短路 A-phase filter capacitor，同时观察 healthy-phase overvoltage、outlet current 与 upper-arm current，并与 RTS 对照。（Section V-C，Figs. 21–25）→ 两类结果总体接近；Table VIII 给出相应 MRE 3.4%–6.8%。例如 Case 6 中 DT 的 A-phase outlet current 从 0.82 A 升至 1.91 A，RTS 从 0.73 A 升至 1.81 A；upper-arm current 的 DT/RTS 倍数分别约 2.4/2.5。（Table VIII，fidelity item `T08`；报告数字组 `N08`、`N09`）验证范围只有两类 laboratory faults，不能外推至器件开路、dead-time、饱和、thermal drift 或 grid-fault network interactions。
+**问题 5：故障和控制器失效时，DT 是否仍有工程价值？** Case 5 在 A 相负载端施加短路，A 相电压在 0.002 s 内降到额定值 10% 以下，B 相峰峰值约 34 V、约为故障前 1.7 倍；Case 6 短接 A 相滤波电容，DT 中 B 相峰值约 37 V，A 相出口电流增至故障前 2.3 倍。Case 7 让物理控制器停止 PWM，DT 控制器接管后约 0.005 s 恢复负载电压。答案是平台展示了监测、故障响应和备用控制的端到端功能，但 Case 7 明确只是功能验证，没有 advanced control architecture，也没有报告误切换、通信丢包或长期接管可靠性。[pdf:E11]（物理页 11，Fig. 21–25）[pdf:E12]（物理页 12，Table VIII、Fig. 26 与结论）
 
-**问题 6：DT controller 能否在 physical controller 失效时接管？** → Case 7 人为让 physical controller 停止 PWM，观察同一 digital I/O 上的 DT controller takeover。（Section V-D，Fig. 26）→ load voltage 先接近零，随后恢复 nominal level，报告 recovery time 约 0.005 s。（报告数字组 `N09`、`N10`）这是 functional demonstration；作者明确说明未加入 advanced control architectures，因此还不是带形式化安全保证的 bumpless-transfer 或 fault-tolerant control certification。
+这些结果不能外推到 MMC、多电平拓扑、弱电网、多速率控制、器件级损耗或大规模 DT。论文的实体验证对象仍是一个实验室三相两电平样机；所谓 large-scale 潜力主要来自离线多变流器扩展曲线，而非大规模物理系统的闭环演示。[pdf:E06]（物理页 6，DT 实现范围说明）[pdf:E09]（物理页 9，样机与 Table VII）
 
 ## § 8 — Take-aways
 
-**5 句话。** 这篇论文针对 converter RTS 中“无延迟并行”与“数值稳定”难以同时满足的问题，提出半步解析预测加整步校正的 companion model。它把随开关变化的作用留在 history term，让当前拍 port admittance 保持常量，从而让 AC/DC 两侧并行且不插入一拍接口延迟。与多个 baseline 相比，它通常不是 accuracy 或 speed 的单项第一，但在 MRE、THD、execution time 和 FPGA resources 之间呈现较均衡结果。作者还把模型接到 OP4610、physical controller 与三相 prototype，展示在线 L/C 监测、动态跟踪、fault transient 和 controller takeover。最需要谨慎的是，“高稳定性”已由 stability region 和有限工况支持，却尚未被证明对任意开关序列、nonlinearities 和大规模 interconnection 都成立。
+**5 句话：**  
+1. 论文用“固定当步导纳 + 开关相关历史源”替代接口一步延时，使交流、直流子网可以在同一时间步并行求解。[pdf:E03]  
+2. 半步解析预测与整步中点/梯形积分共同形成 Eq. (7) 的 companion form，稳定域面积据作者报告比三个对比模型大 20 倍以上。[pdf:E03][pdf:E04]  
+3. 离线与 RT-LAB 结果显示，它的精度通常介于 SSN 和更简单的显式解耦模型之间，而 FPGA 执行时间与资源也处在效率和稳定性的折中位置。[pdf:E07][pdf:E08]  
+4. 论文还把非迭代参数估计、MPC 型数字控制器和真实样机 I/O 组合成 DT，覆盖监测、动态跟踪、故障实验和控制器接管。[pdf:E04][pdf:E05][pdf:E12]  
+5. 最缺的证据是从标量稳定域到任意开关时变系统的统一稳定论证，以及跨拓扑、跨工况和长期闭环的验证。
 
-**3 句话。** 核心贡献是一个 current-step、constant-admittance、history-source 形式的 converter model，而不只是一个 DT dashboard。它在特定 PC、RT-LAB 和 FPGA tests 中以少量 decoupling error 换到并行度，并用真实反馈扩展到 condition monitoring 与 controller backup。工程价值明确，但稳定性外推、参数估计 conditioning 和 FPGA implementation detail 仍是主要证据缺口。
+**3 句话：**  
+1. 真正的贡献不是单纯“更快”，而是改变开关依赖放置的位置，从而同时保住无接口延时、固定端口导纳和并行性。[pdf:E03]  
+2. 实验表明该折中有现实收益，但它既不是精度最高，也不是资源最省。[pdf:E07][pdf:E08]  
+3. DT 展示很完整，证据范围却仍限于实验室三相两电平样机和七个预设场景。[pdf:E09][pdf:E12]
 
-**1 句话。** 本文展示了一条很有价值的路线：把开关变化隔离在局部历史计算中，以固定低维端口保持电气可组装性和实时并行性，但其“任意 switching/interconnection 下仍稳定”的更强版本尚待证明。
+**1 句话：**  
+这是一种把开关变化“藏进历史源”以获得稳定、无延时、可并行 RTS 的方法，并用真实样机 DT 展示了价值，但其高稳定性尚未被证明为对任意开关序列都成立。[pdf:E03][pdf:E12]
 
 ## § 9 — 最脆弱的假设
 
-最脆弱、失败代价最大的假设是：**由单个/frozen system eigenvalue 得到的 Eq. (16) stability region，足以代表实际 switched converter 以及多 converter 网络长期运行时的稳定性。** 如果这一点不成立，论文最核心的“high-stability 且可扩展”贡献就可能只在所测工况中成立。
+最脆弱的假设是：由固定拓扑下标量测试方程得到的稳定域，足以代表开关状态不断改变时整个离散 VSC 与外部网络的稳定性。论文的稳定判据只写成 \(|1+\lambda\Delta t e^{\lambda\Delta t/2}|<1\)，并以复平面面积与三个既有模型比较；但真实系统中的 \(A(k_a,k_b,k_c)\) 会随 PWM 切换，连续多个“各自稳定”的离散更新矩阵相乘也不必然拥有统一收缩性。[pdf:E03]（物理页 3，Eq. (10)、(16)）[pdf:E04]（物理页 4，Fig. 3–4）
 
-论文给出的正面证据包括：Eq. (16) 的 amplification condition、Figs. 3–4 中比三种 decoupling models 大 20 倍以上的稳定域，以及 Section IV/V 的离线、RTS 和 DT waveforms 未发散（Eq. (16)，fidelity item `EQ16`；报告数字组 `N02`；Figs. 9–12、14–26）。这些证据说明方法在作者选择的 eigenvalues、steps 和 switching cases 中工作良好。
-
-**基于证据的合理推断。** 实际 (A(k_a,k_b,k_c)) 会随 PWM 切换；即使每个 frozen (A) 对应的单步矩阵各自满足 spectral radius 小于 1，一串互不交换、nonnormal 的矩阵乘积仍可能放大状态。converter 接入外部 network 后，系统 eigenstructure 也可能随 topology、controller 和 passive components 改变。论文没有给出 common Lyapunov function、joint spectral radius bound、passivity/energy inequality，或覆盖 switching sequence 与 interconnection 的证明；也没有报告对 dead-time、parasitics、saturation 和 quantization 的 stability sensitivity。因此，把文中的 stability-region 结果称为“更大的局部/冻结参数稳定域”证据充分，把它解释成任意运行条件下的绝对稳定则证据不足。
+如果这个假设不成立，论文最核心的“high-stability”就可能只对冻结开关状态或已测试工况成立，而不是对实际高频切换和大规模互联成立。论文提供了负载阶跃、1 µs RTS、100 变流器效率曲线以及实验室故障工况作为经验支持，但没有给出 common Lyapunov function、joint spectral radius、passivity bound，或覆盖最坏开关序列与外部网络阻抗的系统扫描。这里不是说方法已经不稳定，而是说现有证据仍不足以把“大稳定域”提升为普适稳定保证。[pdf:E06]（物理页 6，测试范围）[pdf:E07]（物理页 7，离线与 RTS 条件）[pdf:E11]（物理页 11，故障工况）
 
 ## § 10 — 最小复现实验
 
-一周内最值得复现的不是完整 DT 平台，而是**固定导纳是否成立，以及更大 stability region 是否在开关时变仿真中转化为可观测优势**。
+一周内最值得复现的不是整个 DT 平台，而是“固定导纳的无延时更新在开关时变条件下是否真的比对比方法更稳”。
 
-1. 在 MATLAB/Simulink、Julia 或 C++ 中实现 Fig. 8 的单 converter open-loop circuit、detailed reference、[16] modified-Euler model 与本文 Eqs. (3)–(16)。先使用论文参数：10-kV source、0.5-Ω resistor、0.007-H inductor、5000-µF DC capacitor、30-Ω load、2-kHz switching、10-µs step，并在 0.3 s 把 load 改为 20 Ω。（Section IV-A，Fig. 8；报告数字组 `N03`）
-2. 记录每种 switch state 下 stamp 到 network 的 (Y)，确认它逐拍不变；同时记录 (R,T) 和 history source 随 switching 更新。若 (Y) 随 (k_a,k_b,k_c) 改变，则实现已偏离本文核心机制。（Eqs. (7)–(15)，fidelity items `EQ07`–`EQ15`）
-3. 复现 startup、两个 steady-state 段和 load transient 的 AC current/DC voltage MRE 与 AC-current THD。支持本文的最低标准是 proposed model 不发散，四段 MRE 与 Table II 同量级，并复现其相对 [5]/[16] 的报告排序和对 [16] 的小幅优势，THD 接近 detailed reference；若同参数下系统性复现不到这些排序，应反驳 accuracy claim。（Tables II–III，fidelity items `T02`、`T03`）
-4. 在保持 physical parameters 的前提下扫描 \(\Delta t\)，并构造 regular PWM、随机合法 switching、快速 mode alternation 三类序列。每步计算 Eq. (16) 的 frozen eigenvalue condition，同时监测 state norm、energy surrogate 和 KCL/KVL residual。若所有 frozen steps 都落在作者稳定域内但 state norm 仍持续指数增长，就直接反驳第 9 节所述强稳定解释；若不同序列均 bounded，才为该解释增加证据。
-
-这一复现不需要 FPGA，即可证伪核心 numerical claim。若仍有时间，再把 history update 与 fixed-(Y) port solve 做成 KU060-compatible fixed-point kernel，测 0.28-µs execution-time 报告能否在明确 clock/bit width 下重现（Table V，fidelity item `T05`）；但这属于第二阶段，不应阻塞核心验收。
+1. 用论文 Fig. 8 的单变流器开环系统与参数建立三套模型：细步长 detailed reference、本文 Eq. (3)–(16) 模型、modified Euler 解耦模型。先在浮点 CPU 上实现，避免 FPGA 工程掩盖算法问题。[pdf:E06]（物理页 6，Fig. 8 与参数）
+2. 固定同一 PWM 序列和 0.3 s 的 30→20 Ω 负载阶跃，扫描 \(\Delta t=1,2,5,10,20,50\) µs；再加入一组故意制造长短脉冲交替的开关序列，以提高更新矩阵切换强度。
+3. 测量三类量：相对细步长参考的 \(U_{dc}\)、\(I_a\) MRE；离散储能是否无界增长；每步执行时间与每次开关时是否重组端口导纳。论文的 10 µs 基准可作为 sanity check：本文模型四段 MRE 应接近 0.81%、1.43%、1.41%、1.55%。[pdf:E07]（物理页 7，Table II）
+4. 若本文模型在 Eq. (16) 预测稳定的区域内，对所有测试开关序列都不发散，且比 modified Euler 在更大的 \(\Delta t\) 范围保持有界，同时端口导纳无需更新，则支持核心 claim。若某个冻结状态都满足 Eq. (16)，但切换序列仍造成能量持续增长或发散，就直接反驳“标量稳定域足以保证开关系统高稳定性”这一关键外推。
 
 ## § 11 — 最强反例设计
 
-最强反例是寻找一组**逐拍都通过 Eq. (16)，但组合后发散**的合法 switching/interconnection。具体做法是枚举三相桥的八种 (k_a,k_b,k_c) modes，得到每个 mode 的 discrete transition matrix；在单个 mode 均稳定的候选中，用 joint spectral radius search 或 adversarial switching 搜索使矩阵乘积范数最大的序列。随后把该序列施加到带被动 RLC network 的 EMT model，并用极小步长 detailed implicit model 作物理 reference。
+最强反例不是再做一个更大的普通负载阶跃，而是构造“每个单独开关状态都落在作者稳定域内，但状态交替后离散能量增长”的 switched-system 反例。具体做法是枚举三相两电平变流器的八个开关组合，分别生成其一步更新矩阵；搜索两到四个状态的周期序列，使每个状态的单步谱半径都小于 1，但周期乘积的谱半径大于 1。随后在论文样机参数附近改变外部 \(LC\) 阻抗和步长，用同一 PWM 序列驱动 detailed reference 与本文模型。[pdf:E03]（物理页 3，Eq. (7)–(16)）
 
-若 proposed model 的 state energy 持续增长，而 detailed reference 保持 bounded，且误差不是由非法 gate combination、physical source injection 或 reference instability 造成，那么“每个 frozen eigenvalue 稳定”就不能推出“switched converter 稳定”。再进一步，把两个各自稳定的 proposed-model converter 通过 weak grid 或 resonant DC link 互联；若 fixed port companions 在特定 resonance 下产生 nonpassive energy，便会挑战其 large-scale composability，而不仅是挑一个误差较大的工况。
-
-这个反例比“换更高 switching frequency”更有力，因为它直接攻击论文稳定性论证从 scalar/frozen condition 到 time-varying interconnected system 的逻辑跳跃。**仍然不确定的猜测：**这样的合法序列是否真的存在，本文证据不能回答；反例设计的价值正在于它可以明确地证伪或增强核心 claim。
+若 detailed reference 保持有界，而本文模型只因更新矩阵切换出现增长，作者的替代解释“故障来自物理系统本身”就被排除；反例会直接说明 Fig. 3 的冻结特征值稳定域不是开关系统的充分条件。若穷举和优化搜索都找不到这种序列，并且还能建立共同能量函数，那么反过来会显著增强论文当前最薄弱的理论环节。这个反例比加入测量噪声更有杀伤力，因为它直接攻击模型声称的核心机制，而不是 DT 平台外围实现。[pdf:E04]（物理页 4，稳定域比较）
 
 ## § 12 — Follow-up Research Idea
 
-**候选研究方向：带 switching-sequence certificate 的可组装 constant-admittance EMT component。相关相邻工作尚未充分检索，因此不声称 novelty 已验证。**
+电力电子与 EMT 方向的高影响工作通常不仅看单一 benchmark 的误差，还看数值稳定性是否可解释、是否能在真实实时硬件上闭合时序，以及方法能否跨工况和拓扑保持工程可实现性。基于第 9 节，一个非增量的候选方向是：把“固定导纳 RTS”重新定义为带稳定证书的 switched companion model，而不是只优化平均误差或稳定域面积。
 
-（a）未满足的需求是：现有结果告诉我们单个 converter 在若干工况下又快又稳，却没有给 system integrator 一个可检查的契约，说明任意 PWM sequence、多个 instances 和外部 passive network 接入后仍不会数值注能。真正面向大规模 RTS/DT 的 component 不仅要 waveform accurate，还应在被任意复制和接线时保持 current-step KCL/KVL closure 与可证明的 energy bound。
-
-（b）这一方向可能产生本领域认可的价值，因为它把“更大 stability plot”提升为可部署的 composability guarantee：每个 converter 暴露固定 low-dimensional port stamp、bounded history source 和 machine-checkable stability/passivity certificate；系统规模扩大时无需重做整机经验验证。它同时对应 TIE/TPEL 关心的 numerical rigor、real-time deadline、FPGA realizability 与 hardware validation，而不是只增加一个应用场景。
-
-（c）可借鉴 switched-systems 的 common Lyapunov/joint spectral radius 工具、networked systems 的 dissipativity/passivity theory，以及 hardware-aware formal verification。目标不是把 (Y) 改成任意 learned/time-varying matrix，而是在保留本文 fixed-(Y)、current-step closure 的前提下，对 history update 施加能量约束，并把 bit width、rounding 和 execution-time bound 一起纳入 certificate。
-
-（d）第一个可证伪实验就是第 11 节的 adversarial switching test：先在两 converter resonant network 上搜索最坏 switching sequence，再比较 proposed update、certificate-constrained update 和 small-step implicit reference。若 certificate 声称安全却仍出现 KCL/KVL residual 累积、energy growth 或 deadline miss，该方向即被证伪；若约束只靠极端保守步长才能成立，也说明工程价值不足。
-
-（e）与本文的实质区别是研究目标从“提出一个在测试中稳定且高效的离散模型”改为“定义并验证一个可独立组装、可复制、对 switching 与 quantization 有明确保证的实时 component contract”。它不是追加一个 estimator 或 controller module，而是改变大规模 EMT 模型被验证和复用的基本单位。是否已有工作同时做到 fixed port admittance、arbitrary-instance interconnection、switching-sequence guarantee 和 FPGA deterministic timing，必须经专门相邻文献检索后才能判断。
+**(a) 未满足需求。** 现在用户只能看到冻结特征值的稳定域，无法在运行前判断给定 PWM、步长、网络阻抗和参数漂移的组合是否安全。  
+**(b) 研究价值。** 若模型能在保持固定导纳和并行性的同时，为实际开关序列给出可在线检查的能量界或失稳预警，它会把“经验上高稳定”变成可部署的实时仿真契约。  
+**(c) 可借鉴工具。** 可以借鉴 hybrid systems 的 joint spectral radius、common Lyapunov function 或电路 passivity 分析，把每个开关状态视为一个离散模式，并对模式切换证明共同收缩或耗散。这里仅是方法候选，不声称已有工作中尚不存在。  
+**(d) 首个证伪实验。** 在八个开关状态及其周期组合上自动搜索最坏序列；若证书判定安全而真实离散轨迹仍发散，或证书为了安全而排除了论文已稳定运行的大部分工况，该方向就失败。  
+**(e) 与本文的实质区别。** 本文优化的是单步公式与端口结构，并用有限工况验证；候选工作把研究目标改为“对切换序列和外部网络给出可机读的稳定契约”，其产物不是又一个更大的稳定域，而是模型能否上线运行的证书与反例生成器。[pdf:E03]（物理页 3，Eq. (16)）[pdf:E04]（物理页 4，Fig. 3–4）[pdf:E08]（物理页 8，FPGA 实时与资源证据）
