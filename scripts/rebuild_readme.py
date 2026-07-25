@@ -112,6 +112,7 @@ def render_readme(cards: list[dict[str, str]]) -> str:
         f"- ChatGPT 网页端索引：{GITHUB_ROOT}",
         "- 下表中的相对链接在本地解析为 Codex 可读路径，在 GitHub 上解析为 ChatGPT 可打开的网页链接。",
         "- 命中 Zotero key、DOI 或论文身份后，优先完整读取精读卡；只有卡片缺少所需事实或需要核对原文位置时才回到源 PDF。",
+        "- AnySearch 与 ai4scholar 只发现候选；已选论文缺少 PDF 时，Agent 将其加入 Zotero 并等待用户手动取得和挂载全文。",
         "",
         "## 检索模式",
         "",
