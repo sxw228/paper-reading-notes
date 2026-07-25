@@ -22,13 +22,14 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（178）
+## 全部精读卡（179）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
 | 2026 | `WGUS4P5R` | [A General FPGA-Based Accelerated Solver for Electromagnetic Transient Simulations](papers/WGUS4P5R-liang-2026-general-fpga-solver.md) | 10.3390/electronics15030606 |
 | 2026 | `6EN6SEVB` | [A Generalized Fixed-Admittance ADC Model for Two-Level Converters in EMT Simulation](papers/6EN6SEVB-cao-2026-generalized-fixed-admittance-adc.md) | — |
 | 2026 | `AUH78FB2` | [Harmonic-Preserved Average-Value Model for Converters in Electromagnetic Transient Simulation](papers/AUH78FB2-cao-2026-harmonic-preserved-avm.md) | — |
+| 2026 | `PXQN7NA7` | [Neural Controlled Differential Equations for EMT-Level Surrogate Modeling of Grid-Forming Inverters](papers/PXQN7NA7-qu-2026-neural-cde-emt-gfm-inverters.md) | 10.48550/arXiv.2607.16258 |
 | 2025 | `YV7C8DG7` | [A Bridge-Arm-Module-Based Fixed-Admittance ADC Model for Converters in EMT Simulation — 中文深度精读](papers/YV7C8DG7-cao-bridge-arm-module-based-fixed-admittance-adc2025.md) | — |
 | 2025 | `9Y7KA9KJ` | [A General Interface-Free Delayed Real-Time Simulation Method with A-Stability for Power Electronic Converters](papers/9Y7KA9KJ-xu-2025-interface-free-delayed-rt-sim.md) | — |
 | 2025 | `RI6H4AE3` | [A Generic Modeling Approach for Dual-Active-Bridge Converter Family via Topology Transferrable Networks](papers/RI6H4AE3-li-2025-generic-modeling-dab-family.md) | 10.1109/TIE.2024.3406858 |
