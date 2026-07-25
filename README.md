@@ -22,7 +22,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（177）
+## 全部精读卡（178）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -33,6 +33,7 @@
 | 2025 | `9Y7KA9KJ` | [A General Interface-Free Delayed Real-Time Simulation Method with A-Stability for Power Electronic Converters](papers/9Y7KA9KJ-xu-2025-interface-free-delayed-rt-sim.md) | — |
 | 2025 | `RI6H4AE3` | [A Generic Modeling Approach for Dual-Active-Bridge Converter Family via Topology Transferrable Networks](papers/RI6H4AE3-li-2025-generic-modeling-dab-family.md) | 10.1109/TIE.2024.3406858 |
 | 2025 | `X98GS3IY` | [A State Variables Elimination-Based EMTP-Type Constant Admittance Equivalent Modeling Method for Power Electronic Converters](papers/X98GS3IY-xu-state-variables-elimination-based2025.md) | — |
+| 2025 | `WIC6Y9WI` | [Data-driven dynamic modeling for inverter-based resources using neural networks](papers/WIC6Y9WI-yang-data-driven-dynamic-modeling2025.md) | 10.1038/s41467-025-66604-z |
 | 2025 | `23XSBNW6` | [Data-Driven Modeling of Modular Multilevel Converters Based on HHT and CNN-LSTM-AM Neural Network](papers/23XSBNW6-data-driven-mmc-hht-cnn-lstm-am.md) | 10.1109/TIE.2024.3433509 |
 | 2025 | `DB48HZNK` | [Electromagnetic Transient Equivalent Modeling and Real-Time Simulation Method for Bidirectional DC/DC Converters](papers/DB48HZNK-xu-2025-bdc-constant-admittance.md) | 10.1109/TIA.2025.3574123 |
 | 2025 | `RN4D47F6` | [Few-Shot Data-Driven Modeling of Unified Grid Tied VSCs for Multioperation Impedance Identification Based on PINN](papers/RN4D47F6-few-shot-unified-vsc-impedance-pinn.md) | 10.1109/TIE.2024.3508059 |
