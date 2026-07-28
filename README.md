@@ -22,7 +22,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（179）
+## 全部精读卡（182）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -204,7 +204,10 @@
 | — | `S2N95R33` | [A Real-Time Simulation Model with Constant Admittance Matrix for Multiple Grid-Connected Converters System](papers/S2N95R33-constant-admittance-multi-converter-rts.md) | — |
 | — | `C5DJZKNP` | [ANN-Aided Data-Driven IGBT Switching Transient Modeling Approach for FPGA-Based Real-Time Simulation of Power Converters](papers/C5DJZKNP-zotero-item-1086.md) | — |
 | — | `MP9ZE98M` | [Heterogeneous Real-Time Co-Emulation for Communication-Enabled Global Control of AC/DC Grid Integrated With Renewable Energy](papers/MP9ZE98M-zotero-item-941.md) | — |
+| — | `5WB6J2JA` | [Modeling Method for DFIG-Based Wind Farm in High-Efficiency Real-Time Electromagnetic Transient (EMT) Simulations](papers/5WB6J2JA-liu-dfig-wind-farm-real-time-emt.md) | — |
+| — | `L43KXQGH` | [Shiwei Xia et al. (2025) — Real-Time Modeling Method for Large-Scale Photovoltaic Power Stations Using Nested Fast and Simultaneous Solution](papers/L43KXQGH-xia-nested-fast-simultaneous-solution.md) | — |
 | — | `E87DFKRD` | [Suppression of Chattering in the Real-Time Simulation of the Power Converter](papers/E87DFKRD-liu-suppression-chattering-real-time.md) | — |
+| — | `GADZUETV` | [Wang et al. 2025：面向并行 EMT 的 state-variable-preserving 建模](papers/GADZUETV-wang-state-variable-preserving-parallel-emt.md) | 10.1049/gtd2.70013 |
 
 ## 维护
 
