@@ -22,7 +22,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（193）
+## 全部精读卡（196）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -40,15 +40,18 @@
 | 2025 | `DB48HZNK` | [Electromagnetic Transient Equivalent Modeling and Real-Time Simulation Method for Bidirectional DC/DC Converters](papers/DB48HZNK-xu-2025-bdc-constant-admittance.md) | 10.1109/TIA.2025.3574123 |
 | 2025 | `RN4D47F6` | [Few-Shot Data-Driven Modeling of Unified Grid Tied VSCs for Multioperation Impedance Identification Based on PINN](papers/RN4D47F6-few-shot-unified-vsc-impedance-pinn.md) | 10.1109/TIE.2024.3508059 |
 | 2025 | `UXCRX7BC` | [FPGA Accelerated Large-Scale State-Space Equations for Multi-Converter Systems](papers/UXCRX7BC-fpga-accelerated-large-scale-state-space-equations.md) | 10.3390/electronics14193966 |
+| 2025 | `WKJURDUK` | [Hardware-in-the-Loop Real-Time Transient Emulation of Large-Scale Renewable Energy Installations Based on Hybrid Machine Learning Modeling](papers/WKJURDUK-chen-2025-hil-hybrid-ml-large-scale-renewables.md) | 10.1109/JESTIE.2024.3434364 |
 | 2025 | `S6VU8IS7` | [Hardware-in-the-Loop Simulation of ANPC Based on Modified Predictor–Corrector Method](papers/S6VU8IS7-hardware-in-the-loop-simulation-of-anpc.md) | 10.3390/sym17122121 |
 | 2025 | `ERGUNQ4T` | [Improving Accuracy of Interpolation Algorithm in EMT Simulation: A Padé Approximation and Switching Theorem Based Approach](papers/ERGUNQ4T-cao-improving-accuracy-interpolation2025.md) | — |
 | 2025 | `WCL8I4BR` | [Low-Dimensional Equivalent Models and Multithreading-Based Parallel EMT Simulation Method for Multi-Converter Systems](papers/WCL8I4BR-xu-2025-low-dimensional-parallel-emt.md) | — |
+| 2025 | `2FFQMMBK` | [Machine-Learning-Reinforced Massively Parallel Transient Simulation for Large-Scale Renewable-Energy-Integrated Power Systems](papers/2FFQMMBK-cheng-2025-ml-reinforced-massively-parallel-transient.md) | 10.1109/TPWRS.2024.3409729 |
 | 2025 | `WK32GRFH` | [MTOF: A Novel FPGA-Based EMT Toolbox in MATLAB](papers/WK32GRFH-ma-2025-mtof-fpga-emt-toolbox.md) | 10.1109/TPWRS.2025.3535841 |
 | 2025 | `I46Z825J` | [Progress and Application of Equivalent Models for Power System Simulation With Renewable Penetration: A Review](papers/I46Z825J-progress-application-equivalent2025.md) | — |
 | 2025 | `AD4UYL5V` | [Scalable and Real-Time Power System Simulation Based on Heterogeneous CPU-FPGA Co-operation](papers/AD4UYL5V-yang-scalable-real-time-power2025.md) | — |
 | 2025 | `5CT7KTF3` | [万兆以太网高带宽低延迟接口的 FPGA 轻量化设计：论文精读](papers/5CT7KTF3-song-2025-10gbe-fpga-interface.md) | — |
 | 2024 | `KSDKQ9U8` | [An Efficient Electromagnetic Transient Modeling Method Based on Unit Division and Parallel Simulation Framework for Large-scale Photovoltaic Power Stations](papers/KSDKQ9U8-xu-efficient-electromagnetic-transient2024.md) | — |
 | 2024 | `64FITWZB` | [Circuit Dynamics Prediction via Graph Neural Network & Graph Framework Integration: Three Phase Inverter Case Study](papers/64FITWZB-khamis-agamy-2024-gnn-three-phase-inverter.md) | — |
+| 2024 | `K7VW84V3` | [Circuit Topology Aware GNN-Based Multi-Variable Model for DC-DC Converters Dynamics Prediction in CCM and DCM](papers/K7VW84V3-khamis-agamy-2024-topology-aware-gnn-converter-dynamics.md) | 10.1007/s00521-024-10293-0 |
 | 2024 | `9E2J63DH` | [FireAxe：面向大规模 RTL 设计的分区式 FPGA 加速仿真](papers/9E2J63DH-whangbo-2024-fireaxe-partitioned-fpga.md) | 10.1109/ISCA59077.2024.00044 |
 | 2024 | `8SJQSIC8` | [Low Cost and Optimized FPGA-HIL Real Time Simulation of a Boost Converter Powered by a Photovoltaic Panel](papers/8SJQSIC8-low-cost-optimized-fpga-hil-pv-boost.md) | 10.1109/TLA.2024.10738270 |
 | 2024 | `VNMA2TC9` | [电力电子换流器无延时解耦并行仿真模型](papers/VNMA2TC9-xu-ming-wang-dian-li-dian-zi-huan-liu-qi-wu-yan-shi-jie-ou-bing-xing-fang-zhen-mo-xing2024.md) | — |
