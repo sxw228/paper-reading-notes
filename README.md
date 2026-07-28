@@ -22,7 +22,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（182）
+## 全部精读卡（189）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -30,6 +30,7 @@
 | 2026 | `6EN6SEVB` | [A Generalized Fixed-Admittance ADC Model for Two-Level Converters in EMT Simulation](papers/6EN6SEVB-cao-2026-generalized-fixed-admittance-adc.md) | — |
 | 2026 | `AUH78FB2` | [Harmonic-Preserved Average-Value Model for Converters in Electromagnetic Transient Simulation](papers/AUH78FB2-cao-2026-harmonic-preserved-avm.md) | — |
 | 2026 | `PXQN7NA7` | [Neural Controlled Differential Equations for EMT-Level Surrogate Modeling of Grid-Forming Inverters](papers/PXQN7NA7-qu-2026-neural-cde-emt-gfm-inverters.md) | 10.48550/arXiv.2607.16258 |
+| 2026 | `IZFCMVP8` | [Real-Time Surrogate Modeling for Fast Transient Prediction in Inverter-Based Microgrids Using CNN and LightGBM](papers/IZFCMVP8-ogiesoba-eguakun-2026-cnn-lightgbm-microgrid-surrogate.md) | — |
 | 2025 | `YV7C8DG7` | [A Bridge-Arm-Module-Based Fixed-Admittance ADC Model for Converters in EMT Simulation — 中文深度精读](papers/YV7C8DG7-cao-bridge-arm-module-based-fixed-admittance-adc2025.md) | — |
 | 2025 | `9Y7KA9KJ` | [A General Interface-Free Delayed Real-Time Simulation Method with A-Stability for Power Electronic Converters](papers/9Y7KA9KJ-xu-2025-interface-free-delayed-rt-sim.md) | — |
 | 2025 | `RI6H4AE3` | [A Generic Modeling Approach for Dual-Active-Bridge Converter Family via Topology Transferrable Networks](papers/RI6H4AE3-li-2025-generic-modeling-dab-family.md) | 10.1109/TIE.2024.3406858 |
@@ -47,6 +48,7 @@
 | 2025 | `AD4UYL5V` | [Scalable and Real-Time Power System Simulation Based on Heterogeneous CPU-FPGA Co-operation](papers/AD4UYL5V-yang-scalable-real-time-power2025.md) | — |
 | 2025 | `5CT7KTF3` | [万兆以太网高带宽低延迟接口的 FPGA 轻量化设计：论文精读](papers/5CT7KTF3-song-2025-10gbe-fpga-interface.md) | — |
 | 2024 | `KSDKQ9U8` | [An Efficient Electromagnetic Transient Modeling Method Based on Unit Division and Parallel Simulation Framework for Large-scale Photovoltaic Power Stations](papers/KSDKQ9U8-xu-efficient-electromagnetic-transient2024.md) | — |
+| 2024 | `64FITWZB` | [Circuit Dynamics Prediction via Graph Neural Network & Graph Framework Integration: Three Phase Inverter Case Study](papers/64FITWZB-khamis-agamy-2024-gnn-three-phase-inverter.md) | — |
 | 2024 | `8SJQSIC8` | [Low Cost and Optimized FPGA-HIL Real Time Simulation of a Boost Converter Powered by a Photovoltaic Panel](papers/8SJQSIC8-low-cost-optimized-fpga-hil-pv-boost.md) | 10.1109/TLA.2024.10738270 |
 | 2024 | `VNMA2TC9` | [电力电子换流器无延时解耦并行仿真模型](papers/VNMA2TC9-xu-ming-wang-dian-li-dian-zi-huan-liu-qi-wu-yan-shi-jie-ou-bing-xing-fang-zhen-mo-xing2024.md) | — |
 | 2023 | `RJNWWZWE` | [A Novel Decoupled EMT Approach and Parallel Simulation Framework for Modularized Solid-State Transformers](papers/RJNWWZWE-feng-novel-decoupled-emt2023.md) | — |
@@ -54,6 +56,7 @@
 | 2023 | `NE5PGQA4` | [An FPGA-Based Hierarchical Parallel Real-Time Simulation Method for Cascaded Solid-State Transformer](papers/NE5PGQA4-li-fpgabased-hierarchical-parallel2023a.md) | — |
 | 2023 | `IIP2G4XE` | [Basics of Electromagnetic Transients: Underlying mathematics](papers/IIP2G4XE-ma-basics-electromagnetic-transients2023.md) | — |
 | 2023 | `UXWRM3U7` | [Comparative Modeling and Analysis of EMT and Phasor RMS Grid-Forming Converters Under Different Power System Dynamics](papers/UXWRM3U7-favuzza-comparative-modeling-analysis2023.md) | — |
+| 2023 | `SWBQS25Q` | [Comprehensive Mapping of Continuous/Switching Circuits in CCM and DCM to Machine Learning Domain Using Homogeneous Graph Neural Networks](papers/SWBQS25Q-khamis-agamy-2023-homogeneous-gnn-circuits.md) | — |
 | 2023 | `CUCXEQHE` | [Detailed Parametric Modeling of AC-DC Converters for EMT Simulators](papers/CUCXEQHE-hosseinian-detailed-parametric-modeling2023a.md) | — |
 | 2023 | `KDH2T488` | [Extended Discrete-State Event-Driven Hardware-in-the-Loop Simulation for Power Electronic Systems Based on Virtual-Time-Ratio Regulation](papers/KDH2T488-zeng-extended-discrete-state-event-driven2023.md) | 10.1109/JESTPE.2023.3266348 |
 | 2023 | `Q5W4UKM2` | [Improved Interpolation Algorithm Accounting for Multiple Switching Actions and Reinitialization](papers/Q5W4UKM2-cao-improved-interpolation-algorithm2023.md) | — |
@@ -64,6 +67,7 @@
 | 2023 | `CKMGIXXY` | [Real-Time HIL Emulation of DRM With Machine Learning Accelerated WBG Device Models](papers/CKMGIXXY-zhang-real-time-hilemulation2023.md) | — |
 | 2023 | `PZAPQ5B3` | [Unified Real-Time Simulation Method for DC/DC Conversion Systems Consisting of Cascaded Dual-Port Submodules](papers/PZAPQ5B3-li-unified-real-time-simulation2023a.md) | — |
 | 2023 | `5EF8STIQ` | [Universal Equivalent Model for Real-Time CPU/FPGA Co-Simulation of Hybrid Cascaded Multilevel Converters](papers/5EF8STIQ-bieber-2023.md) | — |
+| 2023 | `F2HU8FFA` | [从图论到图神经网络：GNN 在电力电子中的机会](papers/F2HU8FFA-li-2023-gnn-opportunities-power-electronics.md) | 10.1109/ACCESS.2023.3345795 |
 | 2023 | `3PWIK7BV` | [基于 FPGA 的电力电子系统电磁暂态实时仿真通用解算器](papers/3PWIK7BV-zhou-bin-ji-yu-fpgade-dian-li-dian-zi-xi-tong-dian-ci-zan-tai-shi-shi-fang-zhen-tong-yong-jie-suan-qi2023.md) | — |
 | 2022 | `G8FRSHQ9` | [A Discrete Small-Step Synthesis Real-Time Simulation Method for Power Converters](papers/G8FRSHQ9-li-discrete-small-step-synthesis2022a.md) | — |
 | 2022 | `NQV723Z7` | [A Review of Recent Best Practices in the Development of Real-Time Power System Simulators from a Simulator Manufacturer’s Perspective](papers/NQV723Z7-sidwall-review-recent-best2022.md) | — |
@@ -153,6 +157,7 @@
 | 2015 | `GAMCUNPR` | [A Network Tearing Technique for FPGA-Based Real-Time Simulation of Power Converters](papers/GAMCUNPR-ould-bachir-network-tearing-technique2015.md) | — |
 | 2015 | `27W8T9ID` | [CPU/FPGA-Based Real-Time Simulation of a Two-Terminal MMC-HVDC System](papers/27W8T9ID-ould-bachir-2015-cpu-fpga-mmc-hvdc.md) | — |
 | 2015 | `G7MWPVIS` | [FPGA-Based Detailed Real-Time Simulation of Power Converters and Electric Machines for EV HIL Applications](papers/G7MWPVIS-herrera-fpgabased-detailed2015.md) | 10.1109/TIA.2014.2350074 |
+| 2015 | `XFCSIJAJ` | [Parallel Scheduling of Task Trees with Limited Memory](papers/XFCSIJAJ-eyraud-dubois-2015-task-trees-limited-memory.md) | — |
 | 2015 | `Z36387C2` | [Real-Time Simulation Technologies for Power Systems Design, Testing, and Analysis](papers/Z36387C2-omarfaruque-real-time-simulation-technologies2015.md) | — |
 | 2015 | `HQ36QJRB` | [The Limitations of Digital Simulation and the Advantages of PHIL Testing in Studying Distributed Generation Provision of Ancillary Services](papers/HQ36QJRB-kotsampopoulos-limitations-digital-simulation2015a.md) | 10.1109/TIE.2015.2414899 |
 | 2014 | `BNFRNR38` | [A General Framework for FPGA-Based Real-Time Emulation of Electrical Machines for HIL Applications](papers/BNFRNR38-tavana-general-framework-fpgabased2014a.md) | — |
@@ -192,11 +197,13 @@
 | 1996 | `RUVP93QN` | [Design, implementation and validation of a real-time digital simulator for protection relay testing](papers/RUVP93QN-kezunovic-design-implementation-validation1996a.md) | 10.1109/61.484012 |
 | 1995 | `2PA879GG` | [Comparison of the ATP version of the EMTP and the NETOMAC program for simulation of HVDC systems](papers/2PA879GG-lehn-comparison-atpversion1995a.md) | 10.1109/61.473344 |
 | 1992 | `DTXXBU2G` | [A real time digital simulator for testing relays](papers/DTXXBU2G-mclaren-real-time-digital1992.md) | 10.1109/61.108909 |
+| 1992 | `TUDTMNXF` | [Highly Parallel Sparse Cholesky Factorization](papers/TUDTMNXF-gilbert-schreiber-1992-highly-parallel-sparse-cholesky.md) | — |
 | 1992 | `X39IQQMX` | [Real-time digital simulator for power system analysis on a hypercube computer](papers/X39IQQMX-taoka-realtime-digital-simulator1992a.md) | 10.1109/59.141680 |
 | 1991 | `QNSJH7TM` | [Power converter simulation module connected to the EMTP](papers/QNSJH7TM-mahseredjian-power-converter-simulation1991.md) | 10.1109/59.76692 |
 | 1990 | `WMRKXT92` | [A Real Time Power System Simulation Laboratory Environment](papers/WMRKXT92-foley-real-time-power1990a.md) | 10.1109/59.99392 |
 | 1989 | `GKDER7DW` | [Real-time digital simulator of the electromagnetic transients of transmission lines with frequency dependence](papers/GKDER7DW-wang-realtime-digital-simulator1989a.md) | 10.1109/61.35654 |
 | 1989 | `B49IQ77A` | [Suppression of Numerical Oscillations in the EMTP](papers/B49IQ77A-marti-suppression-numerical-oscillations1989.md) | 10.1109/59.193849 |
+| 1989 | `U6HIF8TT` | [Task Scheduling for Parallel Sparse Cholesky Factorization](papers/U6HIF8TT-geist-ng-1989-parallel-sparse-cholesky-scheduling.md) | — |
 | 1974 | `BR8MRFK8` | [Computation of Electromagnetic Transients](papers/BR8MRFK8-dommel-computation-electromagnetic-transients1974a.md) | 10.1109/PROC.1974.9550 |
 | 1971 | `CT8HAT9V` | [Nonlinear and Time-Varying Elements in Digital Simulation of Electromagnetic Transients](papers/CT8HAT9V-dommel-nonlinear-time-varying-elements1971.md) | 10.1109/TPAS.1971.292905 |
 | 1969 | `3MTIVAU5` | [Digital Computer Solution of Electromagnetic Transients in Single- and Multiphase Networks](papers/3MTIVAU5-dommel-digital-computer-solution1969.md) | 10.1109/TPAS.1969.292459 |
