@@ -22,7 +22,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（322）
+## 全部精读卡（326）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -41,6 +41,7 @@
 | 2026 | `PXQN7NA7` | [Neural Controlled Differential Equations for EMT-Level Surrogate Modeling of Grid-Forming Inverters](papers/PXQN7NA7-qu-2026-neural-cde-emt-gfm-inverters.md) | 10.48550/arXiv.2607.16258 |
 | 2026 | `WDR7TD5U` | [Neural Surrogate Solver for Efficient Edge Inference of Power Electronic Hybrid Dynamics](papers/WDR7TD5U-zheng-2026-neural-surrogate-solver-efficient-edge-inference.md) | — |
 | 2026 | `NVRUXU44` | [Physics-Embedded Neural ODEs for Sim-to-Real Edge Digital Twins of Hybrid Power Electronics Systems](papers/NVRUXU44-zheng-2026-physics-embedded-neural-odes-sim-real.md) | — |
+| 2026 | `ZJQX2CU8` | [Rake–Compress Riccati Recursions for Parallel Scenario-Tree Model Predictive Control](papers/ZJQX2CU8-sousa-pinto-2026-rake-compress-riccati-recursions.md) | — |
 | 2026 | `IZFCMVP8` | [Real-Time Surrogate Modeling for Fast Transient Prediction in Inverter-Based Microgrids Using CNN and LightGBM](papers/IZFCMVP8-ogiesoba-eguakun-2026-cnn-lightgbm-microgrid-surrogate.md) | — |
 | 2025 | `YV7C8DG7` | [A Bridge-Arm-Module-Based Fixed-Admittance ADC Model for Converters in EMT Simulation — 中文深度精读](papers/YV7C8DG7-cao-bridge-arm-module-based-fixed-admittance-adc2025.md) | — |
 | 2025 | `9Y7KA9KJ` | [A General Interface-Free Delayed Real-Time Simulation Method with A-Stability for Power Electronic Converters](papers/9Y7KA9KJ-xu-2025-interface-free-delayed-rt-sim.md) | — |
@@ -58,6 +59,7 @@
 | 2025 | `B9CEUDKD` | [Electromagnetic Oscillation Stabilizer for Large-Scale Power Electronics-Dominated Power Systems in LTP Framework - Part I: Functional Derivative-Based Measures of Modal Controllability and Observability](papers/B9CEUDKD-du-2025-electromagnetic-oscillation-stabilizer-large-scale-power.md) | — |
 | 2025 | `472N844P` | [Electromagnetic Oscillation Stabilizer for Large-Scale Power Electronics-Dominated Power Systems in LTP Framework–Part II: Generalized Periodic Stabilization Control and Design](papers/472N844P-du-2025-electromagnetic-oscillation-stabilizer-large-scale-power.md) | 10.1109/TPEL.2025.3588607 |
 | 2025 | `DB48HZNK` | [Electromagnetic Transient Equivalent Modeling and Real-Time Simulation Method for Bidirectional DC/DC Converters](papers/DB48HZNK-xu-2025-bdc-constant-admittance.md) | 10.1109/TIA.2025.3574123 |
+| 2025 | `UT6F8MTW` | [Electromagnetic Transient Simulation of Large-Scale Inverter-Based Resources With High-Granularity](papers/UT6F8MTW-choi-2025-high-granularity-ibr-emt-simulation.md) | 10.1109/OAJPE.2025.3615786 |
 | 2025 | `FRBTTI37` | [Evaluation of Pulsed Charging Procedures and Their Impact on Lithium-Ion Battery Lifetime for Electric Vehicle Fast Charging Applications](papers/FRBTTI37-althurthi-2025-pulsed-charging.md) | 10.1109/TTE.2025.3606784 |
 | 2025 | `9MWPSD9R` | [Extended Physics-Informed Neural Networks for Parameter Identification of Switched Mode Power Converters With Undetermined Topological Durations](papers/9MWPSD9R-xiang-2025-extended-pinn.md) | — |
 | 2025 | `2QU5U53K` | [Fast Transient Simulation of System-Level Power Delivery Networks via Parallel Waveform Relaxation](papers/2QU5U53K-moglia-2025-fast-transient-simulation-system-level-power.md) | 10.1109/TCPMT.2024.3410146 |
@@ -220,6 +222,8 @@
 | 2021 | `G4HJD7JE` | [Determination of Optimal Shift Frequency for Shifted Frequency-Based Simulation](papers/G4HJD7JE-gao-2021-determination-of-optimal-shift-frequency-for-shifted-frequency-based.md) | 10.1109/TPWRS.2021.3076829 |
 | 2021 | `Z2ZQDR9T` | [Embedding an Electrical System Real-Time Simulator with Floating-Point Arithmetic in a Field Programmable Gate Array](papers/Z2ZQDR9T-queiroz-2021.md) | — |
 | 2021 | `N9E5UDFK` | [Hardware-in-the-Loop and Digital Control Techniques Applied to Single-Phase PFC Converters](papers/N9E5UDFK-lamo-2021.md) | 10.3390/electronics10131563 |
+| 2021 | `E8QGIU3S` | [Hierarchical Linking-Domain Extraction Decomposition Method for Fast and Parallel Power System Electromagnetic Transient Simulation](papers/E8QGIU3S-duan-2021-hierarchical-linking-domain-extraction.md) | 10.1109/OJIA.2021.3096518 |
+| 2021 | `99CGN9AF` | [Hierarchical Modeling Scheme for High-Speed Electromagnetic Transient Simulations of Power Electronic Transformers](papers/99CGN9AF-feng-2021-hierarchical-modeling-power-electronic-transformers.md) | 10.1109/TPEL.2021.3061421 |
 | 2021 | `C6M2RQVP` | [High-Throughput FPGA Implementation of Matrix Inversion for Control Systems](papers/C6M2RQVP-zhang-2021-high-throughput-fpga-implementation-of-matrix-inversion-for-control-systems.md) | 10.1109/TIE.2020.2994865 |
 | 2021 | `HMTDNJN5` | [Hybrid Average-Value/Detailed Modeling of Line-Commutated AC–DC Converters With Internal Faults For Electromagnetic Transient Simulations](papers/HMTDNJN5-ebrahimi-hybrid-average-value-detailed2021.md) | — |
 | 2021 | `GWCRGVPI` | [Simulation Credibility Assessment Methodology With FPGA-based Hardware-in-the-Loop Platform：中文精读](papers/GWCRGVPI-dai-2021.md) | — |
