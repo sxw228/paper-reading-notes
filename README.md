@@ -22,7 +22,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（326）
+## 全部精读卡（325）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -133,7 +133,6 @@
 | 2023 | `6I9KI3B7` | [An Efficient Half-Bridge MMC Model for EMTP-Type Simulation Based on Hybrid Numerical Integration](papers/6I9KI3B7-gao-efficient-half-bridge-mmc2023.md) | — |
 | 2023 | `NE5PGQA4` | [An FPGA-Based Hierarchical Parallel Real-Time Simulation Method for Cascaded Solid-State Transformer](papers/NE5PGQA4-li-fpgabased-hierarchical-parallel2023a.md) | — |
 | 2023 | `IIP2G4XE` | [Basics of Electromagnetic Transients: Underlying mathematics](papers/IIP2G4XE-ma-basics-electromagnetic-transients2023.md) | — |
-| 2023 | `A94XDBDV` | [Capacitance Minimization and Constraint of CHB Power Electronic Transformer Based on Switching Synchronization Hybrid Phase-Shift Modulation Method of High Frequency Link](papers/A94XDBDV-pan-2023-capacitance-minimization-constraint-chb-power-electronic-transformer-switching.md) | 10.1109/TPEL.2023.3239164 |
 | 2023 | `UXWRM3U7` | [Comparative Modeling and Analysis of EMT and Phasor RMS Grid-Forming Converters Under Different Power System Dynamics](papers/UXWRM3U7-favuzza-comparative-modeling-analysis2023.md) | — |
 | 2023 | `I7PMA3DJ` | [Compensation Method for Parallel and Iterative Real-Time Simulation of Electromagnetic Transients](papers/I7PMA3DJ-bruned-2023-compensation-method-parallel-iterative-real-time-simulation-electromagnetic.md) | — |
 | 2023 | `SWBQS25Q` | [Comprehensive Mapping of Continuous/Switching Circuits in CCM and DCM to Machine Learning Domain Using Homogeneous Graph Neural Networks](papers/SWBQS25Q-khamis-agamy-2023-homogeneous-gnn-circuits.md) | — |
