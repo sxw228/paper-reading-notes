@@ -22,7 +22,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（319）
+## 全部精读卡（322）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -35,6 +35,7 @@
 | 2026 | `XBMXWRW2` | [High-Fidelity Real-Time Simulation of Power Electronics Converters via FPGA-Accelerated Dynamic Connectionist Neural Network](papers/XBMXWRW2-weng-2026-fpga-dynamic-connectivity.md) | — |
 | 2026 | `4XBSVW9U` | [Hybrid Data-Physics-Driven Modeling Method for Real-Time Simulation of Cascaded Power Electronics Systems](papers/4XBSVW9U-gao-2026-hybrid-data-physics-driven-modeling-method.md) | — |
 | 2026 | `6U2FKKJD` | [Hybrid Modeling Approach Combining Analytical and Neural Ordinary Differential Equations for Accelerated Simulation of Grid-Tied Inverter｜论文精读证据卡](papers/6U2FKKJD-liang-2026-hybrid-modeling.md) | — |
+| 2026 | `HQQHEMP5` | [Lotus: A Multi-FPGA Task Dataflow Architecture to Accelerate Cycle-Level Simulation](papers/HQQHEMP5-lotus-multi-fpga-task-dataflow.md) | 10.1109/ISCA66397.2026.00129 |
 | 2026 | `EY822HYI` | [Matrix Low-dimensional Qubit Casting Based Quantum Electromagnetic Transient Network Simulation Program](papers/EY822HYI-lou-2026-matrix-low-dimensional-qubit-casting-quantum.md) | — |
 | 2026 | `GTP6BF5S` | [Multilayer Device-Level Electro-Thermal Real-Time Simulation and Multipurpose HIL Testing of Power Electronics Converters](papers/GTP6BF5S-bai-2026-electro-thermal-rts-hil.md) | — |
 | 2026 | `PXQN7NA7` | [Neural Controlled Differential Equations for EMT-Level Surrogate Modeling of Grid-Forming Inverters](papers/PXQN7NA7-qu-2026-neural-cde-emt-gfm-inverters.md) | 10.48550/arXiv.2607.16258 |
@@ -106,6 +107,7 @@
 | 2024 | `CS6KJKT3` | [Data-Light Physics-Informed Modeling for the Modulation Optimization of a Dual-Active-Bridge Converter](papers/CS6KJKT3-li-2024-data-light-physics-informed-modeling-modulation-optimization-dual.md) | — |
 | 2024 | `T6QUXW9V` | [Deep Learning-Based Equivalent Modelling of Hybrid RES Plant for Efficient, Repetitive Power System Transient Stability Studies](papers/T6QUXW9V-radovanovic-2023-deep-learning-equivalent-modelling-hybrid-res-plant-efficient.md) | 10.1109/TPWRS.2023.3281498 |
 | 2024 | `TU5BENUB` | [Detailed Multi-Domain Modeling and Faster-Than-Real-Time Hardware Emulation of Small Modular Reactor for EMT Studies](papers/TU5BENUB-chen-2024-detailed-multi-domain-modeling-faster-than-real-time.md) | 10.1109/TEC.2024.3375256 |
+| 2024 | `JHNTKSKD` | [DISC: Exploiting Data Parallelism of Non-Stencil Computations on CGRAs via Dynamic Iteration Scheduling](papers/JHNTKSKD-disc-dynamic-iteration-scheduling.md) | 10.1145/3676536.3676734 |
 | 2024 | `9E2J63DH` | [FireAxe：面向大规模 RTL 设计的分区式 FPGA 加速仿真](papers/9E2J63DH-whangbo-2024-fireaxe-partitioned-fpga.md) | 10.1109/ISCA59077.2024.00044 |
 | 2024 | `7BZSU9CP` | [FPGA-Based Implicit–Explicit Real-Time Simulation Solver for Railway Wireless Power Transfer With Nonlinear Magnetic Coupling Components](papers/7BZSU9CP-xu-2024-fpga-implicit-explicit-real-time-simulation-solver-railway.md) | 10.1109/TTE.2023.3332583 |
 | 2024 | `NGZA9TJT` | [FPGA-Based Real-Time Simulation of Five-Phase PMSM System for Fault Tolerant Controller-HIL Applications](papers/NGZA9TJT-bai-2024-fpga-real-time-simulation-five-phase-pmsm-system.md) | 10.1109/TIA.2024.3439490 |
@@ -154,6 +156,7 @@
 | 2023 | `6GGQ3HNF` | [Revisiting Power Systems Time-Domain Simulation Methods and Models](papers/6GGQ3HNF-lara-2023-revisiting-power-systems-time-domain-simulation-methods-and-models.md) | 10.1109/TPWRS.2023.3303291 |
 | 2023 | `8RWZG7SG` | [Sinusoidal Phase Shift Modulation for V2H Operational Mode in Current-Fed Bidirectional Onboard Charger](papers/8RWZG7SG-kumar-2023-sinusoidal-phase-shift-modulation-for-v2h-operational-mode-in-current-fed.md) | 10.1109/TTE.2023.3298819 |
 | 2023 | `ZF6SEKTE` | [Supervisory Control System for a Grid-Connected MVDC Microgrid Based on Z-Source Converters With PV, Battery Storage, Green Hydrogen System and Charging Station of Electric Vehicles](papers/ZF6SEKTE-garcia-trivino-2023-supervisory-control-system-for-a-grid-connected-mvdc-microgrid.md) | — |
+| 2023 | `BJA95GRI` | [Unified Buffer: Compiling Image Processing and Machine Learning Applications to Push-Memory Accelerators](papers/BJA95GRI-unified-buffer-push-memory-accelerators.md) | 10.1145/3572908 |
 | 2023 | `PZAPQ5B3` | [Unified Real-Time Simulation Method for DC/DC Conversion Systems Consisting of Cascaded Dual-Port Submodules](papers/PZAPQ5B3-li-unified-real-time-simulation2023a.md) | — |
 | 2023 | `5EF8STIQ` | [Universal Equivalent Model for Real-Time CPU/FPGA Co-Simulation of Hybrid Cascaded Multilevel Converters](papers/5EF8STIQ-bieber-2023.md) | — |
 | 2023 | `3E2NUM8I` | [Using Dynamic Phasors To Model and Analyze Selective Harmonic Compensated Single-Phase Grid-Forming Inverter Connected to Nonlinear and Resistive Loads](papers/3E2NUM8I-nwaneto-2023-using-dynamic-phasors-to-model-and-analyze-selective-harmonic-compensated.md) | 10.1109/TIA.2023.3282925 |
