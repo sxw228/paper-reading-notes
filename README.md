@@ -22,7 +22,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（316）
+## 全部精读卡（319）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -61,6 +61,7 @@
 | 2025 | `9MWPSD9R` | [Extended Physics-Informed Neural Networks for Parameter Identification of Switched Mode Power Converters With Undetermined Topological Durations](papers/9MWPSD9R-xiang-2025-extended-pinn.md) | — |
 | 2025 | `2QU5U53K` | [Fast Transient Simulation of System-Level Power Delivery Networks via Parallel Waveform Relaxation](papers/2QU5U53K-moglia-2025-fast-transient-simulation-system-level-power.md) | 10.1109/TCPMT.2024.3410146 |
 | 2025 | `RN4D47F6` | [Few-Shot Data-Driven Modeling of Unified Grid Tied VSCs for Multioperation Impedance Identification Based on PINN](papers/RN4D47F6-few-shot-unified-vsc-impedance-pinn.md) | 10.1109/TIE.2024.3508059 |
+| 2025 | `TNWTPJ4C` | [Fine-grained hardware resource optimization and design for FPGA-based real-time simulation of large-scale renewable energy generations](papers/TNWTPJ4C-li-2025-fine-grained-hardware-resource-optimization-fpga.md) | 10.1016/j.ijepes.2025.110754 |
 | 2025 | `UXCRX7BC` | [FPGA Accelerated Large-Scale State-Space Equations for Multi-Converter Systems](papers/UXCRX7BC-fpga-accelerated-large-scale-state-space-equations.md) | 10.3390/electronics14193966 |
 | 2025 | `VU6WQA4S` | [FPGA-Based Real-Time X-in-the-Loop Simulation Testbench for Dynamic Wireless Power Transfer System With Stochastic and Nonlinear Inductance](papers/VU6WQA4S-zheng-2025-fpga-real-time-x-loop-simulation.md) | 10.1109/TTE.2024.3410683 |
 | 2025 | `WKJURDUK` | [Hardware-in-the-Loop Real-Time Transient Emulation of Large-Scale Renewable Energy Installations Based on Hybrid Machine Learning Modeling](papers/WKJURDUK-chen-2025-hil-hybrid-ml-large-scale-renewables.md) | 10.1109/JESTIE.2024.3434364 |
@@ -263,6 +264,7 @@
 | 2018 | `9PFHAKN7` | [Design and Implementation of Real-Time Mpsoc-FPGA-Based Electromagnetic Transient Emulator of CIGRÉ DC Grid for HIL Application](papers/9PFHAKN7-shen-2018.md) | 10.1109/JPETS.2018.2866589 |
 | 2018 | `75JVEBMG` | [Detailed Device-Level Electrothermal Modeling of the Proactive Hybrid HVDC Breaker for Real-Time Hardware-in-the-Loop Simulation of DC Grids](papers/75JVEBMG-lin-detailed-device-level-electrothermal2018a.md) | 10.1109/TPEL.2017.2685423 |
 | 2018 | `IDUSA32I` | [Extendable multirate real-time simulation of active distribution networks based on field programmable gate arrays](papers/IDUSA32I-wang-extendable-multirate-realtime2018.md) | 10.1016/j.apenergy.2018.07.099 |
+| 2018 | `J635WZ8H` | [Graph-Theoretically Optimal Memory Banking for Stencil-Based Computing Kernels](papers/J635WZ8H-escobedo-2018-graph-theoretically-optimal-memory-banking.md) | 10.1145/3174243.3174251 |
 | 2018 | `JKF7XR53` | [High-Speed EMT Modeling of MMCs With Arbitrary Multiport Submodule Structures Using Generalized Norton Equivalents](papers/JKF7XR53-xu-high-speed-emtmodeling2017.md) | 10.1109/TPWRD.2017.2740857 |
 | 2018 | `BFRVBV2Z` | [On the Numerical Accuracy of Electromagnetic Transient Simulation With Power Electronics](papers/BFRVBV2Z-tant-numerical-accuracy-electromagnetic2018.md) | 10.1109/TPWRD.2018.2797259 |
 | 2018 | `KNJRSBSA` | [Real-Time Device-Level Simulation of MMC-Based MVDC Traction Power System on MPSoC](papers/KNJRSBSA-liang-real-time-device-level-simulation2018.md) | 10.1109/TTE.2018.2823059 |
@@ -328,6 +330,7 @@
 | 1992 | `X39IQQMX` | [Real-time digital simulator for power system analysis on a hypercube computer](papers/X39IQQMX-taoka-realtime-digital-simulator1992a.md) | 10.1109/59.141680 |
 | 1991 | `QNSJH7TM` | [Power converter simulation module connected to the EMTP](papers/QNSJH7TM-mahseredjian-power-converter-simulation1991.md) | 10.1109/59.76692 |
 | 1990 | `WMRKXT92` | [A Real Time Power System Simulation Laboratory Environment](papers/WMRKXT92-foley-real-time-power1990a.md) | 10.1109/59.99392 |
+| 1989 | `TI7M8DT3` | [Parallel Tree Contraction Part I: Fundamentals](papers/TI7M8DT3-miller-1989-parallel-tree-contraction-part-1-fundamentals.md) | — |
 | 1989 | `GKDER7DW` | [Real-time digital simulator of the electromagnetic transients of transmission lines with frequency dependence](papers/GKDER7DW-wang-realtime-digital-simulator1989a.md) | 10.1109/61.35654 |
 | 1989 | `B49IQ77A` | [Suppression of Numerical Oscillations in the EMTP](papers/B49IQ77A-marti-suppression-numerical-oscillations1989.md) | 10.1109/59.193849 |
 | 1989 | `U6HIF8TT` | [Task Scheduling for Parallel Sparse Cholesky Factorization](papers/U6HIF8TT-geist-ng-1989-parallel-sparse-cholesky-scheduling.md) | — |
