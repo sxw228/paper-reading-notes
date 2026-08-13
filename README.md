@@ -22,7 +22,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（353）
+## 全部精读卡（371）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -31,6 +31,7 @@
 | 2026 | `6EN6SEVB` | [A Generalized Fixed-Admittance ADC Model for Two-Level Converters in EMT Simulation](papers/6EN6SEVB-cao-2026-generalized-fixed-admittance-adc.md) | — |
 | 2026 | `BDZJXT4T` | [Deep Learning-Based Modeling for Power Converters via Physics-Enhanced Hierarchical Neural Network](papers/BDZJXT4T-shang-2026-physics-enhanced-hierarchical-nn.md) | 10.1109/TPEL.2025.3629881 |
 | 2026 | `SQXA23AX` | [Dissipation-Based Dynamics-Aware Learning Scheme for Transient Stability Analysis of Networked Black-Box Grid-Forming Inverters](papers/SQXA23AX-liu-2026-dissipation-dynamics-aware-learning.md) | — |
+| 2026 | `VUIJ38A8` | [EagerlyElastic: Correct-by-Construction Eager Execution in Dynamically-Scheduled HLS](papers/VUIJ38A8-eagerlyelastic-dynamic-hls.md) | 10.1145/3748173.3779196 |
 | 2026 | `AUH78FB2` | [Harmonic-Preserved Average-Value Model for Converters in Electromagnetic Transient Simulation](papers/AUH78FB2-cao-2026-harmonic-preserved-avm.md) | — |
 | 2026 | `XBMXWRW2` | [High-Fidelity Real-Time Simulation of Power Electronics Converters via FPGA-Accelerated Dynamic Connectionist Neural Network](papers/XBMXWRW2-weng-2026-fpga-dynamic-connectivity.md) | — |
 | 2026 | `4XBSVW9U` | [Hybrid Data-Physics-Driven Modeling Method for Real-Time Simulation of Cascaded Power Electronics Systems](papers/4XBSVW9U-gao-2026-hybrid-data-physics-driven-modeling-method.md) | — |
@@ -48,13 +49,16 @@
 | 2025 | `9Y7KA9KJ` | [A General Interface-Free Delayed Real-Time Simulation Method with A-Stability for Power Electronic Converters](papers/9Y7KA9KJ-xu-2025-interface-free-delayed-rt-sim.md) | — |
 | 2025 | `RI6H4AE3` | [A Generic Modeling Approach for Dual-Active-Bridge Converter Family via Topology Transferrable Networks](papers/RI6H4AE3-li-2025-generic-modeling-dab-family.md) | 10.1109/TIE.2024.3406858 |
 | 2025 | `6AXZCAXB` | [A Hierarchical Multiarea Hybrid Equivalent for Efficient Simulation of Scalable Power Electronics Systems](papers/6AXZCAXB-jin-2025-hierarchical-multiarea-hybrid-equivalent-efficient-simulation.md) | — |
+| 2025 | `5GC6TK97` | [A Large Language Model-Based Framework for Generating Simulation Models of Power Systems](papers/5GC6TK97-llm-power-system-model-generation.md) | 10.1109/GTDAsia60461.2025.11313242 |
 | 2025 | `X98GS3IY` | [A State Variables Elimination-Based EMTP-Type Constant Admittance Equivalent Modeling Method for Power Electronic Converters](papers/X98GS3IY-xu-state-variables-elimination-based2025.md) | — |
 | 2025 | `69CY3T2T` | [An Equivalent Switching Model for FPGA-Based Real-Time Simulation of SiC MOSFET Transient Behaviors in Power Electronic Converters](papers/69CY3T2T-wang-2025-equivalent-switching-model-fpga-real-time.md) | — |
 | 2025 | `HGT3A92C` | [An Extendable High-Voltage Gain Soft-Switching Bidirectional DC–DC Converter With Coupled Inductor](papers/HGT3A92C-yuan-2025-extendable-high-voltage-gain-soft-switching.md) | — |
+| 2025 | `CNK47NVX` | [An LLM-Powered Multi-Agent Framework for Automated Controller Tuning and Calibration](papers/CNK47NVX-llm-controller-tuning.md) | 10.1109/PEAS66638.2025.11403728 |
 | 2025 | `GYR82VTM` | [An Overview of Digital Twin Technology for Power Electronics: State-of-the-Art and Future Trends](papers/GYR82VTM-wu-2025-overview-digital-twin-technology-power-electronics.md) | — |
 | 2025 | `CEGDREBJ` | [Applications of Data-Driven Dynamic Modeling of Power Converters in Power Systems: An Overview](papers/CEGDREBJ-subedi-2025-applications-data-driven-dynamic-modeling-power.md) | — |
 | 2025 | `3PR5MK85` | [Artificial Intelligence Aided Black-Box Modeling of Three-Phase Single-Stage Photovoltaic Inverter Systems](papers/3PR5MK85-men-2025-artificial-intelligence-aided-black-box-modeling.md) | — |
 | 2025 | `QQCDD7ME` | [Automated Translation Validation of a Compiler for Statically Scheduled Accelerators](papers/QQCDD7ME-melchert-2025-translation-validation-static-accelerators.md) | 10.34727/2025/isbn.978-3-85448-084-6_26 |
+| 2025 | `QGBJPJEI` | [CRUSH: A Credit-Based Approach for Functional Unit Sharing in Dynamically Scheduled HLS](papers/QGBJPJEI-crush-dynamic-hls.md) | 10.1145/3669940.3707273 |
 | 2025 | `WIC6Y9WI` | [Data-driven dynamic modeling for inverter-based resources using neural networks](papers/WIC6Y9WI-yang-data-driven-dynamic-modeling2025.md) | 10.1038/s41467-025-66604-z |
 | 2025 | `23XSBNW6` | [Data-Driven Modeling of Modular Multilevel Converters Based on HHT and CNN-LSTM-AM Neural Network](papers/23XSBNW6-data-driven-mmc-hht-cnn-lstm-am.md) | 10.1109/TIE.2024.3433509 |
 | 2025 | `39XCSPF6` | [Data-Enabled Finite State Predictive Control for Power Converters via Adaline Neural Network](papers/39XCSPF6-wu-2025-data-enabled-finite-state-predictive-control.md) | — |
@@ -62,6 +66,7 @@
 | 2025 | `472N844P` | [Electromagnetic Oscillation Stabilizer for Large-Scale Power Electronics-Dominated Power Systems in LTP Framework–Part II: Generalized Periodic Stabilization Control and Design](papers/472N844P-du-2025-electromagnetic-oscillation-stabilizer-large-scale-power.md) | 10.1109/TPEL.2025.3588607 |
 | 2025 | `DB48HZNK` | [Electromagnetic Transient Equivalent Modeling and Real-Time Simulation Method for Bidirectional DC/DC Converters](papers/DB48HZNK-xu-2025-bdc-constant-admittance.md) | 10.1109/TIA.2025.3574123 |
 | 2025 | `UT6F8MTW` | [Electromagnetic Transient Simulation of Large-Scale Inverter-Based Resources With High-Granularity](papers/UT6F8MTW-choi-2025-high-granularity-ibr-emt-simulation.md) | 10.1109/OAJPE.2025.3615786 |
+| 2025 | `C27B3C9T` | [Enhancing LLMs for Power System Simulations: A Feedback-driven Multi-agent Framework](papers/C27B3C9T-feedback-multiagent-power-simulation.md) | 10.1109/tsg.2025.3589114 |
 | 2025 | `FRBTTI37` | [Evaluation of Pulsed Charging Procedures and Their Impact on Lithium-Ion Battery Lifetime for Electric Vehicle Fast Charging Applications](papers/FRBTTI37-althurthi-2025-pulsed-charging.md) | 10.1109/TTE.2025.3606784 |
 | 2025 | `9MWPSD9R` | [Extended Physics-Informed Neural Networks for Parameter Identification of Switched Mode Power Converters With Undetermined Topological Durations](papers/9MWPSD9R-xiang-2025-extended-pinn.md) | — |
 | 2025 | `2QU5U53K` | [Fast Transient Simulation of System-Level Power Delivery Networks via Parallel Waveform Relaxation](papers/2QU5U53K-moglia-2025-fast-transient-simulation-system-level-power.md) | 10.1109/TCPMT.2024.3410146 |
@@ -69,6 +74,7 @@
 | 2025 | `TNWTPJ4C` | [Fine-grained hardware resource optimization and design for FPGA-based real-time simulation of large-scale renewable energy generations](papers/TNWTPJ4C-li-2025-fine-grained-hardware-resource-optimization-fpga.md) | 10.1016/j.ijepes.2025.110754 |
 | 2025 | `UXCRX7BC` | [FPGA Accelerated Large-Scale State-Space Equations for Multi-Converter Systems](papers/UXCRX7BC-fpga-accelerated-large-scale-state-space-equations.md) | 10.3390/electronics14193966 |
 | 2025 | `VU6WQA4S` | [FPGA-Based Real-Time X-in-the-Loop Simulation Testbench for Dynamic Wireless Power Transfer System With Stochastic and Nonlinear Inductance](papers/VU6WQA4S-zheng-2025-fpga-real-time-x-loop-simulation.md) | 10.1109/TTE.2024.3410683 |
+| 2025 | `H3BRQ8XX` | [From Static to Quasi-Dynamic: Reconsidering Scheduling and Memory in SDF Compilers](papers/H3BRQ8XX-quasi-dynamic-sdf-scheduling.md) | 10.1109/SBAC-PADW69789.2025.00012 |
 | 2025 | `WKJURDUK` | [Hardware-in-the-Loop Real-Time Transient Emulation of Large-Scale Renewable Energy Installations Based on Hybrid Machine Learning Modeling](papers/WKJURDUK-chen-2025-hil-hybrid-ml-large-scale-renewables.md) | 10.1109/JESTIE.2024.3434364 |
 | 2025 | `S6VU8IS7` | [Hardware-in-the-Loop Simulation of ANPC Based on Modified Predictor–Corrector Method](papers/S6VU8IS7-hardware-in-the-loop-simulation-of-anpc.md) | 10.3390/sym17122121 |
 | 2025 | `BF67SD5X` | [Hierarchical Control of DC Coupled Fast EV Charging Station](papers/BF67SD5X-sharida-2025-hierarchical-control-dc-coupled-fast-ev.md) | — |
@@ -93,6 +99,7 @@
 | 2025 | `DQQ2BHC4` | [Reconfigurable LLC Resonant Converter for Wide Voltage Range and Reduced Voltage Stress in DC-Connected EV Charging Stations](papers/DQQ2BHC4-zuo-2025-reconfigurable-llc.md) | — |
 | 2025 | `UP2RVZ23` | [Research on Acceleration Methods for Electromagnetic Transient Simulation of Large-scale Photovoltaic Power Plants](papers/UP2RVZ23-large-scale-pv-emt-acceleration.md) | 10.1109/ACFPE67232.2025.11451161 |
 | 2025 | `S3ZJ4442` | [Resilient Control of Networked Microgrids Using Vertical Federated Reinforcement Learning: Designs and Real-Time Test-Bed Validations](papers/S3ZJ4442-mukherjee-2025-resilient-control-networked-microgrids-vertical-federated.md) | — |
+| 2025 | `SUV9VFSH` | [Resource and Phase Awareness for Dynamically Scheduled High-Level Synthesis](papers/SUV9VFSH-resource-phase-aware-hls.md) | 10.1145/3728179.3728194 |
 | 2025 | `AD4UYL5V` | [Scalable and Real-Time Power System Simulation Based on Heterogeneous CPU-FPGA Co-operation](papers/AD4UYL5V-yang-scalable-real-time-power2025.md) | — |
 | 2025 | `TDUBN6HS` | [SkyEgg: Joint Implementation Selection and Scheduling for Hardware Synthesis using E-graphs](papers/TDUBN6HS-skyegg-joint-implementation-scheduling.md) | — |
 | 2025 | `P93T3JQ8` | [Splitting State-Space Method for Converter-Integrated Power Systems EMT Simulations](papers/P93T3JQ8-fu-2025-splitting-state-space-method-converter-integrated.md) | — |
@@ -107,6 +114,7 @@
 | 2024 | `85WBSMAJ` | [A Modified Algorithm for the L/C-based Switch Model of Power Converters in Real-Time Simulation Based on FPGA](papers/85WBSMAJ-wang-2024-modified-algorithm-l-c-switch-model-power-converters.md) | — |
 | 2024 | `QE8CSJG9` | [A Multiport Power Electronic Transformer With MVDC Integration Interface for Multiple DC Units](papers/QE8CSJG9-zhu-2023-multiport-power-electronic-transformer-mvdc-integration-interface-multiple.md) | 10.1109/TIE.2023.3331147 |
 | 2024 | `9ELPM74G` | [A Semi-Implicit Parallel Leapfrog Solver With Half-Step Sampling Technique for FPGA-Based Real-Time HIL Simulation of Power Converters](papers/9ELPM74G-zheng-2024-semi-implicit-parallel-leapfrog-solver-half-step-sampling.md) | — |
+| 2024 | `RMHNNZAK` | [Adaptive Neuron Adjustment for Transient Accuracy Enhancement in FPGA-Based Power Electronics Simulation](papers/RMHNNZAK-adaptive-neuron-fpga-simulation.md) | 10.23919/ICEMS60997.2024.10921361 |
 | 2024 | `2HRFCGK4` | [Admittance-Based Modeling for Electromagnetic Transient and Stability Analysis of Power-Electronic-Based Energy Conversion Systems](papers/2HRFCGK4-vahabzadeh-2024-admittance-modeling-electromagnetic-transient-stability-analysis-power.md) | 10.1109/TEC.2024.3373794 |
 | 2024 | `4HPA7DVH` | [An Admittance-Reshaping Control Method for Improving the Stability of Multi-Parallel Grid-Connected Converters](papers/4HPA7DVH-li-2025-admittance-reshaping.md) | 10.1109/TPEL.2024.3519167 |
 | 2024 | `KSDKQ9U8` | [An Efficient Electromagnetic Transient Modeling Method Based on Unit Division and Parallel Simulation Framework for Large-scale Photovoltaic Power Stations](papers/KSDKQ9U8-xu-efficient-electromagnetic-transient2024.md) | — |
@@ -120,6 +128,7 @@
 | 2024 | `TU5BENUB` | [Detailed Multi-Domain Modeling and Faster-Than-Real-Time Hardware Emulation of Small Modular Reactor for EMT Studies](papers/TU5BENUB-chen-2024-detailed-multi-domain-modeling-faster-than-real-time.md) | 10.1109/TEC.2024.3375256 |
 | 2024 | `JHNTKSKD` | [DISC: Exploiting Data Parallelism of Non-Stencil Computations on CGRAs via Dynamic Iteration Scheduling](papers/JHNTKSKD-disc-dynamic-iteration-scheduling.md) | 10.1145/3676536.3676734 |
 | 2024 | `9E2J63DH` | [FireAxe：面向大规模 RTL 设计的分区式 FPGA 加速仿真](papers/9E2J63DH-whangbo-2024-fireaxe-partitioned-fpga.md) | 10.1109/ISCA59077.2024.00044 |
+| 2024 | `6SS8DG4H` | [FOSS: A Self-Learned Doctor for Query Optimizer](papers/6SS8DG4H-foss-query-optimizer.md) | 10.1109/ICDE60146.2024.00330 |
 | 2024 | `7BZSU9CP` | [FPGA-Based Implicit–Explicit Real-Time Simulation Solver for Railway Wireless Power Transfer With Nonlinear Magnetic Coupling Components](papers/7BZSU9CP-xu-2024-fpga-implicit-explicit-real-time-simulation-solver-railway.md) | 10.1109/TTE.2023.3332583 |
 | 2024 | `NGZA9TJT` | [FPGA-Based Real-Time Simulation of Five-Phase PMSM System for Fault Tolerant Controller-HIL Applications](papers/NGZA9TJT-bai-2024-fpga-real-time-simulation-five-phase-pmsm-system.md) | 10.1109/TIA.2024.3439490 |
 | 2024 | `SEBQTF7G` | [General Linearized Model of Voltage Source Converter With Fixed Nodal Admittance Matrix](papers/SEBQTF7G-zhang-2024-fixed-nodal-admittance.md) | 10.1109/TPEL.2024.3409537 |
@@ -151,6 +160,7 @@
 | 2023 | `KDH2T488` | [Extended Discrete-State Event-Driven Hardware-in-the-Loop Simulation for Power Electronic Systems Based on Virtual-Time-Ratio Regulation](papers/KDH2T488-zeng-extended-discrete-state-event-driven2023.md) | 10.1109/JESTPE.2023.3266348 |
 | 2023 | `F5D8K2X9` | [Fast DC Charging Infrastructures for Electric Vehicles: Overview of Technologies, Standards, and Challenges](papers/F5D8K2X9-franzese-2023-fast-dc-charging-infrastructures-electric-vehicles-overview-technologies.md) | 10.1109/TTE.2023.3239224 |
 | 2023 | `IH3ZEJ96` | [Harmonic State-Space Modeling and Closed-Loop Control of Single-Stage High-Frequency Isolated DC–AC Converter](papers/IH3ZEJ96-wang-2023-harmonic-state-space-modeling-closed-loop-control-single.md) | 10.1109/TIE.2023.3281682 |
+| 2023 | `6JSNDWH8` | [HGBO-DSE: Hierarchical GNN and Bayesian Optimization based HLS Design Space Exploration](papers/6JSNDWH8-hgbo-dse-hls.md) | 10.1109/ICFPT59805.2023.00017 |
 | 2023 | `KMA5XUKW` | [Impedance Reshaping Method of DFIG System Based on Compensating Rotor Current Dynamic to Eliminate PLL Influence](papers/KMA5XUKW-xiong-2023-impedance-reshaping-method-dfig-system-compensating-rotor-current.md) | 10.1109/TPEL.2023.3346042 |
 | 2023 | `Q5W4UKM2` | [Improved Interpolation Algorithm Accounting for Multiple Switching Actions and Reinitialization](papers/Q5W4UKM2-cao-improved-interpolation-algorithm2023.md) | — |
 | 2023 | `ZFMDNBXF` | [Manticore：用 Static Bulk-Synchronous Parallelism 加速 RTL 仿真](papers/ZFMDNBXF-emami-2023-manticore-static-bsp.md) | — |
@@ -167,7 +177,9 @@
 | 2023 | `6GGQ3HNF` | [Revisiting Power Systems Time-Domain Simulation Methods and Models](papers/6GGQ3HNF-lara-2023-revisiting-power-systems-time-domain-simulation-methods-and-models.md) | 10.1109/TPWRS.2023.3303291 |
 | 2023 | `NIXIUIRE` | [SEER: Super-Optimization Explorer for HLS using E-graph Rewriting with MLIR](papers/NIXIUIRE-seer-egraph-hls.md) | 10.1145/3620665.3640392 |
 | 2023 | `8RWZG7SG` | [Sinusoidal Phase Shift Modulation for V2H Operational Mode in Current-Fed Bidirectional Onboard Charger](papers/8RWZG7SG-kumar-2023-sinusoidal-phase-shift-modulation-for-v2h-operational-mode-in-current-fed.md) | 10.1109/TTE.2023.3298819 |
+| 2023 | `CHDX75V7` | [Streaming Task Graph Scheduling for Dataflow Architectures](papers/CHDX75V7-streaming-task-graph-scheduling.md) | 10.1145/3588195.3592999 |
 | 2023 | `ZF6SEKTE` | [Supervisory Control System for a Grid-Connected MVDC Microgrid Based on Z-Source Converters With PV, Battery Storage, Green Hydrogen System and Charging Station of Electric Vehicles](papers/ZF6SEKTE-garcia-trivino-2023-supervisory-control-system-for-a-grid-connected-mvdc-microgrid.md) | — |
+| 2023 | `ITT9T857` | [System Identification–Based Adaptive Real-Time Simulators for Power Electronic Converters—Application to Three-Phase and NPC Inverters](papers/ITT9T857-system-identification-adaptive-erts.md) | 10.3390/electronics12051094 |
 | 2023 | `BJA95GRI` | [Unified Buffer: Compiling Image Processing and Machine Learning Applications to Push-Memory Accelerators](papers/BJA95GRI-unified-buffer-push-memory-accelerators.md) | 10.1145/3572908 |
 | 2023 | `PZAPQ5B3` | [Unified Real-Time Simulation Method for DC/DC Conversion Systems Consisting of Cascaded Dual-Port Submodules](papers/PZAPQ5B3-li-unified-real-time-simulation2023a.md) | — |
 | 2023 | `5EF8STIQ` | [Universal Equivalent Model for Real-Time CPU/FPGA Co-Simulation of Hybrid Cascaded Multilevel Converters](papers/5EF8STIQ-bieber-2023.md) | — |
@@ -183,6 +195,7 @@
 | 2022 | `BWKRWMKH` | [A Novel Resilient Control of Grid-Integrated Solar PV-Hybrid Energy Storage Microgrid for Power Smoothing and Pulse Power Load Accommodation](papers/BWKRWMKH-behera-2022-a-novel-resilient-control-of-grid-integrated-solar-pv-hybrid-energy.md) | 10.1109/TPEL.2022.3217144 |
 | 2022 | `NQV723Z7` | [A Review of Recent Best Practices in the Development of Real-Time Power System Simulators from a Simulator Manufacturer’s Perspective](papers/NQV723Z7-sidwall-review-recent-best2022.md) | — |
 | 2022 | `4CJFU6DG` | [A Topology-Reconfigurable LLC Resonant Converter for Wide Output Range Applications](papers/4CJFU6DG-li-2022-a-topology-reconfigurable-llc-resonant-converter-for-wide-output-range.md) | 10.1109/TVT.2022.3178712 |
+| 2022 | `4S8IV8HT` | [An Artificial Neural Network-Based System-Level Modeling of Power Converters for Real-Time Simulation](papers/4S8IV8HT-ann-power-converter-realtime.md) | 10.1109/SPIES55999.2022.10082098 |
 | 2022 | `BPS56KS3` | [An Event-Driven Parallel Acceleration Real-Time Simulation for Power Electronic Systems Without Simulation Distortion in Circuit Partitioning](papers/BPS56KS3-zheng-event-driven-parallel-acceleration2022a.md) | — |
 | 2022 | `9JJGN3GT` | [An Event-Driven Real-Time Simulation for Power Electronics Systems Based on Discrete Hybrid Time-Step Algorithm](papers/9JJGN3GT-zheng-event-driven-real-time-simulation2022.md) | — |
 | 2022 | `VV9VXZU2` | [An Isolated Multilevel DC–DC Converter Topology With Hybrid Resonant Switching for EV Fast Charging Application](papers/VV9VXZU2-rathore-2022-an-isolated-multilevel-dc-dc-converter-topology-with-hybrid-resonant.md) | 10.1109/TIA.2022.3168504 |
@@ -191,12 +204,16 @@
 | 2022 | `APUJJSHA` | [Average-Value Model for Voltage-Source Converters With Direct Interfacing in EMTP-Type Solution](papers/APUJJSHA-ebrahimi-average-value-model-voltage-source2022a.md) | — |
 | 2022 | `BUWCJ43B` | [ChordMap: Automated Mapping of Streaming Applications Onto CGRA](papers/BUWCJ43B-chordmap-streaming-cgra.md) | 10.1109/TCAD.2021.3058313 |
 | 2022 | `M3DQ26J6` | [Closed-Loop Interconnected Model of Multi-Inverter-Paralleled System and Its Application to Impact Assessment of Interactions on Damping Characteristics](papers/M3DQ26J6-liao-2022-closed-loop-interconnected-model-of-multi-inverter-paralleled-system-and-its.md) | 10.1109/TSG.2022.3194148 |
+| 2022 | `9XPKVH4Z` | [DASS: Combining Dynamic & Static Scheduling in High-Level Synthesis](papers/9XPKVH4Z-dass-dynamic-static-hls.md) | 10.1109/TCAD.2021.3065902 |
 | 2022 | `FU4FCKQE` | [Design and Implementation of a Reconfigurable Phase Shift Full-Bridge Converter for Wide Voltage Range EV Charging Application](papers/FU4FCKQE-lyu-2022-design-and-implementation-of-a-reconfigurable-phase-shift-full-bridge.md) | 10.1109/TTE.2022.3176826 |
 | 2022 | `3W3VNJJR` | [Direct Interfacing of Parametric Average-Value Models of AC–DC Converters for Nodal Analysis-Based Solution](papers/3W3VNJJR-ebrahimi-direct-interfacing-parametric2022.md) | 10.1109/TEC.2022.3177131 |
 | 2022 | `6DT5727A` | [Embedded Fully FPGA-Based Real-Time Simulators for Static Power Converters With Power Switch Characteristics Approximated by Identification](papers/6DT5727A-idkhajine-2022-embedded-fully-fpga-based-real-time-simulators-for-static-power.md) | 10.1109/TIE.2021.3112999 |
 | 2022 | `ZJ8B7MGM` | [Fast Simulation Model of Voltage Source Converters With Arbitrary Topology Using Switch-State Prediction](papers/ZJ8B7MGM-gao-2022-fast-simulation-model-of-voltage-source-converters-with-arbitrary-topology.md) | 10.1109/TPEL.2022.3176687 |
 | 2022 | `93K77JMM` | [Feasibility Study of Neural ODE and DAE Modules for Power System Dynamic Component Modeling](papers/93K77JMM-xiao-2022-feasibility-study-of-neural-ode-and-dae-modules-for-power-system-dynamic.md) | 10.1109/tpwrs.2022.3194570 |
+| 2022 | `QFHAXC9H` | [From C/C++ Code to High-Performance Dataflow Circuits](papers/QFHAXC9H-dynamic-dataflow-hls.md) | 10.1109/TCAD.2021.3105574 |
+| 2022 | `CV2X2APN` | [Graph Neural Networks for High-Level Synthesis Design Space Exploration](papers/CV2X2APN-gnn-hls-dse.md) | 10.1145/3570925 |
 | 2022 | `4D3SE52Z` | [Hardware-in-the-Loop Simulations: A Historical Overview of Engineering Challenges](papers/4D3SE52Z-mihalic-hardwareinthe-loop-simulations-historical2022a.md) | 10.3390/electronics11152462 |
+| 2022 | `DTKJJEP8` | [HDagg: Hybrid Aggregation of Loop-carried Dependence Iterations in Sparse Matrix Computations](papers/DTKJJEP8-hdagg-sparse-dag-aggregation.md) | 10.1109/IPDPS53621.2022.00121 |
 | 2022 | `HR69NSK4` | [Hybrid Parallel-in-Time-and-Space Transient Stability Simulation of Large-Scale AC/DC Grids](papers/HR69NSK4-cheng-2022-hybrid-parallel-in-time-and-space-transient-stability-simulation-of-large.md) | 10.1109/TPWRS.2022.3153450 |
 | 2022 | `QKH3U798` | [In-Depth Design and Multiobjective Optimization of an Integrated Transformer for Five-Phase LLC Resonant Converters](papers/QKH3U798-wang-2022-in-depth-design-and-multiobjective-optimization-of-an-integrated-transformer.md) | 10.1109/TPEL.2022.3187465 |
 | 2022 | `W6P6QMUV` | [Intelligent EV Charging for Urban Prosumer Communities: An Auction and Multi-Agent Deep Reinforcement Learning Approach](papers/W6P6QMUV-zou-2022-intelligent-ev-charging-for-urban-prosumer-communities-an-auction-and-multi.md) | 10.1109/TNSM.2022.3160210 |
@@ -239,6 +256,7 @@
 | 2021 | `C6M2RQVP` | [High-Throughput FPGA Implementation of Matrix Inversion for Control Systems](papers/C6M2RQVP-zhang-2021-high-throughput-fpga-implementation-of-matrix-inversion-for-control-systems.md) | 10.1109/TIE.2020.2994865 |
 | 2021 | `HMTDNJN5` | [Hybrid Average-Value/Detailed Modeling of Line-Commutated AC–DC Converters With Internal Faults For Electromagnetic Transient Simulations](papers/HMTDNJN5-ebrahimi-hybrid-average-value-detailed2021.md) | — |
 | 2021 | `KM5UI4TW` | [Hyper-optimized tensor network contraction](papers/KM5UI4TW-hyperoptimized-tensor-network-contraction.md) | 10.22331/q-2021-03-15-410 |
+| 2021 | `ED5BJCGQ` | [Pure Tensor Program Rewriting via Access Patterns (Representation Pearl)](papers/ED5BJCGQ-glenside-access-patterns.md) | 10.1145/3460945.3464953 |
 | 2021 | `GWCRGVPI` | [Simulation Credibility Assessment Methodology With FPGA-based Hardware-in-the-Loop Platform：中文精读](papers/GWCRGVPI-dai-2021.md) | — |
 | 2021 | `ZPWPBDZZ` | [The Impact of Time Delays for Power Hardware-in-the-Loop Investigations](papers/ZPWPBDZZ-ihrens-impact-time-delays2021.md) | 10.3390/en14113154 |
 | 2021 | `PVZ8FUEY` | [一种面向实时仿真的两电平 VSC 建模方法](papers/PVZ8FUEY-lin-chang-yi-zhong-mian-xiang-shi-shi-fang-zhen-de-liang-dian-ping-vscjian-mo-fang-fa2021.md) | — |
