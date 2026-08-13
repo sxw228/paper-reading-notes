@@ -22,7 +22,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（371）
+## 全部精读卡（375）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -228,6 +228,7 @@
 | 2022 | `R6RA22XZ` | [Research on Harmonic State-Space Modeling and Calculation Analysis of Low-Switching-Frequency Grid-Connected Inverter Considering the Impact of Digitization](papers/R6RA22XZ-cai-2022-research-on-harmonic-state-space-modeling-and-calculation-analysis-of-low.md) | 10.1109/TPEL.2022.3201626 |
 | 2022 | `IWAB26RM` | [Scalable Many-Core Algorithms for Tridiagonal Solvers](papers/IWAB26RM-balogh-2022-scalable-many-core-tridiagonal.md) | — |
 | 2022 | `M786E779` | [Simulation of Switched-Mode Power Conversion Circuits With Extended Impedance Method](papers/M786E779-liu-2022-simulation-of-switched-mode-power-conversion-circuits-with-extended-impedance.md) | 10.1109/TCSI.2022.3178447 |
+| 2022 | `FTNRHE5S` | [Sketch-Guided Equality Saturation: Scaling Equality Saturation to Complex Optimizations of Functional Programs](papers/FTNRHE5S-sketch-guided-equality-saturation.md) | — |
 | 2022 | `6EBZEVAX` | [State-Feedback Reshaping Control of Voltage Source Converter](papers/6EBZEVAX-cecati-2022-state-feedback-reshaping-control-of-voltage-source-converter.md) | 10.1109/TPEL.2022.3191428 |
 | 2022 | `F494RRVH` | [Truncation Number Selection of Harmonic State-Space Model Based on the Floquet Characteristic Exponent](papers/F494RRVH-zhu-2022-truncation-number-selection-of-harmonic-state-space-model-based-on-the.md) | 10.1109/TIE.2022.3172780 |
 | 2022 | `UV322KHI` | [Wide Voltage Input Full Bridge(FB)/Half Bridge(HB) Morphing-Based LLC DC–DC Converter Using Numerical Optimal Trajectory Control](papers/UV322KHI-sha-2022-wide-voltage-input-full-bridge-fb-half-bridge-hb-morphing-based-llc-dc-dc.md) | 10.1109/TIE.2022.3177810 |
@@ -250,6 +251,7 @@
 | 2021 | `ZZ7QBXK3` | [Current-Source Solid-State DC Transformer Integrating LVDC Microgrid, Energy Storage, and Renewable Energy Into MVDC Grid](papers/ZZ7QBXK3-zheng-2021-current-source-solid-state-dc-transformer-integrating-lvdc-microgrid-energy.md) | 10.1109/TPEL.2021.3101482 |
 | 2021 | `G4HJD7JE` | [Determination of Optimal Shift Frequency for Shifted Frequency-Based Simulation](papers/G4HJD7JE-gao-2021-determination-of-optimal-shift-frequency-for-shifted-frequency-based.md) | 10.1109/TPWRS.2021.3076829 |
 | 2021 | `Z2ZQDR9T` | [Embedding an Electrical System Real-Time Simulator with Floating-Point Arithmetic in a Field Programmable Gate Array](papers/Z2ZQDR9T-queiroz-2021.md) | — |
+| 2021 | `9I789BDQ` | [Equality Saturation for Tensor Graph Superoptimization](papers/9I789BDQ-tensat-tensor-graph-superoptimization.md) | — |
 | 2021 | `N9E5UDFK` | [Hardware-in-the-Loop and Digital Control Techniques Applied to Single-Phase PFC Converters](papers/N9E5UDFK-lamo-2021.md) | 10.3390/electronics10131563 |
 | 2021 | `E8QGIU3S` | [Hierarchical Linking-Domain Extraction Decomposition Method for Fast and Parallel Power System Electromagnetic Transient Simulation](papers/E8QGIU3S-duan-2021-hierarchical-linking-domain-extraction.md) | 10.1109/OJIA.2021.3096518 |
 | 2021 | `99CGN9AF` | [Hierarchical Modeling Scheme for High-Speed Electromagnetic Transient Simulations of Power Electronic Transformers](papers/99CGN9AF-feng-2021-hierarchical-modeling-power-electronic-transformers.md) | 10.1109/TPEL.2021.3061421 |
@@ -279,6 +281,7 @@
 | 2020 | `YRXGNX4M` | [Real-Time Simulation of Power Electronic Systems Based on Predictive Behavior](papers/YRXGNX4M-liu-real-time-simulation-power2020.md) | — |
 | 2020 | `65GH88NM` | [Real-Time Simulation-Based Testing of Modern Energy Systems: A Review and Discussion](papers/65GH88NM-benigni-real-time-simulation-based-testing2020a.md) | — |
 | 2020 | `C6WAFSRS` | [Review of Real-time Simulation of Power Electronics](papers/C6WAFSRS-li-review-realtime-simulation2020.md) | — |
+| 2020 | `RSKIIMX9` | [SPORES: Sum-Product Optimization via Relational Equality Saturation for Large Scale Linear Algebra](papers/RSKIIMX9-spores-relational-equality-saturation.md) | 10.14778/3407790.3407799 |
 | 2020 | `8CFI93TR` | [Stability Evaluation of Interpolation, Extrapolation, and Numerical Oscillation Damping Methods Applied in EMT Simulation of Power Networks With Switching Transients](papers/8CFI93TR-zhao-stability-evaluation-interpolation2020.md) | — |
 | 2020 | `48FKD8EU` | [Use of efficient task allocation algorithm for parallel real-time EMT simulation](papers/48FKD8EU-bruned-use-efficient-task2020b.md) | — |
 | 2019 | `P2SAJ8VM` | [A Fast and Stable Method for Modeling Generalized Nonlinearities in Power Electronic Circuit Simulation and Its Real-Time Implementation](papers/P2SAJ8VM-huang-fast-stable-method2018.md) | 10.1109/TPEL.2018.2851570 |
@@ -391,6 +394,7 @@
 | — | `5WB6J2JA` | [Modeling Method for DFIG-Based Wind Farm in High-Efficiency Real-Time Electromagnetic Transient (EMT) Simulations](papers/5WB6J2JA-liu-dfig-wind-farm-real-time-emt.md) | — |
 | — | `BI74IUG2` | [ProGraML: A Graph-based Program Representation for Data Flow Analysis and Compiler Optimizations](papers/BI74IUG2-programl-program-representation.md) | — |
 | — | `ED383DFP` | [Resource Dependency-Aware Scheduling for High-Level Synthesis with GNN and SDC](papers/ED383DFP-resource-dependency-hls-scheduling.md) | — |
+| — | `P7MZXQQI` | [Rewrite Rule Inference Using Equality Saturation](papers/P7MZXQQI-ruler-rewrite-rule-inference.md) | — |
 | — | `ARHCXPXV` | [Scaling Program Synthesis Based Technology Mapping with Equality Saturation](papers/ARHCXPXV-scaling-technology-mapping-equality-saturation.md) | — |
 | — | `L43KXQGH` | [Shiwei Xia et al. (2025) — Real-Time Modeling Method for Large-Scale Photovoltaic Power Stations Using Nested Fast and Simultaneous Solution](papers/L43KXQGH-xia-nested-fast-simultaneous-solution.md) | — |
 | — | `3CDPDF8K` | [Succinct Structure Representations for Efficient Query Optimization](papers/3CDPDF8K-succinct-query-optimization.md) | — |
