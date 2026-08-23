@@ -132,10 +132,16 @@
 
 若 Balance 在这一条件下仍保持更低 deadline-miss probability，且通信代价没有主导关键路径，那么这个反例就失败，论文机制会得到更强支持。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-在实时 EMT 与 HIL 领域，高影响工作通常不仅要求平均加速，还要求可复现的 deadline 保证、跨工况数值可信度、真实硬件验证和对失败边界的量化。基于第 9 节，候选研究方向是把静态 TAP 改写成**面向尾部风险的 robust real-time mapping**：不再用单个估计值 \(t_i\) 和弱 LIR 代表任务负载，而是学习或在线更新每类任务在不同 EMT 事件下的执行时间分布及相关性，把目标改为在拓扑相关通信延迟下最小化 deadline-miss 的高分位风险。
+**研究押注：把 task separation 与 task mapping 合成一个硬件感知的 EMT 计算图生成问题。** 新问题不再是“给定一个 Source Graph，怎样把任务放到处理器上”，而是：对于同一个物理 EMT 网络，能否从多种可接受的分解方式中同时选择任务边界、任务粒度与处理器位置，使计算图主动贴合异构机器的通信层级？它要实现的新能力，是在分配之前就重塑可执行 task graph，让同一网络针对单 socket、多 chassis 或 CPU–FPGA target 形成不同但数值等价的计算拓扑，而不是被一个预先固定的 SG 锁死。
 
-（a）驱动需求是：一次罕见但相关的计算 burst 就足以破坏 HIL 的确定性，平均负载均衡不能给出可信保证。（b）研究价值在于把“映射看起来均衡”提升为“在给定风险水平下可说明为什么不会超时”，并可直接连接保护测试的可审计性。（c）可借鉴 robust optimization、chance-constrained scheduling 和 real-time systems 的 worst-case/measurement-based execution-time 工具。（d）第一个证伪实验就是在同构与异构 target 上注入可控的独立/相关执行时间误差，对比原始 Balance、Quality 与 robust mapping 的 99.9% 执行时间和 deadline-miss probability；若 robust 方法在相同核数下没有稳定降低尾部超时，它的核心价值即被否定。（e）它与本文的实质区别不是再加一种 Scotch 参数组合，而是把问题目标从“静态估计上的 LIR–CC 折中”改为“事件条件下的概率 deadline 保证”。
+核心因果机制是把论文分开的两步变成一次联合选择。本文先用有传播时延的线路、Compensation/MATE、Hybrid formulation 或 Node Tearing 产生任务，随后才把固定 SG 映射到 TG；Scotch 的 multilevel RB 虽会 coarsen 图，却不会改变 EMT 的原始任务边界。[pdf:E02]（PDF 物理页 2，§2.1–§2.2）；[pdf:E05]（PDF 物理页 3，§3.1.1）这个 bet 把这些可接受的分解操作表示为“计算图 rewrite”：每个 rewrite 带有计算量、边界数据和依赖方向，再与 TG 的分层链路代价共同优化。于是，任务边界移动或粒度合并会改变哪些依赖跨越 socket、blade 或 chassis，联合映射再把重通信子图留在短路径上；因果链是“选择分解方式 → 改变 task graph 的边与粒度 → 改变依赖落到硬件路径上的位置 → 缩短一个 EMT 步的计算—通信关键路径”。论文的目标 \(\sum_i w_i|\rho_i|\) 已经把 SG 边和 TG 路径联系起来，[pdf:E03]（PDF 物理页 2，Eq. 1）而 UV100 实验又实际区分 inter-core、inter-socket、inter-blade 与 inter-chassis 代价，并显示同一任务图的映射质量会随硬件层级而变。[pdf:E04]（PDF 物理页 3，Table 1 及架构说明）
 
-这是基于本文局限形成的候选想法；本次没有对外部相关工作做充分检索，因此不声称 novelty。
+至少三个基本设计变量由此成为一等对象：一是允许采用哪些 EMT 分解 rewrite 及其任务边界；二是生成后的任务粒度与数量；三是任务到 TG 顶点及 CPU/FPGA 接口的联合位置。论文的 HIL 对象本身已混合 CPU 计算、FPGA valve model、I/O 和真实控制器任务，[pdf:E12]（PDF 物理页 7，Fig. 6–7）但该案例的 inter-processor communication 几乎可以忽略，详细策略分析也限定在 homogeneous architecture，因此尚未用它检验“分解方式是否应随硬件而变”。[pdf:E14]（PDF 物理页 7，Fig. 8–9 及其后正文）成功后的最大收益不是把既有映射再调好一点，而是得到一个从物理网络直接生成 hardware-specific task graph 与 placement 的 EMT compiler：在相同处理器数与数值模型下容纳更大网络，或把固定步长继续压小。最大的科学风险是这些分解 rewrite 实际可移动的边界太少，或者新增的耦合求解、边界数据与 FPGA/CPU 交互抵消了 locality 收益；那样联合问题虽更复杂，却没有创造新的规模—步长区域。
+
+最小区分实验可在一个含线路分解与代数分解候选的 35-bus 派生小网中完成。先生成 3–5 个保持相同物理模型和输出容差的 task graph，并对每个图在同一双 socket target 上求 exact allocation；比较“固定分解后最优映射”与“从整组分解中联合选择图和映射”。处理器数、kernel 实现、时间步与总模型规模保持不变，同时设置真实的非均匀链路代价和打乱层级标签的对照 TG。测量一个仿真步的关键路径、跨 socket 数据量和在 40 μs 内可承载的网络复制数。若联合方案只在真实 TG 上获益，且优势随被重新安置的重边增加而增长，就支持“计算图—硬件路径对齐”机制；若打乱 TG 后优势仍相同，或优势完全由任务数减少解释，则更强的替代解释是普通粒度缩减或负载均衡，而不是联合分解机制。
+
+相对本文及其 related-work 边界，这个 bet 在四处发生实质变化：problem 从固定 SG 的 allocation 变为可接受 EMT 分解族的联合生成与 placement；mechanism 从 RB 搜索一个图的 partition 变为 separation rewrite 与硬件路径的共同选择；representation 从单一加权 SG/TG 对变为“等价计算图族 + 分层 TG”；experimental object 从 homogeneous mapping benchmark 和通信近乎可忽略的单个 HIL，变为能暴露跨 socket、跨 chassis 或 CPU–FPGA 路径差异的异构对象。本次未检索外部全文，尤其没有覆盖 2020 年后的联合图生成或 compiler 研究，因此以上只是论文驱动的候选判断，不声称 novelty。
+
+**Wild-card alternative：** 以论文 35-bus 实例的 exact Pareto front 只有四个离散解、heuristic 又系统偏向 LIR 的交叉现象为对象，[pdf:E11]（PDF 物理页 6，Fig. 5 与正文）构造保持任务数和总计算量不变、但连续改变 task-weight/edge-weight correlation 与 community mixing coefficient 的 EMT task-graph ensemble，寻找 LIR–CC Pareto 点集从稀疏到密集的结构相变，并预测何时 Quality、Balance 与 Specific 的排序会反转。

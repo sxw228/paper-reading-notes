@@ -109,16 +109,18 @@ barrier 尾延迟在这里是首要风险：一次 step 的完成时间等于所
 
 对多卡 EMT，进一步把随机暂停换成真实链路抖动与一次 solver non-convergence。若为了零 deadline miss 必须把每步 barrier budget 提高到最坏卡时延，导致可支持模型规模低于普通动态 barrier；或若任一卡慢一次就让所有卡错过实时步长，则 static BSP 的“无 runtime overhead”不能转化为 hard real-time 收益。这里挑战的是确定性 deadline，而不只是平均仿真速率。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-**候选方向：把 static BSP 从“固定完成时刻”改造成“可证明 deadline 的分层时间触发 EMT 执行模型”。不声称 novelty；尚未对 real-time co-simulation、time-triggered network、PDES 与多 FPGA EMT 的相关工作做充分检索。**
+**主押注：把“一次只推进一个 Vcycle”改成跨多个 RTL cycle 的静态 space-time wavefront。** 新研究问题是：single-clock RTL 的同步语义是否真的要求“本轮所有 next state 全部算完，下一轮任何计算才能开始”，还是可以只服从每个值自己的跨周期因果依赖，编译出多个逻辑周期同时在途的确定性 modulo schedule？若成立，它将首次使单个 stimulus 在 per-cycle DAG 已经很窄或被 straggler 卡住时，仍能从跨周期并行中获得吞吐，而不依赖复制独立 stimulus。
 
-（a）未满足需求是：多卡 EMT 需要在几十微秒级步长内完成求解与跨卡端口交换，但真实链路和事件负载具有长尾；完全动态 barrier 难以给 hard deadline，完全静态 sleep 又会被最坏情况拖垮。
+核心机制是先把 transition DAG 展开为 \(K\) 层 space-time dependence graph，并给每条边标出其 cycle distance；编译器再联合选择节点的 core、phase 与 route。某个 \(t+1\) 消费者只要它实际依赖的 \(t\) 状态已经产生，就进入静态时刻表，不再等待同一 \(t\) 中与它无关的 sinks。轮转的 versioned register banks 防止后继周期覆盖仍在使用的状态，phase-tagged Send 则让 buffer-less NoC 在编译期把不同逻辑周期的消息排进同一张周期表，最后按 RTL cycle 顺序暴露 architectural state。因果链是：去掉语义并不要求的全局相位边界 → 把原来填给较短分区的 sleep/NOp 空洞装入后继周期的合法工作 → 让多个 cycle 重叠 → 将稳态 initiation interval 压到低于整轮 VCPL。基本设计变量至少包括展开深度 \(K\)、modulo initiation interval、跨周期 cut/retiming 位置、寄存器版本数，以及 NoC phase-slot 分配；这些变量共同决定可开发的 temporal parallelism 与新增状态/通信成本。
 
-（b）潜在研究价值不在“把 Manticore 用到 EMT”，而在给出一个可验收的实时语义：每个 partition 有离线计算预算和通信 slot，正常 step 走无仲裁的 fast path；开关事件、solver iteration 或链路抖动触发有界 recovery epoch。系统必须同时证明数值结果与集中式 reference 的误差边界、零 deadline miss 的运行区间，以及失效时的 fail-safe 行为。
+论文特异依据来自两侧。结构上，Manticore 当前把 netlist 拆成每个 sink 产生一个 next value 的 DAG，Send 虽与计算交错，目的寄存器却统一延迟到 Vcycle 末尾更新，所有 core 再靠编译器写入的 sleep 同时回到下一轮；appendix 里的 `EPILOGUE_LENGTH` 与 `SLEEP_LENGTH` 也把“每轮收齐消息再统一跳回”固化进 binary layout。[pdf:E02](_evidence/E02-p002-rtl-dag-contributions.png) [pdf:E04](_evidence/E04-p004-core-noc-architecture.png) [pdf:E15](_evidence/E15-p015-runtime-lockstep.png) 实验上，Fig. 7 显示扩核最终受 workload 内在依赖限制，jpeg 的强顺序依赖使 225-core Manticore 只获得很小的并行改善；Fig. 9 又显示即使 communication-aware partitioning 大幅减少 Send，straggler 中仍保留 compute、Send 与 NOp 的组合，而 Fig. 10 的 custom functions 虽减少总指令，端到端 VCPL 改善仍全部低于 10%。[pdf:E09](_evidence/E09-p009-performance-table.png) [pdf:E11](_evidence/E11-p010-communication-aware-partitioning.png) [pdf:E12](_evidence/E12-p011-custom-compile-cost-limits.png) 这些结果支持“真正该改变的对象可能是整轮 critical path，而非继续缩短每个 core 的局部指令流”这一候选推断，但并未证明 benchmark 中一定存在足够的跨周期 slack。
 
-（c）可借鉴的相邻工具是 time-triggered Ethernet/TSN 的 gate control list、real-time scheduling 的 response-time analysis、PDES 的 conservative lookahead，以及 Manticore 的 communication-aware partitioning 与 VCPL 概念。需要把 VCPL 改写成 worst-case step response：本地 solver WCET、序列化、链路 worst-case delay、clock skew、recovery budget 和最大 straggler，而不是平均指令数。
+最大收益是得到一种新的 RTL 模拟编译抽象：性能上限不再只由单个 Vcycle 的最长分区决定，而由带 cycle-distance 约束的 recurrence initiation interval 决定，从而可能让单 stimulus 的深流水、局部反馈电路在数百核饱和后继续扩展。最大的科学风险也正来自 recurrence：许多 RTL 的真实 loop-carried dependence 可能已经把最小 initiation interval 锁在当前 VCPL，尤其 jpeg 的 Huffman lookup 也许是不可跨越的串行链；此外，版本化状态与跨 phase 的 NoC 占用可能吃掉全部重叠收益。若如此，这个 bet 会揭示 barrier slack 只是表象，而非尚未开发的并行性。
 
-（d）第一个证伪实验是 4 卡 EMT 原型上运行包含高频开关事件、参数不平衡和链路 burst jitter 的网络，目标步长 50 μs，持续 \(10^8\) steps。若任何合法工况需要无界 recovery，或为了零 miss 配置的静态裕量使可模拟规模/精度不优于单卡或普通 barrier，方向即被证伪。
+最小区分实验不需要先改 FPGA。对 jpeg、rv32r、noc 和一个可调 loop-carried distance 的合成 RTL，使用同一 ISA/NoC cycle model、同一 core 数、同一 \(K\) 和相同 node-duplication budget，生成三种 schedule：原始 one-Vcycle static BSP；展开 \(K\) 层但保留每层全局边界的 schedule，用来控制“更大优化窗口/更好 partitioning”这一替代解释；以及带 versioned registers 和 phase-tagged messages 的 modulo wavefront。逐 cycle 与 netlist interpreter 比对全部 architectural state，并测量稳态 initiation interval、同时在途 cycle 数、每条 link 占用和新增指令/状态。只有第三种在状态完全一致、总工作量与路由预算相当时显著缩短 initiation interval，而且收益随可测的 cross-cycle slack 增长，才支持“跨周期因果重叠”这个核心机制；若第二种同样获益，改进应归因于更大的优化窗口，若三者相当，则主押注被证伪。
 
-（e）它与 Manticore 的实质区别是：Manticore在一个可统一冻结的确定性 FPGA clock domain 内用 compile-time sleep 取代 runtime barrier，并以吞吐为主要指标；候选系统面对不能统一停钟的多卡物理网络，研究目标是带异常包络的 deadline guarantee。论文结论证明了确定性硬件与静态调度能释放细粒度 RTL 并行，但没有证明跨设备 jitter 下的 hard real-time 性质。[pdf:E14](_evidence/E14-p013-conclusion.png)
+与论文中最接近的路线相比，这不是给 Manticore 加一个调度模块：在 **problem** 上，它从压低单个 Vcycle 内的同步成本转向寻找单 stimulus 的跨周期吞吐；在 **mechanism** 上，它从末尾统一收消息和 sleep 对齐转向带时间距离约束的静态 modulo execution；在 **representation** 上，它从 current/next 构成的一层 DAG 转向带版本的多层 recurrence graph；在 **experimental object** 上，它研究按 loop-carried dependence distance 与 cross-cycle slack 分层的 RTL，而不是按单轮指令数或独立 stimuli 数分组。尚未对 modulo scheduling、temporal parallel RTL simulation 与 hardware emulation 的外部相关工作做全文检索，因此这里只把它称为候选研究判断，不声称 novelty。
+
+**Wild-card alternative：**放弃统一 core 模板，按 partition 的 state footprint 共同生成 scratchpad-free compute cores 与 SRAM-rich state cores，以两类 core 的比例、scratchpad 容量/位置和 state-process placement 为设计变量，用资源异构而不是跨周期重叠突破 grid 容量上限。

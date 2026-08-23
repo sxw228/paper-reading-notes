@@ -219,20 +219,24 @@ y_{\mathrm{RRMSE}}=
 
 为了避免把反例做成不公平的域外攻击，应分两层：先在论文默认的固定 \(R_g,V_g\) 下，只改变可实现的 parasitic/history；若已经失败，说明连默认 gate 条件下的状态也不充分。再改变 \(R_g\) 或 drive voltage，测试论文主动忽略的变量。作者已把适用范围限制为无复杂寄生振荡的器件，因此第二层若失败是确认边界；第一层若失败才是更强的核心反证。[pdf:E12]
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-在 FPGA real-time EMT 领域，高影响工作通常不仅要给更低的平均误差，还要同时满足：可解释的数值/物理边界、可综合且有时序资源证据的硬件实现、跨器件与拓扑验证，以及能和真实测量闭合的工程价值。基于第 9 节，候选方向不是给现有网络再加一层，而是把问题从“由三个稳态数回放一条确定波形”改写为：
+**主 bet：用内禀换流相位替代绝对 time-node，生成工况相关长度的开关轨迹。**
 
-**面向事件的、带最小隐状态与不确定性输出的器件端口 surrogate。**
+**新问题与首次新能力。** 本文把每条波形固定为开通 150 个、关断 500 个 5 ns 节点，并让第 \(j\) 个网络拟合所有工况在同一物理时刻的输出。[pdf:E03] [pdf:E04] 候选研究问题是：这些节点中段之所以难拟合，主要是器件物理本身更复杂，还是因为不同工况的换流进度不同，却被同一个绝对时刻强行切成一张数据截面？若后者占主导，就不再学习 650 组“时刻 \(\rightarrow\) 输出”的系数，而为开通、关断各学习一条以单调换流相位 \(\phi\in[0,1]\) 参数化的条件轨迹 \([v_{ce},i_c]=h_\theta(\phi,V_{ce},I_c,T)\)，再学习相位速度 \(\dot\phi=s_\psi(\phi,V_{ce},I_c,T)\)。相对于本文的固定 \(N\) 序列，这将首次使该模型在同一 5 ns 硬件节拍下产生**工况相关的瞬态持续时间**，而不必为每个绝对时间节点保存一套独立系数。
 
-**(a) 未满足需求。** 实际开关瞬态依赖不可由 \(V_{ce},I_c,T\) 唯一表示的 history 与 parasitic；系统级模型又不可能把全部器件内部状态都传给 5 ns 模型。需要找到一个可在线更新、足够小、又能区分“同一端口量但不同未来”的 latent state，并在状态不足时输出可信区间而非伪精确单波形。本文对输入的约束和对复杂寄生的排除给出了直接动机。[pdf:E03] [pdf:E12]
+**核心因果机制。** 论文自己指出，Fig. 7 的第 170 节点近似线性，而第 267 节点呈强非线性，原因是同一物理时刻下有些工况仍处于瞬态初期、另一些已经接近稳态；也就是说，绝对时间切片把不同换流阶段混在了一起。[pdf:E06] 这会形成“工况改变换流速度 → 固定节点横切到不同阶段 → 跨工况映射弯折 → 中段需要更多 hidden neuron”的因果链。DNAS 的 Fig. 9–10 确实把初期空闲神经元预借给后续复杂节点，并在 BRAM 中保存预计算结果，说明硬件容量当前是在补偿这种时间局部复杂度。[pdf:E07] 新机制反过来先用单调 time warping 对齐同一物理进度，再用共享的 \(h_\theta\) 描述轨迹几何，由 \(s_\psi\) 单独描述“走得多快”；若相位假设成立，原来第 267 节点的混合分布应被展开为更平滑的条件曲面，容量峰值会从表示层消失，而不是被更多神经元吸收。
 
-**(b) 研究价值。** 若能证明一个低维 latent state 可由开关前若干系统样本与 gate command 在线估计，并在 Kintex-class FPGA 上保持 5 ns 吞吐，那么贡献会改变 device/system interface：器件模型不再只是静态条件查表，而成为有状态、可验证适用域的实时端口模型。它同时服务 HIL 可信度、保护极值、switching loss 和 EMI 风险，而不是只降低平均 RRMSE。
+**改变的基本设计变量。** 第一，状态表示从离散的 absolute time-node index 改为连续的事件相位 \(\phi\) 与相位速度；第二，硬件映射从 650 个变系数节点网络、`index1/index2` 调度表和 storage BRAM，改为相位累加器加开通/关断共享的 phase-conditioned evaluator；第三，训练数据的组织从 Eq. (4) 的“同一物理时刻横跨 9225 个工况”改为“同一换流进度横跨工况”，相位只允许用单调映射并由开关沿与稳态端点锚定，避免任意重排波形。[pdf:E04] [pdf:E07] 在线仍以 200 MHz pipeline 输出，不把连续相位变成软件侧可变步长求解器；论文 Eq. (5)–(7) 已证明时间依赖可经重排获得每 5 ns 一个输出，这为相位累加与共享 evaluator 的固定 initiation interval 提供了结构起点，而不是性能结论。[pdf:E04] [pdf:E05]
 
-**(c) 可借鉴方法。** 可从 nonlinear state-space identification、subspace identification 与 reduced-order modeling 借用“最小可观测状态”思想；从 set-membership 或 conformal prediction 借用训练域外不确定性；从 passivity-preserving macromodel 借用端口能量约束。硬件上仍可沿用本文的 time-node pipeline 与 BRAM schedule，而不是引入不可控的大型 recurrent network。[pdf:E05] [pdf:E07]
+**论文证据为何值得押注。** Fig. 11 中，DNAS 在不增加硬件 neuron unit 的前提下，把开通 \(v_{ce}\) 与关断 \(i_c\) 的“小于 1%”工况占比分别从 80.83% 提到 96.65%、从 38.01% 提到 62.92%，但另外两类波形改善较小。[pdf:E07] [pdf:E08] 这说明误差瓶颈确实集中于部分时间区域和输出通道，却尚未证明瓶颈来自“需要更多函数容量”还是“坐标没有对齐”。本文又用 650 个时间节点网络、逐节点 BRAM 权重和 32-cycle startup latency 实现 5 ns 输出，给出了可以被新表示直接挑战的具体 architecture，而不是一个泛化的压缩愿望。[pdf:E08] [pdf:E09]
 
-**(d) 第一个证伪实验。** 使用第 11 节的 matched-\(V_{ce},I_c,T\)、different-history double-pulse dataset。比较三元输入基线与带 latent state 的模型：若后者不能在完全未见的 parasitic/history 组合上同时降低两组波形的 worst-case peak、energy 和 RRMSE，或若其 FPGA initiation interval 无法维持 5 ns，则这个方向立即失败，不应继续扩大模型。
+**最大收益与最大科学风险。** 最大收益不是再把汇总 RRMSE 降一点，而是发现一个新的尺度律：开关 surrogate 的主要复杂度可能由“轨迹形状的自由度”与“沿轨迹的速度自由度”决定，而不是与物理采样节点数成正比。若成立，同一套共享 evaluator 可以在不复制逐节点权重的情况下表达不同持续时间，并把 BRAM 消耗与 150/500 这两个固定长度解耦。最大的科学风险是 IGBT 瞬态并不存在单一、单调的一维进度坐标：overshoot、reverse recovery、tail current 或复杂寄生振荡可能使轨迹分叉、自交，两个物理状态拥有同一 \(\phi,V_{ce},I_c,T\) 却需要不同输出。论文结论只把方法定位于“不表现出复杂寄生振荡”的器件，正说明这一风险可能是结构性的；一旦发生，phase alignment 会抹掉真实自由度，不能靠更精细的 warping 挽救。[pdf:E12]
 
-**(e) 与现有工作的实质区别。** 本文及其最接近的 per-time-node FNN 把瞬态视为由当前 operating condition 决定的确定序列；候选方向把“输入状态是否足够”本身变成研究对象，并允许模型在不可辨识时表达不确定性。它改变了问题定义和验证标准，而不是换器件、换拓扑或再加一个 accuracy module。
+**区分机制与替代解释的最小实验。** 只用论文的 9225 个固定 \(R_g,V_g\) 工况，按完整 operating condition 划分 train/test，避免引入新的物理变量。比较三组具有相同 DSP 上限、相同输出网络容量和相同 5 ns 采样的模型：A 为本文 3-neuron connectionist model 加 DNAS；B 为以归一化绝对时间 \(t/N\) 为输入的共享网络；C 为上述 \(s_\psi+h_\theta\) phase model。相位映射只能由训练波形学习，测试工况只输入 \(V_{ce},I_c,T\)。除了四类波形的 RRMSE、peak、switching-energy 和持续时间误差，还要测量对齐前后每个坐标切片达到同一 MSE 所需的 neuron 数，并综合三者的 DSP、BRAM 与 200 MHz initiation interval。只有 C 相对 B 明显压平 Fig. 7/9 所示的中段容量峰值，并在 held-out 工况上同时保持波形与持续时间，才支持“相位错位是核心机制”；若 B 同样有效，收益来自共享参数而非内禀相位；若随机打乱训练所得相位后结果不变，phase mechanism 也被直接反驳。[pdf:E06] [pdf:E07]
 
-这是**基于本文证据的候选想法**，尚未对 state-space device surrogate、uncertainty-aware HIL 或 passivity-constrained neural macromodel 做系统相关工作检索，因此不声称 novelty。最先要做的是上述可证伪的 matched-state experiment，而不是先写更复杂的网络。
+**与本文及其最近对照的实质区别。** 在本文给出的比较口径内，Li 等 [26] 为每个 time node 建独立 FNN，本文则用相邻节点 feedback 和跨时间预计算提高固定节点序列的表达效率；两者的问题都是“在给定绝对节点预测波形值”。[pdf:E02] [pdf:E04] 本 bet 的 problem 是识别并生成工况相关的换流进度；mechanism 是把轨迹几何与相位速度分解；representation 是连续 \(\phi\) 而非 \(Y_j\) 节点表；experimental object 则从最终波形误差和资源数扩展为“对齐后数据几何是否降维、容量峰值是否消失、持续时间规律能否外推”。这不是在原网络外加模块：删掉相位动力学，工况相关长度这一基本能力就不再存在。
+
+**Wild-card：** 把 experimental object 从单个 IGBT 的独立序列改为整个 commutation cell 的联合端口轨迹，让上下管、反并联二极管与共享支路的电荷转移共同生成事件波形；它改变的是物理拓扑和系统边界，设计变量是耦合器件集合与共享支路状态，与主 bet 的时间表示机制不同。
+
+这是**基于本文 method、Fig. 7、Fig. 9–11 与 FPGA architecture 的候选判断**；本节没有进行外部全文检索，对 event-phase switch modeling 是否已有等价工作不声称 novelty。

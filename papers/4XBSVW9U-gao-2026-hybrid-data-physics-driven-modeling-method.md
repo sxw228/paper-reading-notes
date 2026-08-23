@@ -187,16 +187,18 @@ HDPD 的核心价值是把“难以手工推导但局部可辨识”的模块与
 
 这个反例之所以有力，是因为它不否定 Eq. (3) 的代数正确性，也不要求更复杂神经网络；它只要求作者的核心自动化步骤在论文自己的充分性条件下仍可能失败。若实验反而显示所有近秩亏数据都能产生一致且稳定的 \(T\)，那会显著加强论文目前缺少的稳健性证据。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-**候选想法：从“点估计 transition matrix”改成“带可组合稳定证书的 transition-operator uncertainty set”。** 这是基于本文限制提出的候选方向；本卡未做充分相关工作检索，不声称 novelty。
+**主 bet：从“读取内部状态后辨识 \(T\)”推进到“仅凭端口实验生成可组合 behavioral state”。** 新问题是：在模块拓扑、器件参数、储能状态 \(x\) 以及二极管和 piecewise-linear 内部区段都不可见时，能否只用外加端口激励、端口电压电流和可施加的门极命令，生成仍可按串并联物理关系拼接的 EMT 模块？若成立，它将首次把一个真实的 opaque power module 直接变成可复用的实时仿真积木：不先建立同拓扑 Simulink detailed model，也不把整个级联系统交给 end-to-end neural network。本文明确指出，现有 \(T\) 生成依赖可测的 \(x\)，完全 black-box 时只剩更复杂且可能产生 time-domain bias 的 neural route；因此这里是改变建模对象和可获得信息，而不是给现有 HDPD 加一个 wrapper。[pdf:E03][pdf:E13]
 
-**（a）未满足的需求。** 真实数字孪生或 HIL 任务中，参数会随温度、老化和工况漂移，离线激励也不保证每个开关组合条件良好。本文在参数改变时需要重新生成 \(T\)，完全黑盒时则无法使用内部状态；这使一次性 point estimate 难以承担长期、可审计的实时仿真。[pdf:E13]
+**核心机制与基本设计变量。** 对同一模块依次接入多组含独立源的 Thévenin/Norton 外部电路，用跨幅值、跨频带且跨源阻抗的主动端口实验，使不同内部储能状态在一段端口历史中留下可分辨的响应。再从长度为 \(H\) 的 \([u,y]\) 历史学习低维 behavioral state \(z\) 和 latent hybrid mode \(q\)，由 selection-conditioned operator 推进 \(z\)，同时把当前端口映射显式写成与 Eq. (14) 同型的 hybrid-parameter relation。这样，主动激励先提高内部行为的 port observability，history embedding 再把不可见的 \(x\) 替换为可递推的 \(z\)，显式端口关系最后允许 Eq. (18) 的串联电压求和、并联电流求和继续承担系统组合，而不是让网络学习模块数量和连接方式。[pdf:E04][pdf:E06][pdf:E08] 至少三个基本设计变量随之被打开：history horizon \(H\) 与 latent dimension \(r\) 决定状态表示，外部源阻抗集合及激励频谱决定数据生成方式，I-type/V-type 端口划分决定可组合的输入输出方向。删除 behavioral state 后，同一瞬时端口值无法区分不同内部储能状态，black-box 可组合建模这一基本能力也随之消失。
 
-**（b）潜在研究价值。** 电力电子 EMT 领域认可的不只是更低平均误差，还包括固定步长实时性、极端暂态稳定、资源上界和工程可复现性。若每个模块输出的不再只是一个 \(T\)，而是一个由数据残差、singular values 和物理约束共同限定的矩阵集合，并能在系统组合后给出误差与稳定性上界，就能把“经验上与 DM 波形接近”提升为“在已声明数据覆盖域内可证伪、可组合”。这会改变研究目标，而不只是增加一个预测网络。
+**为什么这篇论文值得押。** 方法侧，Eq. (13) 已把模块行为拆成“由历史状态形成的源项”和“当前端口输入乘以 \(T_{ee}\)”；这给出了用端口历史替换内部 \(x\)、但保留物理端口骨架的直接结构线索。Fig. 5 又表明，外部电路不是无关的数据采集附件，而是决定端口关系能否被辨识的主动实验变量。[pdf:E04][pdf:E06] 实验侧，Fig. 19 和 Table VI 显示同一局部算子生成流程已跨 Boost 与 two-level VSC 工作，报告的最大相对误差分别为 1.13% 和 2.24%，生成总耗时分别为 2.05 s 和 3.30 s；Table V 与 Fig. 18 则说明“小型局部算子加物理组合”在特定 Kintex-7 上可扩展到 52 个 CHB-DAB 模块。[pdf:E07][pdf:E11][pdf:E12] 这些结果没有证明 port-only latent state 可行，却给它设定了两个论文特异的硬目标：跨拓扑生成不能退化成漫长训练，组合后也不能丢掉 250 ns 级执行和紧凑的 per-module mapping。
 
-**（c）可借鉴的方法。** 可结合 optimal experiment design 提升各 selection-signal 组的 persistent excitation（持续激励，即让回归变量覆盖足够多的独立方向），借鉴 subspace/system identification 给出置信区域，再用 passivity、dissipativity 或 port-Hamiltonian 约束排除会凭空产生能量的 \(T\)。FPGA 侧不需要在线求复杂优化；可以离线得到少量 certified matrices 或区间界，在线仍保持索引和小矩阵乘法。
+**收益、科学风险与最小判别实验。** 最大收益不是多省一点建模人工，而是建立“实物端口实验 → opaque module operator → 未见级联结构”的新模型生产链，使厂商封装模块或缺失内部参数的装置也能进入可扩展 EMT/HIL。最大科学风险是 switched system 的内部状态在有限端口历史下根本不可观，或者 latent mode 在未见外部阻抗下不唯一；此时单模块 one-step error 仍可很小，但递推与级联会把错误的历史源放大，而且 \(H\) 与 \(r\) 增大还可能吃掉论文的 FPGA 资源优势。
 
-**（d）第一个证伪实验。** 对同一模块系统性改变激励条件数、参数漂移幅度和外部阻抗，比较原始 least-squares \(T\)、带物理约束的 point estimate、uncertainty-set 方法。若新方法不能在相同 time-step 和相近 DSP/BRAM 预算下，更早识别不可信组合，或不能显著降低 held-out 长滚动中的最坏误差与能量违例，它就不值得继续。论文的平台与 250 ns、52 模块资源基线提供了明确的成本参照。[pdf:E07][pdf:E11]
+最小实验直接隐藏论文 CHB-DAB detailed model 的 \(x\) 和内部 mode labels，只保留端口量与外部门极命令；用两组主动 Thévenin/Norton 电路采集训练数据，并专门构造若干“瞬时 \((u,y)\) 相同、内部储能状态不同”的成对初值。用完全相同的数据、history length 和参数预算比较三者：本文可读取 \(x\) 的 \(T\) 作为 oracle 上界，所提 behavioral-state hybrid operator，以及一个不保留显式端口结构的 direct recurrent predictor。测试只放在未见源阻抗以及训练中未出现的三模块 ISOP 组合上，测量成对初值未来轨迹的可分辨性、长滚动端口误差、跨模块接口守恒和 FPGA cycle/DSP/BRAM 成本。若两个 learned models 都能拟合单步训练数据，但只有 behavioral operator 能区分成对未来并迁移到未见级联，才支持“可观 behavioral state 加物理端口组合”这条因果机制；若 direct recurrent predictor 同样迁移，收益更可能来自较长 history，而非所提 representation；若二者都不能区分成对未来，则该 bet 被有限端口可观性直接反驳。
 
-**（e）与本文建议的实质区别。** 本文对频繁参数变化的建议是预生成多个参数下的 \(T\) 数据，再训练 neural network 预测新参数对应的矩阵；这个建议仍把目标定义为“更快给出一个新的点矩阵”。候选方向把目标改成“知道何时矩阵不可辨识，并保证模块级误差在级联系统中不会无界放大”，重点是证书、拒绝机制和可组合稳定性，而非单纯提高参数插值速度。[pdf:E13]
+**与本文及其所述 data-driven EMT 路线的实质区别。** 在 problem 上，本文问“怎样从可运行且状态可读的离线模块自动生成 \(T\)”，这里问“怎样从 opaque module 的端口实验得到可拼接的动态对象”；在 mechanism 上，本文按已知 \(x,u,y,s\) 分组做 least squares，这里用主动多阻抗实验形成可观历史，再共同辨识连续 latent state、hidden mode 与显式端口映射；在 representation 上，本文保存物理状态 \(x\) 驱动的离散矩阵表，本文提到的 black-box neural route 则直接学习输入输出，这里保存可递推的 behavioral state \(z\) 和可进入 Eq. (18) 的 hybrid port operator；在 experimental object 上，本文比较来自同一 Simulink 语义的 DM/EM 和既定 SST，新的验收对象是没有内部标签的模块、未见外部网络以及训练时未出现的级联规模。以上是从本文证据推出的候选判断；本卡没有检索外部相关全文，因此不声称 novelty。[pdf:E08][pdf:E10][pdf:E13]
+
+**Wild-card：** 把各 selection state 下、绑定固定 \(\Delta t\) 的 \(T\) 改写为可跨时间尺度 lifting 的局部 transition semigroup，以每个模块的步长 \(\Delta t_j\) 和共同端口交换周期 \(H_s\) 为设计变量，检验异步多速率级联系统能否在不同 FPGA clock domains 上直接组合，而不把全系统锁定到论文的 250 ns 最小步长。[pdf:E03][pdf:E09][pdf:E10]

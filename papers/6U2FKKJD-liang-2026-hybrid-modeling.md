@@ -163,16 +163,26 @@ I_o=\frac{3}{2}\frac{V_{gd}I_{2d}+V_{gq}I_{2q}}{V_{dc}}
 
 为了让碰撞更贴近真实电网，可在预激励中加入 negative-sequence voltage、phase jump、frequency ramp 和 harmonic distortion，使 \(V_{gq}\neq0\) 或 PLL 暂态偏离。评价时不只看平均 rRMSE，而要画出 feature-space 最近邻之间的 derivative disagreement；若 disagreement 超过 reference numerical error，失败原因就是 hidden-state aliasing，而不是网络容量不足。这个反例一旦成立，会直接挑战“只用当前六个量即可把 fast subsystem coarse-step 化”的核心机制。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-**候选方向：学习“可验证的最小动态端口”，而不是固定 feature 的 current-derivative surrogate。** 由于本卡没有完成该方向的系统相关工作检索，下面不声称 novelty。
+**主 bet：把 fast subsystem 重写为“相位锁定的一周期返回算子”，学习一个 switching cycle 如何把可见端口的短窗状态推到下一周期。** 本卡未做外部相关全文检索，因此这是由本文证据驱动的候选判断，不声称 novelty；下面的区别只相对本文及其在 PDF 中概述的整机 NN surrogate / NODE 范式。
 
-**(a) 未满足需求。** 现有方法先人为指定六个 boundary variables，再假定它们足以闭合；面对 grid unbalance、控制器漂移、多 converter 相互作用或 measurement latency，接口可能缺少必要记忆。[pdf:E11]
+**新问题与首次新能力。** 本文把连续时间问题写成瞬时 derivative field \(\dot{\mathbf I}_2=f_{\mathrm{NN}}(\mathbf I_2,\mathbf I_{2ref},V_{gd},V_{dc},t)\)，再由 solver 积分。[pdf:E08] 但 Table I 给出的 \(f_s=5\text{ kHz}\) 意味着一个 switching cycle 恰为 \(2\times10^{-4}\text{ s}\)，正好等于 outer-loop sampling time \(T_{s,out}\) 和 Table III 的 hybrid simulation step；inner-loop sampling time \(T_{s,in}=5\times10^{-5}\text{ s}\) 又使每周期恰有四个 controller samples。[pdf:E07] [pdf:E13] 新问题是：**能否利用这组三重整周期关系，把未解析的 switching、LCL 与 inner-loop dynamics 表示成 carrier-phase-synchronized return map，并在不恢复微秒级开关迭代的前提下保留“故障落在周期内哪个相位”以及隐藏 LCL/PI memory 对下一周期的影响？** 若成立，它首次允许 coarse-step 模型输出 phase-resolved 的下一周期端口波形，而不只是从一个瞬时六变量点预测平均斜率。
 
-**(b) 研究价值。** 把目标从“单台 inverter 的 waveform fitting”改成“识别最小、Markovian、energy-consistent 且可组合的 reduced port state”，可同时服务 EMT coarse-step simulation、多机稳定性和实时数字平台。高影响力不应只来自更低测试误差，而应来自可证伪的 state sufficiency、passivity/energy balance 和跨实例 composability。
+**核心机制、表示与设计变量。** 在固定 carrier section \(\phi_s\) 上定义第 \(n\) 周期的 lifted state \(\boldsymbol\xi_n\)：它不是单个 \(I_{2d},I_{2q}\) 点，而是上一周期四个 inner-loop sampling instants 上的 \(dq\)-current short window；再用 \(\boldsymbol\eta_n\) 描述该周期内 \(I_{2ref},V_{gd},V_{dc}\) 的边界轨迹及扰动发生相位。模型直接学习
 
-**(c) 可借鉴工具。** 可结合 nonlinear observability / delay embedding 发现所需历史维度，用 latent state-space 或 Koopman lifting 构造最小动态状态，再用 port-Hamiltonian 或 dissipativity constraint 约束端口能量；最后做 fixed-point sensitivity 分析，判断该端口模型是否适合 FPGA，而不是直接宣称可部署。
+\[
+\boldsymbol\xi_{n+1}=G_\theta(\boldsymbol\xi_n,\boldsymbol\eta_n;\phi_s),
+\]
 
-**(d) 首个证伪实验。** 先运行第 11 节的 state-collision benchmark：若加入有限 latent/history state 后，相同 learned port state 仍对应显著不同的 reference derivative，或多 inverter weak-grid 仿真出现净能量生成、步长缩小时不收敛，就立即否决该状态定义。
+并输出下一周期四个端口样本，analytical outer loop、PLL 与 DC-bus 仍在周期边界推进。固定 \(\phi_s\) 先消除“同一瞬时端口、不同 switching phase”的一类多值性；覆盖完整周期的 delay coordinates 再把 \(I_1,V_c\) 与 inner-PI state 对可见电流的余效应编码进 \(\boldsymbol\xi_n\)；周期内扰动相位进入 \(\boldsymbol\eta_n\) 后，return map 才能区分同一故障幅值在不同 carrier phase 的响应。这里至少有四个基本设计变量：section phase \(\phi_s\)、每周期观测点数及其位置 \(m\)、short-window 跨越的周期数 \(h\)，以及周期内边界轨迹/事件时刻的编码阶数 \(K\)。它改变的是时间对象、状态表示、可控的数据生成相位和评价对象，不是给原 NODE 加一个模块。
 
-**(e) 与本文的实质区别。** 这不是简单加入 \(V_{gq}\)、换更深网络或扩大训练集；它把“哪些量构成充分状态”从未经验证的设计前提变为待学习、待验证的研究对象，并把单机 trajectory accuracy 提升为端口闭合、能量一致与多实例稳定性的联合目标。论文已经显示 coarse-step hybrid partition 的工程潜力，但 Table VI 仍只是 CPU-only 证据；新的方向必须把可组合性和硬件数值约束当作第一类验收，而不是后续移植事项。[pdf:E19]
+**为什么这个押注来自本文。** Fig. 4 的原方法把 switches、LCL filters 和 inner loop 一起压入局部 derivative field，Fig. 5 又显示训练数据本来就来自高分辨率 switch-based trajectory，因此构造 cycle-aligned short windows 不需要新增不可获得的内部传感器。[pdf:E08] [pdf:E10] 更重要的是，本文报告的 \(2\times10^{-4}\text{ s}\) coarse step 与 switching period 完全相等，却没有把“整周期采样”作为机制变量单独检验。[pdf:E07] [pdf:E13] Fig. 6–7 与 Table IV 的 faults、power steps 和 voltage disturbances 说明该分区在作者工况中确实能跨周期推进；但 fault 在 \(t=1\text{ s}\) 施加、持续 \(0.15\text{ s}\)，这些时刻也都是 switching period 的整数倍，尚未形成 carrier-phase-swept evidence。[pdf:E14] [pdf:E15] [pdf:E16] 因而一个合理但未验证的解释是：headline coarse-step performance 部分来自周期对齐，而不全是 NODE 对任意时刻连续向量场的学习能力。
+
+**最大收益与最大科学风险。** 最大收益不是再降低一项平均误差，而是得到一种新的 cycle-level simulator object：它能直接研究 switching phase、inner-loop sampling、LCL memory 与 system-level fault onset 之间的跨尺度作用，并可把每台 inverter 的一个周期变换作为多机仿真的基本计算单元。最大风险是边界电流的有限 short window 仍不能观测 \(I_1,V_c\) 或 PI memory；此时 \(G_\theta\) 仍是多值关系，增加 window 或 network capacity 只会延后失败。另一风险是本文的整数周期巧合仅适用于这组 \(f_s,T_{s,in},T_{s,out}\)，一旦控制与 carrier 不共周期，固定 return section 便不再是合适对象。
+
+**区分核心机制与替代解释的最小实验。** 用同一 switch-based model 和相同训练 trajectory 数量，扫 16 个均匀 carrier phases 施加同幅值的 grid-voltage step 与三相短路，并构造 Eq. (17) 六变量近邻、但 \(I_1,V_c\) 或 switching phase 不同的 collision pairs。[pdf:E04] [pdf:E11] 做一个等参数量的 \(2\times2\) factorial comparison：采样 section 为 phase-synchronized / phase-shuffled，state 为单点 / 四点整周期 short window。测量 matched-state 的 next-cycle target variance、连续 20 周期的 \(I_2,P,V_{dc}\) error，以及误差随 fault-onset phase 的曲线。若只有 synchronized + short-window 组合同时压低 collision variance 和跨相位 rollout error，支持“固定 section 消除 phase aliasing、delay state 吸收隐藏 memory”这条因果链；若 phase-shuffled 或单点模型在等数据、等容量下同样好，则收益更可能只是网络容量、数据增广或 ordinary cycle averaging，主机制被否决。
+
+**与本文范式的四重区别。** problem 从“用 coarse-step NODE 逼近瞬时 current derivative”变为“识别 event-phase-conditioned 的一周期变换”；mechanism 从连续向量场加数值积分变为 Poincaré section 上的 cycle-to-cycle evolution；representation 从六个瞬时量变为一个周期的可见端口 short window 与周期内 intervention descriptor；experimental object 从少数固定时刻故障的 waveform fit 变为跨 carrier phase 的 return-map family 与 hidden-state collision set。这四项都需要实证，不能据本文结果直接视为已成立。
+
+**Wild-card alternative：** 用主动 multisine current-reference injection 做 boundary tomography，让 injection frequencies、amplitudes 与可见 port 组合成为设计变量，以最少实验识别 hidden LCL/PI coordinates；其机制是 intervention-driven observability，而不是 carrier-phase return map。

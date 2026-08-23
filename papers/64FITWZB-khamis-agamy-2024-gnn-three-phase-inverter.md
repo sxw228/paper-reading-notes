@@ -8,7 +8,7 @@
 
 > 公式、报告数字和关键事实均直接取自源 PDF，并在本卡引用范围内绑定可定位证据；未引用内容未做全篇转换或认证。
 
-### § 1 — 研究问题与重要性
+## § 1 — 研究问题与重要性
 
 这篇论文研究的不是“让神经网络直接生成三相逆变器的开关波形”，而是一个更具体的 surrogate modeling 问题：能否把功率变换器的拓扑、元件值、寄生参数和控制参数统一编码成 graph，再用同一个 GNN regression 结构预测 line voltage、efficiency 等电路级性能指标。作者选择三相 DC-AC inverter，比较无滤波 R-load 与 LC-filter 两种结构，并在 square-wave modulation、SPWM、单输出与多输出回归之间改变任务。论文摘要把目标概括为：在不同拓扑和参数变化下保持同一模型结构，并报告大多数情形下 \(R^2>99\%\)、MSE 接近 0。[pdf:E01]（PDF 物理页 1，Abstract）
 
@@ -16,7 +16,7 @@
 
 但“circuit dynamics prediction”这个标题容易让人产生过强理解。论文实际展示的主要输出是 line voltage 与 efficiency 等汇总量；没有展示一个按时间步递推、能重建开关瞬态波形的 state-transition model。[pdf:E08]（PDF 物理页 8，Section V 与 Fig. 9）因此，本卡把已验证贡献限定为“基于图与参数的性能回归”，不把它外推成通用 EMT 瞬态求解器。
 
-### § 2 — 前人工作与不足
+## § 2 — 前人工作与不足
 
 论文把既有工作分为几类：graph + reinforcement learning 用于 transistor sizing 或参数优化；GNN 用于 distributed circuit electromagnetic behavior；DeepGEN 用于小规模 analog circuit prediction；GNN 也被用于 analog-layout symmetry constraint extraction。作者认为这些工作已经说明 graph representation 对 circuit design 有用，但尚未闭合“switching converter 的结构与控制变化如何进入同一性能预测模型”这一问题。[pdf:E01]（PDF 物理页 1，Introduction）这里的“尚未闭合”是论文自己的文献判断，不是本卡独立完成的 novelty 检索结论。
 
@@ -24,7 +24,7 @@
 
 作者指出的既有方法不足主要有两层。第一，topology-specific transfer-function learning 或固定规模 analog circuit model 很难自然吸收开关、控制模式和连接关系变化。第二，simulation/analytical model 在大规模或高维问题上可能昂贵，并可能依赖不完全成立的简化假设；ML surrogate 可以在训练后降低重复查询成本。[pdf:E02]（PDF 物理页 2，Section II）需要注意：本文没有用相同硬件、相同误差目标对 LTspice 与 GNN 做 wall-clock benchmark，所以“更快”仍是动机与作者主张，不是本文实验已经量化的结论。
 
-### § 3 — 重建作者的思考路径
+## § 3 — 重建作者的思考路径
 
 以下是基于论文材料重建的研究路径，不是作者逐字陈述。
 
@@ -36,11 +36,11 @@
 
 第四步，在一个可控案例上逐级增加难度：先做无滤波三相 inverter 的单变量回归，再加入 LC filter、寄生参数、SPWM 和多输出，最后用实物 R-load inverter 的测量点检查 simulation-trained relation 是否仍能解释真实效率变化。[pdf:E11]（PDF 物理页 11，Sections V-B、VI）[pdf:E14]（PDF 物理页 14，Section VII）
 
-### § 4 — 核心 Intuition
+## § 4 — 核心 Intuition
 
 核心 intuition 是：converter topology 决定“谁与谁交换信息”，元件与控制量决定“交换的信息是什么”；GNN 正好把这两部分分别放进 adjacency/edge 与 node features。只要目标性能主要由这些局部关系经过有限次 message passing 后的全局汇总决定，同一套 GCN + pooling + regression head 就可能处理不同大小的电路图。这里真正改变的假设，是把“每个拓扑需要一套专用方程或模型”改成“拓扑本身就是可学习输入”。[pdf:E06]（PDF 物理页 6，Fig. 5–6）
 
-### § 5 — 具体方法与完整 Pipeline
+## § 5 — 具体方法与完整 Pipeline
 
 以三相 two-level inverter 为例，完整 pipeline 如下。
 
@@ -53,7 +53,7 @@
 
 必须明确三个边界。第一，论文没有给出显式的时间推进：没有 \(x_{t+1}=f(x_t,u_t)\)、event queue、可变步长、多速率或 switching instant 更新。frequency、modulation 和 duty cycle 是输入特征，switch current/voltage 甚至来自 simulation，但网络本身不是逐时间步积分器。[pdf:E04]（PDF 物理页 4，Section III-D）第二，论文没有说明 GNN 训练或 inference 的软件框架、CPU/GPU 型号或实际部署平台；LTspice 是数据生成工具，Fig. 13 中的 controller 与三相 SiC inverter 是测量平台，不能据此推断 GNN 在 controller 上执行。[pdf:E11]（PDF 物理页 11，Fig. 13）第三，论文完全未报告 FPGA、RTL/HLS、fixed-point 位宽、DSP/BRAM/LUT/FF 资源、fmax 或 measured inference latency；因此该软件 GNN 不能直接写成“FPGA 可部署”。
 
-### § 6 — 核心数学推导（无形式化数学则跳过）
+## § 6 — 核心数学推导（无形式化数学则跳过）
 
 论文有形式化数学，但它是 network mapping 与复杂度表达，不是 converter differential equation 的推导。
 
@@ -100,7 +100,7 @@ S=O(N+E+NF+128+128+128+2).
 
 它们描述 graph size 和 feature width 增长时的计算/存储阶数。[pdf:E12]（PDF 物理页 12，Section VI-B）这些式子不是实测 runtime、memory footprint 或 hardware resource report，也没有把 sparse indexing、batching、data movement 和数值位宽计入可部署成本。
 
-### § 7 — 实验设计与结论
+## § 7 — 实验设计与结论
 
 **问题 1：同一模型能否拟合无滤波 R-load inverter？** 设计是 square-wave modulation 下扫描 \(V_{in}\)、load \(R\)、frequency \(F\)，做 single-variable regression。答案是 line-voltage percentage error 的均值约 \(0.5735\%\)、标准差约 \(4.89\%\)；Fig. 7 的误差直方图也给出 \(\mu=0.5735,\sigma=4.8958\)。[pdf:E07]（PDF 物理页 7，Fig. 7）[pdf:E12]（PDF 物理页 12，Table 2）
 
@@ -114,7 +114,7 @@ S=O(N+E+NF+128+128+128+2).
 
 **资源与 latency。** 论文报告的是 Big-O complexity 和 error metrics，没有给出 GNN inference 的 wall-clock latency、吞吐量、model parameter count、memory peak 或 energy。作者在结论中称训练后可作为“instant simulator”，并提出未来可缩减到 microcontroller；这属于作者的应用展望，不是本文已经完成的实时部署证据。[pdf:E15]（PDF 物理页 15，Conclusion continuation）
 
-### § 8 — Take-aways
+## § 8 — Take-aways
 
 **5 句话。**
 
@@ -134,7 +134,7 @@ S=O(N+E+NF+128+128+128+2).
 
 这篇论文证明 graph encoding 能把三相 inverter 的结构与参数变化送进统一回归器，但离可验证的 EMT 时间推进和 FPGA 实时部署仍有一整条证据链要补。
 
-### § 9 — 最脆弱的假设
+## § 9 — 最脆弱的假设
 
 最脆弱的假设是：**构造 GNN input 所需的 analog node features 在 inference 时可廉价、因果地获得，而且不会泄露目标。**
 
@@ -142,7 +142,7 @@ S=O(N+E+NF+128+128+128+2).
 
 论文提供的支持是：参数扫描、两种 filter configuration、square/SPWM 和有限实物工作点下误差较低。它缺少的证据是：只用 inference 时真实可得的 source/control/component/initial-state features，按 topology 和 operating region 完全隔离训练与测试，再与“不用 graph 的 MLP/XGBoost”和 physics-based reduced model 比较。由于 split、样本数和 feature availability 未被完整报告，这个假设仍未闭合。
 
-### § 10 — 最小复现实验
+## § 10 — 最小复现实验
 
 一周内最值得做的不是复刻所有图，而是验证“graph encoding 是否在严格未见结构上提供额外泛化”。
 
@@ -154,7 +154,7 @@ S=O(N+E+NF+128+128+128+2).
 
 若 GNN 在 topology-disjoint test 上显著优于 MLP，且不依赖 simulation-derived state features，就支持论文最重要的 graph-interface claim；若两者相当，或 GNN 只有在加入 \(I_{sw},V_{ph},I_{ph}\) 后才表现好，则反驳“拓扑表示本身带来可用泛化”这一强解释。
 
-### § 11 — 最强反例设计
+## § 11 — 最强反例设计
 
 最强反例是一组**相同 graph node/edge vocabulary、相近 steady-state performance、但 switching transient 与控制耦合完全不同**的电路，并要求模型在 topology-disjoint、event-rich 条件下预测。
 
@@ -162,7 +162,7 @@ S=O(N+E+NF+128+128+128+2).
 
 若在这种测试中 steady-state line voltage 仍近似正确、但 peak current、settling、efficiency 与 stability indicator 系统性失败，就说明 global mean pooling 把决定极端行为的局部状态稀释了，也说明“performance regression”不能替代 EMT/event model。反之，如果模型在 topology/control/event 完全隔离后仍保持低 worst-case error，才真正增强论文关于 generalization 的证据。
 
-### § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Idea
 
 **候选方向：面向大规模 VSC 场站的层级 causal graph state-stepper，并以 FPGA 可执行约束共同训练。** 这不是对现有 GNN 再加一层，而是把任务从“静态 graph 到汇总性能”改成“在开关事件与网络耦合下，从可测状态推进到下一时刻”，并把部署预算直接写进模型定义。相关工作尚未做充分检索，因此这是证据约束下的候选研究方向，不声称 novelty。
 

@@ -197,20 +197,18 @@ G_L=\frac{\Delta t}{2L+\Delta t R_\mathrm{on}}.
 
 若固定导纳模型在单台、同步 PWM 时仍准确，却在独立异步多实例中出现随台数增长的相位偏差或能量注入，而可变 Jacobian baseline 与 reference 一致，就得到一个有力替代解释：论文的规模结果可能来自“重复、规则的 history source 容易并行”，不等于固定导纳对真实异构多变流器仍成立。这个反例之所以强，是因为论文明确以高频器件和多变流器为动机，却在 FPGA 多机实现中让同桥臂多台变流器复用 PWM，[pdf:E05]（PDF 物理页 5，FPGA Implementation 末段）而干线系统已经显示联络线会压缩并行余量、使步长随 \(N\) 增长。[pdf:E09]（PDF 物理页 9，Fig. 17 及 \(200+(N-1)\times30\) ns 关系）
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-**候选方向：具有可组合稳定性契约的“固定端口导纳 + 学习型 history source”。** 由于本任务没有跨论文检索，下面只提出可证伪的候选研究问题，不声称 novelty。
+**主押注：把整张恒定导纳网络编译成可直接执行的 block-elimination dataflow。** 由于本任务没有检索紧密相关工作的外部全文，下面是论文特异、可证伪的候选判断，不声称 novelty。新的研究问题是：既然每台 VSC 已被写成“固定端口导纳 + 每步变化的 history source”，能否把干线、分支乃至固定 mesh 的联合节点方程在仿真前编译成一棵精确的三相 block elimination tree，使当前步网络闭合的时延主要由图的 separator depth 决定，而不再近似正比于变流器数量？本 bet 所追求的新增能力，是让非径向多变流器网络也能像论文的径向系统一样横向扩展，在亚微秒步长内保留同一步端口闭合，而不是用接口旧值换取并行。
 
-**(a) 未满足的需求。** 论文的固定导纳结构非常适合预分解网络和 FPGA 并行，但解析 history source 只覆盖所建模的线性 \(L,C,R\) 与离散开关耦合。真实器件的 dead time、寄生、饱和、温漂和未建模控制动态可能破坏这个闭合。需求不是“把神经网络加到现有求解器”，而是保持网络侧固定 \(Y_0\) 的可复用结构，同时让内部源项表达更丰富的历史依赖。
+核心因果机制来自论文已经建立、但尚未向整网求解继续推进的结构：Eq. (11)–(15) 把所有 PWM 相关变化移入右端 history source，端口等效导纳在各步保持不变；Fig. 3 又表明，干线系统的困难并不在单台 VSC，而在 liaison line 把 ac 侧重新连成联合节点问题。[pdf:E03]（PDF 物理页 3，Eq. (11)–(15)）[pdf:E04]（PDF 物理页 4，Fig. 3）因此可以只对固定的三相 block nodal matrix 做一次 Schur factorization：按图划分同时消去互不相邻的 converter blocks，把每一层得到的固定 Schur operators 固化为 FPGA dataflow；运行时只让新的 history-source vector 沿 elimination tree 做 reduction 与 back-substitution。同层节点没有数据依赖，可并行执行，于是“固定导纳 → 固定因子 → 静态通信边 → 树深决定关键路径”构成了新增能力的因果链。Fig. 4 已经把 history-source dot product 与 \((3+3n)\times(3+3n)\) 系统导纳求解分成不同 stage，说明这不是在 converter model 后附加一个通用加速 wrapper，而是改写最慢的整网表示和硬件依赖图。[pdf:E05]（PDF 物理页 5，Fig. 4 与 Solver Engine Design）
 
-**(b) 可能的研究价值。** 把每台变流器定义为
-\[
-i_{k+1}=Y_0u_{k+1}+H_\theta(h_k,s_k),
-\]
-其中 \(H_\theta\) 只读取有限历史 \(h_k\)、gate/event 状态 \(s_k\) 与参数上下文，并满足显式的增益、被动性或耗散约束。研究目标从“单台波形拟合”改为“任意数量实例接入固定网络后仍可闭合、稳定和扩展”。如果成立，它会保留论文最有价值的固定矩阵骨架，同时覆盖解析 companion model 难以描述的内部动态；对 EMT/FPGA 领域的价值应由严格误差、实时步长、资源和多实例稳定性共同评价，而不是只看学习误差。
+两个最基本的设计变量是：第一，**graph partition / elimination ordering**，它决定 separator 的宽度、Schur fill-in 和 dataflow 层数；第二，**FPGA spatial mapping**，即每层同时驻留多少个三相 block operator、DSP pipeline 与 BRAM bank 怎样分配，它决定以资源复用换面积还是以空间复制换时延。第三个可选变量是 converter cluster 的 block granularity：逐台消元产生深而窄的树，按馈线簇消元产生浅而宽的 separator。这些变量改变的是状态方程之上的 network representation 与 hardware mapping；它们不是额外误差项，也不是检测某个指标后改变求解路线。
 
-**(c) 可借鉴的方法或工具。** 可借鉴灰箱 system identification、state-space operator learning、被动性约束和小增益/耗散不等式，把物理 companion form 作为不可更改的端口层，把学习限制在 causal history source。训练数据可来自详细开关模型或少量硬件波形，但网络求解仍只看到固定 \(Y_0\)。
+论文的规模实验给出了直接靶点：径向系统的 ac 支路可独立复制，而干线系统的 time-step 按 \(200+(N-1)\times30\,\mathrm{ns}\) 增长，11 台达到 500 ns，15 台达到 620 ns；15 台测试中 liaison-line 电流的 MRE 为 2.06%，又高于所报 dc 电压与电网电流误差。[pdf:E09]（PDF 物理页 9，Fig. 17–18 及相邻正文）基于这些结果的推断是，固定导纳目前主要释放了 converter-local parallelism，尚未消除 coupled ac graph 的串行依赖；block-elimination dataflow 若成立，就会把论文最强的径向扩展性推广到真正由联络线耦合的实验对象。最大收益不只是多放几台 VSC，而是得到一条可由 separator width 解释和预测的“网络拓扑—FPGA 资源—RTS 步长”尺度律，并据此研究大型集电网在 switching resolution 下的传播动态。最大的科学风险是 Schur fill-in、fixed-point conditioning 与片上布线拥塞可能把代数上的浅树变成更宽、更慢的硬件；对不规则 mesh，separator 增长甚至可能让这种表示比论文的联合节点流水线更差。
 
-**(d) 第一个证伪实验。** 先在单台 VSC 的多工况数据上训练 \(H_\theta\)，然后不再训练，复制为 32 个参数略有差异、PWM 异步的实例，接入弱阻尼干线网络；同时加入训练中没有的 dc 故障与开关频率变化。若实例数增长后出现净能量生成、闭环不稳定、误差随网络耦合放大，或为了稳定不得不更新 \(Y_0\)/做全局迭代，则“固定导纳下可学习且可组合”被直接证伪。
+最小判别实验是在相同 100 MHz、相同 DSP/BRAM 上限和相同定点位宽下，为 \(N=15,31,63\) 的三相 trunk 以及一个带支路的固定网络各实现两种**精确**求解器：论文 Fig. 4 所对应的联合节点 schedule，以及预编译 block-elimination dataflow；两者接收完全相同的 Eq. (12) history-source 序列，并用 double-precision nodal solution 核对 \(U_\mathrm{dc}\)、\(I_\mathrm{grid}\) 与 \(I_\mathrm{line}\)。核心机制预测：在波形差异不超过共同量化误差时，编译方案的每步 cycle count 应随 elimination levels 而非 \(N\) 线性增长。最强替代解释是“变快只因复制了更多 MAC”，所以必须在匹配 multiplier 数量后比较，并报告各层实际 stall；若匹配资源后仍呈论文的线性斜率，或收益只存在于规则 trunk、在支路图上被 fill-in 抹掉，便反驳“图依赖重写而非额外算力带来扩展性”的机制。
 
-**(e) 与本文的实质区别。** 本文从已知线性开关电路解析推导 \(M,N,Y\)，history source 是确定性离散公式；候选工作把“哪些内部动态必须显式建模”本身变为研究对象，并要求学习型源项提供跨实例、跨网络的稳定性契约。它改变的是端口模型的定义与验收目标，而不是在当前 FPGA pipeline 后面增加一个误差补偿模块。
+与本文及其表中 comparator 的实质区别可以明确落在四个维度：**problem** 从“怎样得到单台 VSC 的恒定导纳 companion model”变成“怎样把整张固定耦合网络编译为图深受控的实时计算”；**mechanism** 从 half-step prediction-correction 搬移开关相关项，变成固定 Schur operators 重排跨节点依赖；**representation** 从 nodal matrix 与逐步 history vector，变成可布局的 block-elimination DAG；**experimental object** 从若干径向/干线规模点上的波形与资源占用，变成不同 separator 结构下的 latency scaling law。论文列举的 nodal analysis、matrix decomposition 与 MVM reuse 只在本文摘要和比较表中被概括，本任务没有读取那些方法的全文，因此这里不主张该编译路线相对它们具有 novelty。[pdf:E10]（PDF 物理页 10，Table V–VII）
+
+**Wild-card alternative：** 不改变求解图，而把 modulation phase、脉冲扰动幅值与跨变流器 Hadamard code 作为不同的基本变量，利用独立 history-source 通道生成可控干预数据，辨识 switching-resolution 下的 graph-time multiport response operator，把 RTS 从波形复现器变成集体模态的因果实验台。

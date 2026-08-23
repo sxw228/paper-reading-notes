@@ -204,18 +204,20 @@ U_{\mathrm{IN}}=Y_{22}^{-1}
 
 若 DM 在全部重复试验中衰减，而 \(EM_m\) 稳定地预测增长，或反之，这就排除了“只是曲线局部误差”的宽松解释，直接击中论文把模型用于 small-disturbance stability、fault traceability 和 oscillation propagation 的主张。反过来，若在接近临界稳定边界时两者仍保持相同 Nyquist 结论与源定位，才是比现有波形拟合更强的支持。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-### 候选方向：从“高效等值”改写为“可组合、带证书的实时 EMT 端口模型”
+这是一个**候选研究押注**：把 DFIG 风机串从“被动汇集功率的网络”改造成**可编程振荡传播介质**。本卡没有检索外部相关全文，因此下面只说明它如何从本文证据推出，不声称 literature novelty。
 
-这是一个**候选研究方向**；本卡未对 2025 年以后相关工作做系统检索，因此不声称 novelty。
+**新问题与首次新能力。** 新问题不是怎样再压缩几个节点，而是：能否把沿风机串有意布置的控制器异质性当作空间材料参数，使某一频带的集体振荡出现可设计的传播、驻波或局域模态？若成立，这条论文路线第一次新增的能力将是：在保持逐台风机 EMT 细节的实时实验里，先指定“振荡能量应在哪个频带、哪几台 WT 上形成何种空间模态”，再由控制参数的空间排列实现该模态，而不是只能在振荡发生后重放其传播过程。这里的“第一次”仅指相对本文当前的仿真任务，不代表对全部文献的首创判断。
 
-**(a) 未满足需求。** 大规模实时 EMT 不只需要平均误差小，还需要知道“把任意设备端口递归拼接后，仿真不会因数值延迟制造或掩盖不稳定”。本文的 latency decoupling 与 M-NFSS 已提供很好的端口化骨架，但没有给出误差、passivity 和 composition 的证书。
+**核心因果链与基本设计变量（基于证据的机制假设）。** 每台 WT 的 current loop、PLL 或文中用于激振的 \(K_p\) 改变局部端口阻抗；“WT + 三相耦合 π 型短线”构成一个空间 unit cell；将每一级 Eq. (21) 的端口关系在线性化频域改写为三相 cell transfer operator 后，不同 unit cell 的算子沿物理串联次序复合，使相邻 WT 响应发生频率相关的相长或相消叠加；周期排列由此形成传播带和禁带，故意引入的缺陷 cell 则在禁带内形成空间局域模态。基本设计变量至少包括：1）高/低 controller parameter 的取值、占比、排列次序与空间周期；2）unit cell 内集电线的 \(R/L/C\)、长度及 WT—line 配对方式；3）用于读取 band structure 的激励位置与频率。它改变了研究目标、可控变量、状态表示和实验对象：状态不再只是一组时域波形，而是“频率—WT 位置”上的复数模态形状与 unit-cell multiplier。
 
-**(b) 研究价值。** 把研究目标从“在若干工况拟合 DM”改成“每个等值端口携带可在线检查的离散 passivity/stability margin 与误差预算”，会改变模型的验收方式。对于电力电子与 EMT 领域，高影响力取决于严格数值分析、在真实实时平台上的可实现性，以及能否阻止错误的工程稳定性判断，而不只是再提升一个 benchmark 的容量。
+**论文特异依据。** 这个机制依赖本文的具体结构，而非给原方法加一个通用模块。Eq. (18) 给出保留相间耦合的 π 型短线，Eq. (21) 把整串写成逐级组合的低阶端口映射，Eq. (22) 又能恢复每一级内部节点，因此同一实时模型既能形成空间 cell，也能观察 cell 内模态。[pdf:E04][pdf:E05] 控制系统并未被平均化，CBuilder/RTDS 实现保留逐台 WT 控制与内部量。[pdf:E06] 更关键的是，作者把 \(WT_1\) 的 \(K_p\) 从 0.1 改为 100 后，振荡从该机扩展到其他 WT、group 和 station，Fig. 16 已展示“一个局部控制参数—全串传播”这条因果链的起点；Fig. 14 的 1–100 Hz impedance scan 则说明论文已有观察频率选择性端口行为的实验接口。[pdf:E08][pdf:E09] Table II 和 \(EM_5\) 大场站实验表明该问题可以进入多 WT 实时尺度，而不必先退回 aggregation。[pdf:E08][pdf:E09]
 
-**(c) 可借鉴工具。** 可结合 port-Hamiltonian / passivity-preserving model reduction、power-bond co-simulation、small-gain theorem 与 waveform relaxation。每一级 M-NFSS 不仅递归 \(G_{\mathrm{EQ}},J_{\mathrm{EQ}}\)，还递归一个频带相关的 passivity deficit 与 latency error bound；当证书将失效时，局部端口自动从显式一拍延迟切换到小规模 implicit interface iteration。这里的关键不是“额外加一个校正模块”，而是把模型单位从无条件 Norton 等值改成带契约的可组合端口。
+**最大研究收益与科学风险。** 最大收益不是得到一个更稳妥的等值模型，而是建立“converter control 作为空间材料”的可实验科学对象：研究者可以在 utility-scale refined EMT 平台上合成、移动和拆分集体模态，并检验空间周期、缺陷和线路耦合怎样共同决定传播。这会把风场振荡研究从单一源定位推进到可设计的 band structure。最大的科学风险是所谓禁带其实只来自平均阻尼增大、局部增益失配或一拍 latency 的数值色散；此外，controller saturation、PWM 谐波和风机参数散布可能破坏线性 unit-cell 假设。若同一现象不能在 monolithic DM 或 HIL 中重现，这个押注就只制造了 \(EM_m\) 的离散化现象。
 
-**(d) 第一个证伪实验。** 在 §11 的临界弱阻尼网络上，随机化 100 组控制器、线路和步长；若证书判为安全的所有样本中仍出现任一例 \(EM_m\) 与 DM 稳定性结论相反，或安全域随递归层数无法保持，则该方向的核心假设被立即证伪。
+**区分机制与替代解释的最小实验。** 构造 6 台 WT、3 个二机 unit cell 的短串，固定两组 controller parameter 的取值与数量，比较三种布置：均匀参数、周期交替 \(ABABAB\)、以及保留相同 \(A/B\) 数量但打乱空间次序的非周期布置；三者使用相同线路、工作点和总注入能量。由首台 WT 注入同一组小信号扫频，利用 Eq. (22) 记录各 WT 的内部电压、电流和 \(P/Q\)，同时在 \(EM_6\) 与 monolithic DM 中计算沿串传递衰减、相位推进和模态形状；随后把空间周期从 \(AB\) 改为 \(AABB\)。如果只有周期布置产生清晰频带缺口，缺口边缘随周期改变而按 unit-cell transfer operator 的特征值预测移动，并且 DM 与 \(EM_6\) 给出相同空间模态，那么“周期干涉形成 band structure”胜过“只是平均阻尼或参数离散”；若随机布置产生同等衰减，或现象只存在于 \(EM_6\)，核心机制即被反驳。
 
-**(e) 与本文的实质区别。** 本文优化“如何更快求解并事后用波形验证”；候选方向优化“哪些端口可以安全解耦、解耦误差如何随组合传播、何时必须恢复局部隐式耦合”。它改变的是问题定义与接口契约，而不是把 M-NFSS 搬到另一种风机、增加一个补偿器或再做一组更大规模实验。
+**与本文及其综述中最近工作的实质区别（候选判断）。** 本文的问题是以更少外部节点复现给定风场，机制是历史量解耦与 recursive Schur complement，representation 是四节点 Norton 等值加内部回代，experimental object 是同参数 WT 串、一个被大幅修改 \(K_p\) 的振荡源以及 accuracy/resource 对比。本文综述的 aggregation、AVM 和 impedance equivalent 也主要改变模型粒度或外部特性。这个 bet 的问题是反向设计内部传播，机制是空间周期阻抗造成的干涉，representation 是 unit-cell transfer operator、multiplier 与内部 mode shape，experimental object 是受控排列且保持参数多重集合相同的异质 WT 串。由于没有读取这些方向的外部全文，这一比较不能支持 novelty 声明。
+
+**Wild-card alternative（一句话）：** 不改变 controller 的空间排列，改用多点相位编码的小信号主动激励与少量内部测量 tap，通过 Eq. (21)–(22) 的前向/反向端口映射做集电线与变压器参数层析，其独立设计变量是激励码的相位—频率结构和 tap 的位置—数量。[pdf:E05]

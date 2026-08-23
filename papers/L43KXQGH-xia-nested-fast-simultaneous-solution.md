@@ -216,19 +216,21 @@ RE=\frac{\lVert x-y\rVert_2}{\lVert y\rVert_2}
 
 应扫描 dead time、器件压降、温度导致的 \(R_{on}\) 不对称、irradiance 和故障相角，测量以下四项：波形 RE/ME、开关事件时间偏差、每周期能量不守恒、错误 conduction state 次数。若存在一块有工程意义的参数区域，使 NFSS 的 RE 超过论文 4% 汇总边界、产生错误 chopper/diode 状态或不能在 2.5 µs 下稳定，而 monolithic reference 正常，那么这就是对“高精度且适用性良好”比扩展规模更强的反例。若误差仍被稳定约束，反而会显著加强论文目前缺失的鲁棒性证据。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-**候选方向，不声称全球 novelty：从“固定导纳接口”改写为“带在线误差证书和 deadline 约束的 hybrid multiport interface”。** 电气/电力电子实时仿真的高影响研究通常同时要求 EMT fidelity、硬实时 timing closure、可实现硬件成本、HIL 或实际控制器验证，以及在故障和参数不确定性下仍可解释的边界；本文已覆盖其中一部分，但最脆弱处仍是固定导纳接口对真实 switching nonidealities 的适用域。[pdf:E06] [pdf:E09] [pdf:E10]
+**主 bet：把单轨迹 NFSS 改造成“多右端反事实因果扫描器”。** 新问题不是怎样让同一个光伏站模型再快一点，而是：能否在一个实时 EMT 步流中同时推进少量经过设计的干预副本，直接得到“哪个单元或支路的哪一种扰动，通过什么路径改变了哪些内部状态”的时变因果响应算子？若成立，这条路线将使大型光伏站在一次 HIL 时序中产生可检验的 counterfactual 数据，而不再只能被动记录一次温度阶跃或一次故障后的波形；这里的“使之成为可能”只指本候选系统新增的能力，不是对全领域首次性的宣称。
 
-**(a) 未满足的需求。** 工程上既不希望为所有开关状态重建全网矩阵，也不能默认 dead time、diode conduction 和参数漂移永远足够小。需要一个接口能在大多数时步继续使用预计算 \(\mathbf Y\)，但在端口 residual 表明固定模型即将失真时，局部激活 correction，而不是静默超过误差边界。
+**核心机制与设计变量。** 本文把开关动作放入受控源，使 AC 侧端口在给定模型假设下保持固定 \(\mathbf Y\)，每步主要改变 \(\mathbf J\)；式 (4) 对外压缩、式 (5) 对内恢复，恰好意味着多个干预副本可以共享同一组 Schur/Norton 算子，而各自携带独立的 history sources 和受控源右端项。[pdf:E03] 具体做法是在每个物理时步内沿 Fig. 5 与 Fig. 9 的原有层次推进 \(K\) 个状态副本：用正交编码的微小 irradiance、控制参考或端口电流干预生成 \(K\) 组 \(\mathbf J^{(q)}\)，批量完成顶层求解，再沿 unit—branch—substation 层级恢复每组内部电压和器件状态；对编码响应解混后，形成以“干预源 × 目标内部状态 × 时间”为索引的响应张量。[pdf:E04] [pdf:E06] 因果链是：固定导纳让不同干预共享线性网络算子 → 多右端流水复用矩阵计算 → 逆向恢复保留每个单元的内部响应 → 正交干预把共同电网扰动与源单元效应分开 → 得到可用于辨识传播路径和交互作用的站内 response operator。基本设计变量至少包括干预基 \(\mathbf P\)（位置、物理量、幅值与时间码）、副本数 \(K\) 与反事实窗口长度、恢复观测集合 \(\mathcal O\)，以及 scenario 维在 FPGA 上采用时间折叠还是并行 lane；改变的不是一个参数，而是**数据生成方式、状态表示和评价对象**。
 
-**(b) 可能的研究价值。** 把研究目标从“某个理想模型下固定 \(\mathbf Y\) 且很快”改为“对给定非理想集合，实时输出端口量的误差上界，并保证最坏情况下不越过 FPGA deadline”。如果成功，它会同时回答 fidelity 和 schedulability，而不仅是把现有模型多扩几十个 units。
+**为什么这从 Xia 论文里长出来。** 单元等值电流源可在子站内直接相加，子站压缩后又保持与单元相同的端口形式，说明同一套端口代数天然支持“多个不同右端、同一层次算子”的批处理，而 Fig. 9 已给出从站级端口向每个 unit/branch 恢复内部量的路径。[pdf:E05] HLS 实现中 unit 与 substation 循环已经采用 `PIPELINE`，数组 partition 后达到 \(II=1\)，因此可以把原来的 unit 轴扩展为 unit × scenario 数据流，而不是为每个反事实重新综合一套完整求解器。[pdf:E07] 实验也暴露了这个新任务所需的可分辨现象：Fig. 13 的四个子站接受不同 temperature/irradiance 改变，Fig. 14 的故障局限在一个 unit 的 DC bus，Fig. 15 的故障位于一个 collection branch，而 Fig. 16–18 改为 PCC 级共同扰动；这些不同空间尺度的激励在现文中只被分别画成波形，尚未被组织成“源—路径—内部状态”的统一对象。[pdf:E08] [pdf:E09] Table II 同时给出关键实现约束：20→100 units 时 latency 从 111 增至 198 clocks，DSP/BRAM 不变而 LUT/FF 显著增长，所以共享算子是否真的优于复制完整模型、以及每个反事实状态应存在哪里，本身就是必须实验回答的架构问题。[pdf:E10]
 
-**(c) 可借鉴的相邻方法。** 可结合 hybrid systems 的 mode/event detection、model-order reduction 的 residual estimator、low-rank matrix update（例如只修正被事件激活的端口块）与 real-time systems 的 worst-case execution-time analysis。正常时沿用本文的 NFSS/pipeline；检测到 residual 超阈值时，只对受影响单元切换到局部多模型或 low-rank correction，并把计算预算显式纳入调度。
+**最大收益与最大科学风险。** 最大收益不是更安全或更容易认证，而是获得目前单次 forward simulation 给不出的科学对象：大型光伏站内部扰动传播的、可主动询问的时变耦合图谱。它可直接检验“两个相似 PCC 波形是否来自不同 unit/branch 机制”，也可用 held-out 干预预测来证伪所辨识的路径。最大科学风险是 switching、MPPT、chopper 和 fault conduction 会让不同副本跨入不同离散事件序列；此时响应不再能由少量编码方向解混，所谓因果张量可能只是某条工作轨迹附近的局部导数。论文实时模型 controller step 为 50 µs、离线 reference 为 2.5 µs，这一差异还可能把控制采样效应误写成网络传播效应。[pdf:E07] 因而该 bet 成败取决于“共享固定 \(\mathbf Y\)”能否在**状态副本彼此分离**时仍产生可迁移的干预响应，而不是取决于加一个异常检测器。
 
-**(d) 第一个证伪实验。** 用第 11 节的 nonideality sweep 比较三者：原固定 NFSS、全详细 monolithic reference、hybrid residual-corrected interface。预先冻结“RE <4%、无错误 conduction state、每步 <2.5 µs、FPGA LUT/FF 不超过器件容量”四个门槛。若 correction 不能在不越过 deadline/资源上限的情况下显著扩大通过参数域，或 residual 不能提前预测失真，则该方向被第一轮实验否决。
+**区分核心机制与最强替代解释的最小实验。** 先锁定 Appendix Tables A-I/A-II 的 20-unit、四子站参数和 2.5 µs circuit step，不做 100-unit 扩展。[pdf:E10] 选 4 个分属不同子站的 unit，以 \(K=4\) 的 Hadamard 时间码分别对 irradiance reference 或 unit AC 端口注入足够小、但高于数值噪声的干预；同时保存各 unit 的 \(V_{dc}\)、PV port current、collection-branch internal voltage 和 PCC current。比较三组结果：① 共享算子的多右端 NFSS；② 四次逐一干预的独立 monolithic EMT，作为因果 ground truth；③ 只用未干预波形的相关性或电气距离排序，作为最强替代解释。先在 Fig. 13 类环境变化下辨识，再把同一 response operator 用于预测 Fig. 14 单元 DC fault 与 Fig. 15 branch fault 的最早响应位置和前几个时步波形。[pdf:E08] 若①能重建②的 held-out 干预响应、正确区分 unit 与 branch 源，而③不能，并且 C/RTL co-simulation 显示一个时步内确实完成全部副本，才支持“多右端共享 + 内部恢复”这一机制；若③同样有效，或一旦开关/控制事件分叉，①便不能预测独立干预结果，则应把主张降为局部 sensitivity engine，原 bet 被反驳。
 
-**(e) 与本文的实质区别。** 本文把固定导纳视为构造和预计算效率的基础，并用选定工况的波形误差证明实现可用；候选方向把“接口何时不再可信”本身变成在线状态和可证伪指标，允许局部、受预算约束的模型切换。本文参考文献覆盖 NFSS、switching-function model、ADC/DRV、并行 EMT 与 clustering 等路线，但本卡没有完成针对 hybrid residual certificate 的系统检索，因此这里不能宣称该组合 novel，只能作为由第 9 节证据边界导出的研究假设。[pdf:E02] [pdf:E11]
+**与本文及本文所列相邻路线的实质区别。** 在 **problem** 上，本文问“给定工况能否实时复现波形”，主 bet 问“干预源到内部状态的传播算子能否实时辨识”；在 **mechanism** 上，本文每步推进一组 \(\mathbf J\) 并恢复一次，主 bet 让多组干预右端共享固定 Schur/Norton 算子并经编码解混；在 **representation** 上，本文保存一条设备状态轨迹，主 bet 保存带 intervention 维的响应张量；在 **experimental object** 上，本文比较一次环境变化或故障的 FPGA/PSCAD 波形，主 bet 检验可迁移的 source-to-state coupling kernel。本文引用的 clustering、DRV/ADC、switching-function model、传统 NFSS 和并行 EMT 工作可说明最近的功能边界，但本卡没有检索这些工作的外部全文或 2025 年后的相关研究，因此这里只给出论文特异的候选判断，不声称 novelty。[pdf:E01] [pdf:E02] [pdf:E11]
+
+**Wild-card alternative：** 把 Fig. 4 中各 unit 彼此独立的 DC subnetworks 改成由稀疏 DC intertie 连接的新物理拓扑，以 intertie 图和耦合阻抗为基本设计变量，研究局部 irradiance/fault 如何通过直流能量交换形成全新的跨单元功率重分配模式；这一路线改变的是物理耦合机制，而不是多右端数据生成机制。[pdf:E04]
 
 [pdf:E01]: _evidence/E01-p001-title-introduction.png "PDF physical page 1: title, abstract, introduction"
 [pdf:E02]: _evidence/E02-p002-topology-interface.png "PDF physical page 2: Figs. 1-2, interface construction"

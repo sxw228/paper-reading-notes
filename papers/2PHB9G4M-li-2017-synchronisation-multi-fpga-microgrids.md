@@ -129,16 +129,18 @@ multi-rate 时可写成 `Δt_i = k_i·Δt_min`，其中 `k_i` 为正整数。图
 
 如果在链路平均吞吐仍低于 2.5 Gbps 的情况下，只因 tail latency 或相位漂移就出现错步、故障暂态偏差或不稳定，那么“带宽足够 + 周期同步”不足以保证多 FPGA EMT 正确性；这会直接击中论文从 4 卡案例外推到更大系统的核心薄弱处。反之，若所有规模与拓扑下都能用明确的最坏界证明数据先于 pulse-ready point 到达，这个反例才被否证。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-**候选方向：把“时钟同步”重新定义为“带 deadline 的跨分区因果闭合”。本方向未做充分相关工作检索，不声称 novelty。**
+**主 bet：把 Bergeron 线路的物理传播时间编译成跨 FPGA 的时空流水线。** 新问题不是怎样让所有 FPGA 更准确地同时起步，而是：当分区边界本来就具有传播时延时，能否让各卡沿不同的 logical time surface 连续推进，把“线路另一端在过去发出的波”准时送到当前端点，从而在链式或径向多卡系统填满流水线后，每个 `Δt` 都接收一个新的全局 EMT step，即使端到端光纤路径跨越多个 hop？这将首次把多卡扩展的核心能力从共同 step boundary 改成有物理含义的空间并行时间推进；这里尚未检索外部相关工作的全文，因此它只是高风险候选判断，不声称 novelty。
 
-（a）未满足的需求是：现有接口只给每块 FPGA 一个共同 step boundary，却没有给每条分区边界一个可检查的 data-age 与 completion contract。随着卡数、hop 与 payload 增长，真正需要保证的是“第 `k` 步使用的所有端口量都来自允许的逻辑时间，并在第 `k` 步 deadline 前完成”。
+核心机制来自论文已经使用但没有继续开发的 Bergeron's line decomposition。对传播时间为 `τ_e` 的 cut line，端点在逻辑时刻 `t` 所需的对端信息属于更早的 `t-τ_e`；若把边界状态表示为带 logical timestamp 的 incident/reflected travelling-wave state，而不是要求同一全局 step index 下即时交换原始电压、电流，就可以把每个子系统的时间相位 `φ_i`、线路传播时间和 SFP/QSFP hop 路径联合编译。因果链是：cut line 提供历史依赖 → 历史波在本地计算期间沿光纤前进 → 接收卡走到对应 logical time 时消费该波 → 多个空间分区形成持续工作的 wavefront pipeline。论文实际把三个 Bergeron line model 的两端分到四个子系统，并支持 radial、loop 和 chained 拓扑；但现有同步设计仍由 master pulse 打开每步，间接 slave 只通过推迟 master 起步补偿两倍传输延迟。[pdf:E03] [pdf:E04] [pdf:E05] [pdf:E06]
 
-（b）研究价值在于把“多加 FPGA 可以扩容”的工程判断变成可证伪的实时-数值合同：既约束通信最坏延迟，也约束延迟数据造成的物理残差。这样评价的不只是 raw link speed，而是 EMT step 是否因果闭合。
+这个 bet 至少改变三个基本设计变量：第一，cut placement 及每条线路的归一化传播时间 `τ_e/Δt`；第二，子系统到 FPGA、QSFP channel 和 hop path 的映射；第三，各 FPGA 的 logical phase `φ_i` 以及边界 travelling-wave state 的时间戳与插值阶数。它不是在原接口外加一个模块：删除这些局部时间面和波状态后，系统就退回所有卡在同一 step boundary 上等待的基本执行能力。论文的 Table 3 给出 FPGA1 每步通信 `0.680 μs`，占 `3 μs` 步长的 `22.67%`，而四卡 radial 案例只使用各板很少一部分 transceiver；这说明通信时间已经足以改变计算节拍，同时物理链路和可重配拓扑仍有未使用的映射自由度。[pdf:E05] [pdf:E06] [pdf:E07] 论文的 Figs. 6–8 只证明该 radial 映射的若干波形与 PSCAD/EMTDC 接近，而且作者明确把 Bergeron line model 列为四类误差来源之一；因此这些结果支持“值得试验”，并不支持时空流水线已经正确。[pdf:E06] [pdf:E07] [pdf:E08]
 
-（c）可借鉴 synchronous-reactive systems、timed dataflow、network calculus 和 time-sensitive networking：离线为每个 cut edge 计算 payload、hop、release time 与 deadline；运行时携带 step index 与 data-age，并在合同被破坏时显式失败，而不是静默使用旧数据。这里的相邻方法只是工具候选，不代表已有工作中不存在同样设计。
+最大研究收益是把深链路的总 hop latency 从 steady-state step cadence 的直接加项，转化为流水线填充延迟：如果成立，同样的 `3 μs` 节拍可能容纳更多 FPGA 和更长的电气—通信拓扑，而不必把所有 cut-set 数据压进一次全局同步窗口。最大的科学风险也很尖锐：微电网短线路的真实 `τ_e` 可能远小于一个 step，或与 `Δt` 不成可用比例；Bergeron 分区带来的“传播时间”也可能主要是数值解耦手段而非可消费的物理空隙。此时局部时间错相会放大相位和暂态误差，最终对齐全局输出还可能吃掉全部吞吐收益。
 
-（d）第一个证伪实验是复用 §11 的 radial/chained 压力矩阵：如果合同预测“可按 3 μs 运行”但硬件仍出现 wrong-step read 或 deadline miss，或者合同满足却数值能量残差显著增加，则该方向失败。
+最小区分实验复用论文的四块 Stratix V、`3 μs` case 和相同 18/6 个 64-bit payload，只把三条 Bergeron cut line 映射成一条多 hop chain。设置三组保持 card 数、hop 数、payload、数值格式与线路参数相同的实现：原论文式共同起步；按 `τ_e` 编译 `φ_i` 的 causality-matched pipeline；把相同 `φ_i` 随机置换到错误线路上的 phase-shuffled pipeline。扫描 `τ_e/Δt` 与 hop mapping，比较流水线填满后的最大 step cadence、负载跃变和 Phase-C ground fault 的到达时刻，以及相对单卡或 PSCAD reference 的逐步波形误差。[pdf:E05] [pdf:E06] [pdf:E07] [pdf:E08] 最强替代解释是收益仅来自普通通信—计算 overlap，而不是电气传播与硬件路径的因果匹配；若 matched 与 phase-shuffled 两组表现相同，这个核心机制被否定，若只有 matched 组同时提高 cadence 并保持事件传播时序，才支持该 bet。
 
-（e）它与论文的实质区别不是增加一种接口或更快协议，而是改变验收对象：论文同步“卡的开始时刻”，候选方向认证“跨卡端口数据在 deadline 内的逻辑时间与物理一致性”。只有当这一合同能随卡数给出可测的通过/失败边界，规模增长才从愿景变成证据。
+与本文及其明确讨论的既有 multi-FPGA 路线相比，区别落在四个层面：problem 从“所有卡何时开始一步”变成“物理传播图怎样承载并行逻辑时间”；mechanism 从 master pulse 与延迟补偿变成 travelling-wave dependency 驱动的空间流水；representation 从共同 step index 上的 32/64-bit 电压电流，变成局部时间面上的带时标波状态；experimental object 从一个 4-FPGA radial benchmark 的 nominal waveform comparison，变成 electrical line-delay graph 与 fibre hop graph 的配对关系在 radial/chained 拓扑中的可证伪效应。由于未做外部全文检索，这种区别只相对本文和本文显式覆盖的路线成立。
+
+**Wild-card alternative：** 把 AD/DA 从被动 irradiance 输入和示波器输出改成分布式主动激励阵列，用正交多音的激励频谱与物理 I/O placement 作为设计变量，直接生成多端口 power-converter/controller 的闭环耦合数据；其机制和变量均不同于 Bergeron delay、logical phase 与 hop mapping。[pdf:E04] [pdf:E05] [pdf:E06]

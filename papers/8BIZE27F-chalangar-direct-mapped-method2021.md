@@ -8,7 +8,7 @@
 
 > 公式、报告数字和关键事实均直接取自源 PDF，并在本卡引用范围内绑定可定位证据；未引用内容未做全篇转换或认证。
 
-### § 1 — 研究问题与重要性
+## § 1 — 研究问题与重要性
 
 这篇论文要解决的不是“怎样把 LLC 电路方程写出来”，而是一个实时性与物理可信度正面冲突的问题：高开关频率 resonant converter 的谐振周期短，FPGA 实时仿真必须采用很小的计算步长；但每个步长内，二极管状态又与网络解互相依赖，可靠的 Resistive Switch Model（RSM）通常要迭代求状态。迭代次数不可预先固定，就难以给 Hardware-in-the-Loop（HIL）一个确定的硬实时 deadline。作者把目标压缩成一句话：在保留 RSM 与隐式离散精度的前提下，消除在线二极管状态迭代。论文摘要报告其 FPGA LLC 实现覆盖至 500 kHz，并达到 25 ns 仿真步长。[pdf:E01](_evidence/E01-p001-abstract-introduction.png)
 
@@ -16,7 +16,7 @@
 
 因此，这项工作的工程价值有两层。第一层是 fidelity：避免开关等效模型或显式近似制造虚假振荡、漏掉阻断/短路状态。第二层是 determinism：把每一步的工作量变成固定的 Matrix-Vector Multiplication（MVM）、符号判断与 lookup，使 FPGA 可以给出可综合、可流水化的最坏执行时间。这里的“准确”首先是“相对同一理想化 RSM/Backward Euler（BE）模型的离线迭代解准确”，并不等同于已经证明对真实器件寄生、反向恢复和控制 I/O 都准确。
 
-### § 2 — 前人工作与不足
+## § 2 — 前人工作与不足
 
 作者把既有开关建模分成两条主线。Associated Discrete Circuit（ADC）可以保持固定网络矩阵，适合实时计算，但在高频 power electronic converter 中会出现 fictitious oscillation；为 ADC 加补偿又会改变谐振腔行为。RSM 用 \(R_\mathrm{on}\simeq 0\)、\(R_\mathrm{off}\gg 0\) 的两值电阻表达开关，物理结果通常更好，却让导纳矩阵随开关状态改变，并把自然换流器件的状态判定带回在线迭代。[pdf:E01](_evidence/E01-p001-abstract-introduction.png)
 
@@ -28,7 +28,7 @@
 
 论文最有说服力的 prior-method 失败证据不是文献评价，而是同一 LLC 上的直接比较：在 15 ns 步长下，FE 在两个参数组的阻断区都出现振荡；对 500 kHz 的 Parameter Set #2，FE 与迭代 BE 的整体波形也明显偏离。作者还报告 FE 在 \(\Delta t\ge 30\) ns 时失稳，并指出仅用正、负两种整流状态还漏掉全关断与四管全导通两种可行模式。[pdf:E03](_evidence/E03-p003-fig03-04-table01-eq03-04.png) [pdf:E04](_evidence/E04-p004-fig05-06-eq05-17.png)
 
-### § 3 — 重建作者的思考路径
+## § 3 — 重建作者的思考路径
 
 下面是基于论文证据对作者思路的逆向重建，不是作者逐字给出的研究日志。
 
@@ -54,13 +54,13 @@ m_2=\frac{g_\mathrm{on}+g_2}{g_\mathrm{on}+g_1}.
 
 显式法把 AC 侧 Norton equivalent 近似成纯电流源，相当于令 \(g_1=0\)，于是 \(m_1\to\infty\)，Blocked 区域在几何上被挤掉。这把 Fig. 3–4 的振荡从“某组参数不好用”解释成了可定位的结构性原因。[pdf:E05](_evidence/E05-p005-eq18-30-algorithm.png)
 
-### § 4 — 核心 Intuition
+## § 4 — 核心 Intuition
 
 DMM 的核心不是更快地迭代，而是证明在所建模的整流桥中，二极管模式已经被两个 BE history current 充分决定。作者把在线求解从“解网络—猜状态—再解网络”改成“对两个电流做四个符号判断—查表选状态—执行预计算 MVM”，把不可预测的迭代变成固定延迟的组合逻辑。[pdf:E04](_evidence/E04-p004-fig05-06-eq05-17.png) [pdf:E05](_evidence/E05-p005-eq18-30-algorithm.png)
 
 从物理上看，这相当于提前画出整流桥在能量状态平面中的换流边界；运行时只需定位当前能量历史落在哪个区域，而不再用局部正负号粗暴猜测。
 
-### § 5 — 具体方法与完整 Pipeline
+## § 5 — 具体方法与完整 Pipeline
 
 以论文的全桥 LLC 为例，输入是直流母线电压 \(u(t)=v_\mathrm{DC}(t)\)、逆变器门极信号 \(c(t)\)、上一时刻 AC/DC history current，以及由电容、电感储能形成的离散状态；输出是 \(v_o(t),i_r(t),i_m(t)\) 和下一步 history current。
 
@@ -89,7 +89,7 @@ DMM 的核心不是更快地迭代，而是证明在所建模的整流桥中，�
 
 论文没有报告 HDL 源码、ROM 系数生成脚本、定点溢出/舍入策略、接口协议或 host/FPGA 数据搬运时序。这些应视为未报告，而不是 DMM 自动解决的部分。
 
-### § 6 — 核心数学推导（无形式化数学则跳过）
+## § 6 — 核心数学推导（无形式化数学则跳过）
 
 数学主线可以压缩成“网络解 → 二极管电压符号 → 可行区域 → 直接分类”。
 
@@ -112,7 +112,7 @@ DMM 的核心不是更快地迭代，而是证明在所建模的整流桥中，�
 
 最后，Eq. (29) 把四条边界写成一个 \(4\times2\) 矩阵乘法与 sign，Eq. (30) 把 sign pair 映射成四位状态字。网络推进 Eq. (24) 仍然是由预计算 \(\mathbf H^\sigma\) 完成的线性状态更新。所谓“exact and noniterative”应严格理解为：在论文采用的 BE + 两值 RSM + 指定拓扑模型内，开关状态是同时且非迭代地确定；它不是对连续时间真实半导体器件的无模型误差精确解。[pdf:E05](_evidence/E05-p005-eq18-30-algorithm.png)
 
-### § 7 — 实验设计与结论
+## § 7 — 实验设计与结论
 
 **问题 1：FE 忽略整流桥阻断模式是否只是无害近似？ → 实验：** 对文献中的两个 LLC 参数组，都用 15 ns 步长比较 FE 与迭代 BE；Parameter Set #1 的 \(f_{r1}=160\) kHz，Parameter Set #2 的 \(f_{r1}=500\) kHz，后者还给出 \(V_\mathrm{in}=400\) V、\(V_\mathrm{out}=12\) V、\(L_r=4.5\,\mu\mathrm H\)、\(L_m=21.6\,\mu\mathrm H\)、\(C_r=22\) nF、\(R_L=0.144\,\Omega\)。**答案：** 两组 FE 都在阻断段振荡；Parameter Set #2 的 FE/BE 整体差异更强，作者另报告 FE 在 \(\Delta t\ge30\) ns 失稳。该实验支持“显式二态判定不具参数稳健性”，但没有穷举所有 LLC 参数。[pdf:E03](_evidence/E03-p003-fig03-04-table01-eq03-04.png) [pdf:E04](_evidence/E04-p004-fig05-06-eq05-17.png)
 
@@ -130,7 +130,7 @@ e=\frac{\lVert f_s-f_r\rVert_2}{\lVert f_r\rVert_2}
 
 需要限制外推范围。实验验证的是单一 LLC 拓扑、两个离线数值参数组、一个 FPGA 设计空间和一条 0.6 s 序列；没有真实功率级测量、controller-in-the-loop I/O、device switching transient 或多 converter 可扩展性实验。资源对比还存在内部口径冲突：正文称 Table III 复现 200 MHz 结果，但 Table III 的 FPI/HRT clock 栏写 320 MHz；其定点格式和 FPI DSP 百分比也与正文/Table II 不一致。[pdf:E07](_evidence/E07-p007-table02-fig10-fpga-design.png) [pdf:E08](_evidence/E08-p008-fig11-table03-04-eq32.png)
 
-### § 8 — Take-aways
+## § 8 — Take-aways
 
 **5 句话。**
 
@@ -144,7 +144,7 @@ e=\frac{\lVert f_s-f_r\rVert_2}{\lVert f_r\rVert_2}
 
 **1 句话。** 这篇论文最重要的贡献，是把隐式开关网络的在线互补求解离线编译成一个可在 FPGA 上固定延迟执行的 mode map。
 
-### § 9 — 最脆弱的假设
+## § 9 — 最脆弱的假设
 
 最脆弱的假设是：对需要仿真的整流器，\((i_1^h,i_2^h)\) 是决定二极管状态的充分状态，因此存在单值、静态且可预计算的 \(f(i_1^h,i_2^h)\to\sigma_\mathrm{rec}\)。在论文的单相全桥、线性 BE-Norton equivalent 和两值 RSM 中，这个假设由 Eq. (13)–(17) 的线性不等式与四个可行区域支撑；因此“exact”在该模型内是有数学依据的。[pdf:E04](_evidence/E04-p004-fig05-06-eq05-17.png)
 
@@ -152,7 +152,7 @@ e=\frac{\lVert f_s-f_r\rVert_2}{\lVert f_r\rVert_2}
 
 这是失败代价最大的假设，因为一旦“状态充分性”不成立，增加 FPGA 并行度或缩短步长都救不了分类正确性；需要改变状态表示和 mode-selection 机制，而不是调参。
 
-### § 10 — 最小复现实验
+## § 10 — 最小复现实验
 
 一周内最值得复现的是“DMM 能否在不迭代的情况下复现同一 BE-RSM 的开关状态序列”，而不是先复刻整套 FPGA。
 
@@ -163,13 +163,13 @@ e=\frac{\lVert f_s-f_r\rVert_2}{\lVert f_r\rVert_2}
 
 完成这一步后再做 fixed-point bit-true 与 HDL HLS/RTL 实现才有意义；由于论文的 bit-format 报告不一致，复现者必须自己冻结量化、舍入和溢出规则。
 
-### § 11 — 最强反例设计
+## § 11 — 最强反例设计
 
 最强反例不是再换一组 \(L_r,C_r\)，而是构造“同一 DMM 输入、两个不同正确模式”的状态碰撞。选一个 500 kHz 以上、带可测 reverse-recovery charge 与 junction capacitance 的整流器模型，或者同步整流 MOSFET 模型；设计两条前置脉冲历史，使某时刻的 \(i_1^h,i_2^h,u,c\) 在数值容差内相同，但器件储存电荷 \(q_{rr}\) 不同。随后给相同输入，观察高保真 SPICE/器件模型是否产生不同的导通集合。
 
 如果两个轨迹在 DMM 的可见状态上重合、下一时刻却需要不同 \(\sigma_\mathrm{rec}\)，就证明不存在论文形式的单值 \(f(i_1^h,i_2^h)\)。这不是说论文在其 RSM 内算错，而是精确指出其“模型内 exact”不能承担“真实器件 exact”的替代解释。反之，如果在覆盖温度、负载、dead time 和故障恢复的轨迹中始终找不到碰撞，才为该充分状态假设提供比本文更强的外部证据。
 
-### § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Idea
 
 **候选方向：可认证的充分状态自动合成（不声称 novelty）。** 目标不再是为一个理想整流桥手推一张 DMM map，而是给任意 converter 的 hybrid device model 自动判断：当前状态摘要是否足以唯一决定 mode；若不足，自动加入最少的 memory state，直到能生成带覆盖证明的 FPGA guard logic。
 
