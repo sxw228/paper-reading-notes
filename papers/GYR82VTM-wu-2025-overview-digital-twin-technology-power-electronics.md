@@ -153,16 +153,16 @@ l=\inf\{l:D(t+l)\ge \omega\mid D(t)<\omega,\ D_{1:j}\}.
 
 攻击实验是逐步加入四类扰动：未见过的 switching mode、sensor delay/dropout、thermal parameter drift、controller failure。然后比较三种方案：单一 taxonomy 标签指导的部署、明确 hybrid dependency graph 的部署、没有 DT 的传统 observer/controller。若单标签方案在 nominal fidelity 上表现很好，却在任一扰动下错过 deadline、错误接管或把 out-of-distribution 数据当作可信更新，而 hybrid contract 能提前拒绝或降级，那么就说明“模型类别”不是足够的工程决策单元。论文所指出的纳秒级开关、秒级控制到年级维护的跨时间尺度，以及 edge-cloud latency tradeoff，正是这个反例可能发生的物理基础。[pdf:E15]（PDF 物理页 19，Section VII-A）
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-电力电子领域通常不会只凭概念新颖性评价高影响研究；更重要的是权威期刊中的严格实验、跨工况可复现性、实时硬件可实现性、可靠性收益和系统级工程价值。基于第 9 节的脆弱假设，一个非增量候选方向是：**建立面向 PES 的“可执行 DT 合同与失效边界 benchmark”**。它不再问“该系统属于哪一类 twin”，而是要求每个 DT 明确声明并在线检查其适用域。
+**主 bet：把 parallel triplet 变成可缩放的反事实实验体。** 新的研究问题是：能否在主功率变换器旁构造一个可重构、低功率但保留关键寄生与热路径的 parallel power stage，让它在共享主机边界条件时主动执行主机不宜承受的 switching、load pulse 与 thermal cycling 序列，再由数字侧把这些干预响应映射为全尺度器件的 *intervention-conditioned transition operator*？若成立，它新增的能力不是更准确地复现当前状态，而是使“在不中断主机的条件下，对稀有电—热—退化轨迹做反事实实验并提炼可迁移机制”首次在同一个 DT 闭环中成为可能。
 
-**（a）未满足需求。** 当前文献能描述模型类别，却缺少统一、机器可检查的合同来连接 fidelity、data directionality、update rate、deadline、uncertainty、security 与允许的 physical action。论文列出的 real-time computational unit、data consistency、privacy/security 和 interoperability 挑战表明，这些缺口已经决定 DT 能否安全进入真实系统。[pdf:E15]（PDF 物理页 19，Section VII-A）
+核心因果链是：主机工况给出边界条件，parallel power stage 改变 gate timing、switching frequency、dead time 与 load-pulse spectrum，实测响应再与 multiphysics model 对齐；数字侧依据功率缩比、thermal impedance、parasitic inductance 和时间压缩比重建干预到状态跃迁的映射，最后用该映射选择下一次物理激励并反推下一版 topology、package 或 cooling design。这里至少有三组基本设计变量：parallel stage 的功率缩比与热相似参数；激励波形的边沿密度、脉冲顺序与占空结构；数字加速频率与物理采样频率之比。论文的 Fig. 16 已把 digital、physical、parallel 三个实体及 data/knowledge flow 明确分开，为“第三实验实体”提供了系统结构起点；Fig. 7 又给出由 \(f_d/f_p\) 决定预测跨度、逐预测步保存 controller state 与 output error 的 accelerator 结构，为时间压缩和序列响应表示提供了方法依据。[pdf:E09]（PDF 物理页 11，Fig. 7）[pdf:E16]（PDF 物理页 20，Fig. 16）此外，被综述 HIL 案例把三天测试压缩到 4 h，说明加速实验确实可能改变测试吞吐，而 Table III 同时显示 multiphysics model 计算代价高、data model 依赖数据质量；因此真正待证明的科学环节是“干预响应能否跨缩比迁移”，而不是单纯把仿真跑得更快。[pdf:E08]（PDF 物理页 10，Section IV-B）[pdf:E06]（PDF 物理页 8，Table III）
 
-**（b）研究价值。** 如果一个合同能在模型失真尚未演变为控制或维护错误之前检测到越界，并在不同 converter、drive 与 HIL 平台上重复成立，它同时提供理论可证伪性、FPGA/real-time 可实现性和 system reliability 价值，比“再加一种 AI 模型”更符合本领域的高影响标准。
+它与论文中最近的三条路线有四个实质区别：problem 从预测、参数辨识或少数类补数改为稀有退化机制的因果发现；mechanism 从物理数据被动更新数字副本改为第三个带功率流的实体主动施加干预；representation 从某一时刻的 state vector、输出拟合或故障标签改为以干预和缩比坐标为条件的状态转移算子；experimental object 从“数字输出是否贴合主机”改为“缩比实体与全尺度对象对同一干预族的成对响应”。因此它同时改变了系统边界、可控变量、数据生成方式、时间尺度和评价对象，而不是在原方法外增加一个通用模块。
 
-**（c）可借鉴工具。** 可结合 control barrier/safety monitor、assurance case、system identification 的 uncertainty set、multi-fidelity modeling、real-time scheduling/WCET analysis 与 data provenance。论文提出的 DTri 可以作为受控冗余结构的一个候选，但不能预设它优于较简单的 supervisor；parallel controller 的接管价值仍需独立验证。[pdf:E16]（PDF 物理页 20，Fig. 16）
+最大研究收益，是把 DT 从设备镜像推进为可重复的 power-electronics mechanism discovery machine：同一套平台可以发现哪些 switching-event 组合真正驱动热记忆与参数漂移，并把所得规律直接用于拓扑、封装和调制的联合设计。最大的科学风险也很集中：功率缩比可能无法同时保持寄生、junction thermal path 与材料退化的相似关系，过强加速还可能激活主机中不存在的失效机制；一旦如此，parallel stage 产生的“因果规律”就不可迁移。
 
-**（d）第一个证伪实验。** 在同一 buck/boost HIL testbed 上预注册 voltage/current/temperature fidelity envelope、端到端 deadline、允许的 controller action 和 OOD 条件；随后施加参数漂移、模式切换、通信延迟与 controller failure。如果合同不能在物理输出越界前稳定报警，或者误报导致不必要接管，那么该方向立即失败。
+最小判别实验只需一台 48 V buck 主机和一台可更换器件、功率较低的同拓扑 parallel stage。设计两组平均功率和 RMS current 相同、但 switching-edge density 与 thermal-pulse ordering 不同的激励；parallel stage 执行加速序列，主机只执行短时、盲留出的验证片段。用相同样本数、相同激励能量和相同模型容量，对比 proposed transition operator 与普通 accelerated-stress/data-regression baseline；后者只使用聚合 electrical/thermal history，不编码干预次序与缩比坐标。若前者能在未见过的脉冲顺序上正确预测主机 junction-temperature trajectory 以及 \(R_{\mathrm{DS(on)}}\) 或 capacitor ESR 漂移的方向和排序，而等数据量 baseline 不能，则支持“相似性约束的干预映射”这一核心机制；若优势在控制数据量后消失，或改变缩比后排序翻转，就说明收益只是更多数据或普通 accelerated testing，主 bet 被反驳。由于这里没有对 active experimental DT、scaled surrogate power stage 与 causal system identification 的外部全文做充分检索，这只是**候选判断，不声称 novelty**。
 
-**（e）与已有工作的实质区别。** 论文回顾的大多数工作优化“模型更准”或“功能更多”，而这个方向把研究对象改成“DT 在什么证据与时序条件下有权影响物理系统”。它把 taxonomy 从静态标签变成运行时可验证的责任边界。由于本卡没有对合同式 DT、assurance case 和 benchmark 相关文献做充分外部检索，这只是**候选研究想法，不声称 novelty**。
+**Wild-card：**舍弃第三个硬件实体，把 converter 表示为带 topology/gate-edge 标记的 switching-event point process，以 event alphabet 与 history-kernel horizon 为基本设计变量，直接合成能暴露慢热记忆的事件序列，而不再从固定步长 state vector 外推。[pdf:E05]（PDF 物理页 5，Eqs. (1)–(2) 与 switching-mode 讨论）

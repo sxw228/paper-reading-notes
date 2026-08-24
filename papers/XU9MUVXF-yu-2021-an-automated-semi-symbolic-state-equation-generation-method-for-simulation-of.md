@@ -203,14 +203,30 @@ A_k=A_0+B_sK_kE.
 
 如果原方法在物理上常见的 DCM/dead-time 区域必须高频回退，导致速度逼近传统方法，甚至因模式检查与 cache 管理更慢，那么“适合任意大规模 power electronic systems”的强解释就被推翻；剩下的贡献应收缩为“适合合法模式高度规则、主要由预建 voltage-source switching legs 组成的系统”。若即使 50% 事件触发非标准模式仍保持矩阵等价和显著加速，才说明最脆弱假设比论文证据暗示的更稳健。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-电力电子与控制领域通常不会只因算法新颖就认可高影响贡献；更看重严格的数值正确性、异常工况覆盖、可复现的大规模实验、实时/硬件可实现性，以及对真实设计与验证流程的价值。基于本文最脆弱假设，一个非增量候选方向是：**面向 hybrid converter 的约束认证式 switching-unit compiler**。它不要求用户先从库中选对 half-bridge/three-level leg，而是从任意电路图、器件方向和开关约束自动推断局部换流单元，为每个单元生成“合法模式语言、semi-symbolic update kernel、适用性证明条件和局部 fallback kernel”；运行时只让失效单元回退，而不是重建全系统。
+**主赌注：发现并塑造跨全部合法开关模式共同保持的 quadratic geometry。** 新问题不是怎样更快生成某一个 \(A_k\)，而是：自动得到完整 mode-matrix family 后，能否找出一个不依赖模式次序、由非平凡对称矩阵 \(H\) 定义的二次量 \(Q_H(x)=x^\mathsf{T}Hx\)，并通过电路连接、元件比值和允许的 switching alphabet 决定哪一种 \(Q_H\) 被共同保持？若成立，变换器就能在持续换流时仍把状态限制在预先选择的 quadratic manifold 上；新增能力是“编程跨模式守恒结构”，而不是给原仿真器增加一个附属模块。
 
-（a）驱动需求是本文方法的速度依赖预建 leg 与正常模式，但实际 EMT 场景包含 DCM、dead time、故障和用户自定义拓扑。[pdf:E06]  
-（b）它可能产生本领域认可的价值，因为研究目标从“已知拓扑的快矩阵更新”改变为“任意混合拓扑中可证明正确、可局部降级、可给出最坏事件成本的自动编译”，同时直接连接通用 GUI 仿真与实时执行。  
-（c）可借鉴相邻领域的 program synthesis、static analysis、hybrid automata reachability，以及 sparse compiler 的 dependency graph 和 kernel scheduling；对 FPGA，可把每个已认证单元编译成有界延迟的稀疏乘加 kernel 和事件路由表。  
-（d）第一个证伪实验是用含 CCM/DCM、dead time、故障和 voltage-/current-source converter 混合支路的公开拓扑集，比较传统全局重建、本文全局 fallback 与所提局部 compiler：若无法对每个模式保持矩阵/残差一致，或局部回退不能显著降低最坏事件延迟，该想法即失败。  
-（e）与本文的实质区别在于：本文假定 switching leg 类型和状态表已经给定，且失败时回退生成整组矩阵；候选方法把“自动发现建模单元、证明适用模式、限制回退影响域和生成可调度 kernel”本身作为研究对象。
+对去掉独立源和耗散元件后的 lossless homogeneous core，在连续状态没有 reset 的前提下，共同守恒的充要代数条件是
 
-这个方向只由本文证据和相邻方法线索推导，未做外部相关工作检索，因此明确标为候选想法，不声称 novelty。
+\[
+A_k^\mathsf{T}H+HA_k=0,\qquad \forall k\in\mathcal K,
+\]
+
+其中 \(\mathcal K\) 是允许的 mode alphabet。论文的 Eq. (9) 给出 \(A_k\) 对 \(K(sw_k)\) 的显式依赖；在 \(F_s=0\) 时，Eq. (11)–(12) 进一步把 mode difference 写成由 \(B_s\) 的列与 \(E\) 的行构成的 low-rank generator。[pdf:E05] 因而不必把 \(2^n\) 个拓扑当作互不相关的对象：选一个基准模式 \(k_0\)，共同 \(H\) 是基准方程与所有差分方程
+
+\[
+(A_k-A_{k_0})^\mathsf{T}H+H(A_k-A_{k_0})=0
+\]
+
+的交空间。电路连接决定 \(B_s,E\) 的作用方向，\(L/C\) 比值决定基准动力学，允许的 \(K\) 取值决定交空间中施加哪些 mode difference；三者共同使某个 generator 对 \(H\) 呈 skew action，于是任意合法模式序列都保持同一个 \(Q_H\)。这三类量就是基本设计变量。
+
+这条机制与论文证据紧密相连，但论文没有验证它。half-bridge 和 three-level diode-clamped leg 的合法模式本来就由离散系数表定义，异常组合则不属于同一个 switching-function alphabet。[pdf:E03][pdf:E06] 两个 SST 案例展示了 288/576 个 basic switching legs 与 183/365 维状态组成的规则 mode family，说明“跨许多模式寻找共同结构”是实际规模问题；实验只比较波形和 CPU time，没有求解共同二次型。[pdf:E08][pdf:E09] 因此这些事实支持问题的可定义性，不支持守恒结构必然存在。
+
+最大收益是得到一种不同于传递函数、单一工作点或平均模型的变换器分类与设计原则：如果连通电路中存在不止总物理能量一个的共同二次量，就能按 mode family 的 conserved geometry 组织拓扑，并让 switching alphabet 选择不同的状态流形。最大的科学风险也很尖锐：对有实际耦合的 converter，交空间可能只剩与普通总能量成比例的一个解，额外解可能全都来自断开的子电路或重复坐标；加入端口功率、导通电阻和寄生参数后，非平凡结构也可能立即消失。“Noether-like”在这里仅是共同对称关系的候选类比；除非能进一步构造连续对称作用，否则不能把它称为 Noether theorem。
+
+最小判别实验从一个保持连通的 two-cell flying-capacitor/H-bridge LC 网络开始。先用 exact rational matrices 求完整合法 alphabet 下的对称解空间，要求候选 \(H\) 不与物理总能量矩阵成比例、含跨 cell 项，并且不是某个孤立子电路的能量。然后联合选择一个 \(L/C\) 比值、一个 cell 间连接和允许的 \(K\) alphabet，使解空间维数至少为 2；设置两个反事实对照：轻微改变该元件比值，以及增加一个预计会消去额外解的合法 mode。对三种电路施加多组任意次序的 mode trace，关闭独立源，并在低损耗仿真与小功率原型上记录完整状态。若额外 \(Q_H\) 只在设计配置中跨所有 trace 保持，而普通总能量在三组中表现相近，就支持“共同 generator geometry”而非一般能量守恒；若只找到总能量、结果依赖特定 mode 次序，或额外解只能靠断开网络得到，主赌注即失败。
+
+它在四个层面都离开本文的原任务：problem 从前向仿真的矩阵更新变为跨模式守恒结构的发现与设计；mechanism 从利用稀疏 outer product 降低计算量变为求 mode generators 的共同 \(H\)-skew 作用；representation 从逐模式 \(M_k=g_M(sw_k)\) 变为共同解空间 \(\mathcal H=\bigcap_{k\in\mathcal K}\ker\mathcal L_{A_k}\)；experimental object 从带源、带控制的 SST CPU 仿真变为可改变元件比值与 mode alphabet 的连通 lossless switched network。本文列举的 ideal-switch、two-value resistor、constant-conductance 和 variable-source 路线都以生成或近似各模式方程为目标，没有在本文证据范围内提出上述共同几何对象。[pdf:E02] 外部相关工作未检索，因此以上仅为候选判断，不声称 novelty 已证实。
+
+**Wild-card（不同机制）**：把合法 \(K\) 从确定性序列改成具有可设计 transition probabilities 与 dwell-time distribution 的 Markov alphabet，在固定随机负载激励下用 exact \(A_k\) 合成目标 stationary state covariance；它研究随机模式统计塑形，而不是确定性的共同守恒量。

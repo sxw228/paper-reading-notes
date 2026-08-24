@@ -200,20 +200,18 @@ X^{n+1}=(I-hA)^{-1}X^n+h(I-hA)^{-1}Bu.
 
 若该实验显示所有窗口内 peak 与累计损耗仍被准确捕获，或者保护判据在完整工作区间从不依赖遗漏的中间 transient，那么这个反例失败；反之，即使平均温度和输出电压仍吻合，也足以推翻“异步器件层可普遍支撑 device protection/fault prediction”的较强解释。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-在 power electronics 领域，高影响工作通常不只要求一个更复杂的模型，还要求明确的物理机制、可实现的实时计算、真实硬件时序/资源证据，以及跨工况的实验验证。基于第 9 节的缺口，一个值得研究的候选方向是：
+**主 bet：把“单个 half bridge 的器件快照”推进为“多桥臂相干耦合换流”，让相邻开关边沿的相对时刻成为可设计的物理自由度。** 新的研究问题是：当两个或更多 SiC 桥臂共享 DC-link、common-source/ground path，且换流间隔短于寄生振荡的衰减时间时，后一个边沿是否会继承前一个边沿留下的高频电磁状态，从而产生不能由各桥臂独立波形相加得到的过冲、反向恢复和 switching energy？若答案成立，device-level HIL 将首次能够在平均 switching frequency、duty cycle 和负载不变时，主动合成跨桥臂的相长或相消暂态，并把 interleaving phase、gate-edge skew 与 DC-link/layout 一起作为 converter 设计变量，而不再只重放给定 \((V_{CC},I_L,T_j)\) 下的一次器件波形。
 
-**event-triggered、带误差证书的 device-layer RTS：不再固定每 \(N\) 个 switching cycle 生成一张器件快照，而由实时层持续估计“当前 LUT/瞬态模型仍然有效”的误差上界；当工作点创新量、换流模式或预测 stress 接近边界时才触发新的高分辨率求解，并在结果返回前输出保守的 loss/stress envelope。**
+核心因果链来自本文已经显露、却尚未扩展到多桥臂的物理状态：每次换流都经 \(C_{dg}\)、\(C_{ds}\)、\(L_s\) 和 diode reverse-recovery branch 注入高频电荷与电流；本文用 \(x=[v_{gs},v_{ds},i_{ds},i_{Lrr}]^T\) 的三阶段状态方程及 Appendix 的 \(A_1,A_2,A_3\) 离散更新重建这段过程。[pdf:E07] [pdf:E18] 若第二个桥臂在共享寄生网络仍存有振荡电流或电压时换流，它面对的初值便不再只是准静态 \(V_{CC}\) 与 \(I_L\)，而包含前一边沿的振荡相位；相对边沿间隔 \(\Delta t\) 因而决定相长或相消叠加，继而改变各器件的峰值、开关能量和经 loss–temperature–TSEP 链积累的慢时标热轨迹。本文 Fig. 16 已显示 isolated half-bridge model 中确有 turn-off oscillation，Fig. 17 也只在 \(V_{CC}\)–\(I_L\) 网格上验证 switching-energy error，尚未把 \(\Delta t\) 或共享寄生状态作为实验轴。[pdf:E12] [pdf:E13]
 
-（a）**未满足需求。** 当前固定更新周期把计算负担变得可控，却不能保证窗口内部没有漏掉 peak stress；而 device protection 与 fault prediction 恰恰关心最坏瞬间，不只关心平均波形。[pdf:E06] [pdf:E10]
+这个 bet 至少改变三类基本设计变量。第一类是边沿时序，即不同桥臂的 interleaving phase 与纳秒级 gate-edge skew；第二类是物理互连，即 shared bus/common-source inductance、DC-link decoupling capacitance 及其空间位置；第三类是系统边界，即从一个 three-port half-bridge commutation unit 扩展到由多个换流单元和共享寄生网络构成的 commutation cluster。相应 representation 也必须改变：不再为每个桥臂分别求一个四维轨迹并查询标量 \(LUT_E(V,I)\)，而是求联合 hybrid state \(x_{\mathrm{cpl}}=[x_1,x_2,\ldots,i_{\mathrm{bus}},v_{\mathrm{dc}}]^T\)，其中各桥臂 stage combination 通过共享 \(L/C\) 状态耦合，loss 成为 \(V\)、\(I\)、\(\Delta t\) 与共享初态的联合结果。本文 Layer 1 通过电感电流 delay 解耦两个 half bridge，Layer 2 也以单个 half-bridge unit 为求解对象；Fig. 13–14 的现有硬件数据流正好给出了这项扩展必须替换的边界。[pdf:E10] [pdf:E11]
 
-（b）**研究价值。** 如果能在固定 FPGA deadline 和资源预算内给出“未漏过危险 switching event”的可检验上界，评价目标就从平均精度提升为 safety-relevant fidelity。这比单纯再缩短 time-step 更贴合 HIL 的工程用途。
+**最大收益**不是单纯提高安全性，而是发现一条可迁移的“边沿间隔/振荡周期—共享阻抗—非加性开关能量”尺度律，并据此联合设计 multiphase interleaving、gate timing 与 power-loop layout：相同平均频率和器件下，系统可以有目的地塑造跨桥臂 switching transient，而不是把高频相互作用当作事后 EMI 或 loss 偏差。**最大科学风险**是，合理的本地 decoupling 已使跨桥臂记忆弱到可忽略，观测到的差异完全由 \(\Delta t\) 引起的低频电感纹波和电流分配变化解释；另一个风险是联合 stage 状态导致硬件规模组合增长，而本文现有实现的 Block RAM 已使用 91.4%，使 commutation cluster 无法保留足够的参数分辨率。[pdf:E09]
 
-（c）**相邻领域工具。** 可借鉴 event-triggered estimation、set-membership/reachability analysis、real-time scheduling 与 anytime computation：快层维护 operating-point reachable set，慢层返回局部 surrogate 及可信域，scheduler 根据 bound 而不是固定计数决定是否重算。
+**最小判别实验**只需保留论文的 two-phase IBC 与两只可同步调节的 gate driver。固定 \(V_{CC}\)、总负载、平均 switching frequency、duty cycle 和两边沿处的瞬时 \(I_L\)，把两桥臂相对边沿间隔 \(\Delta t\) 从大于振荡衰减时间扫到一个振荡周期以内；同步测量两只器件的 \(v_{ds}\)、\(i_{ds}\) 与 DC-link current，并逐边沿积分 switching energy。基线一用论文式 isolated Layer 2 在各自真实 \((V_{CC},I_L,T_j)\) 上分别重建后相加，基线二使用包含实测 shared parasitics 的联合状态模型。最强替代解释是“phase shift 只改变了电感纹波/电流分配”。为区分它，实验需在匹配边沿瞬时电流后继续扫 \(\Delta t\)，再只改变高频共享网络的 decoupling placement，使低频纹波基本不变：若 peak 与 energy 对 \(\Delta t\) 呈相位锁定的振荡规律，并随共享网络固有频率一起平移，且只有联合模型能预测其符号与相位，核心机制得到支持；若所有差异都由各边沿的 \(V_{CC}\)、\(I_L\)、\(T_j\) 独立解释，这个 bet 即不成立。
 
-（d）**第一个证伪实验。** 直接使用 §11 的 event-dense 序列；若 bound 经常宽到无法指导保护，或为了收紧 bound 而频繁触发 Layer 2、导致 deadline miss/Block RAM 超预算，则该想法被证伪。现有实现的 Block RAM 已使用 91.4%，因此资源不是可以忽略的次要指标。[pdf:E09]
+与本文及其综述的相邻方法相比，四项区别是实质性的：**problem** 从“在一个工作点重建单器件 transient”变为“解释并设计多个换流事件的非加性交互”；**mechanism** 从器件内部的分段非线性变为器件状态经共享寄生网络保留和叠加；**representation** 从独立四维 half-bridge state 与 \(LUT_E(V,I)\) 变为含相对时间和共享电磁状态的联合 hybrid system；**experimental object** 从单个 commutation unit 或按低频量对齐的 IBC，变为可扫 \(\Delta t\) 且可重构 shared parasitics 的多桥臂硬件。[pdf:E02] [pdf:E07] 以上只是在未做外部相关全文检索条件下、依据本文 method、figures、tables、Appendix 和文内综述形成的候选判断，不声称 novelty。
 
-（e）**与本文的实质区别。** 本文解决的是“如何让一个慢器件模型周期性校正实时层”；候选方向改写为“如何证明慢器件模型在未更新期间仍安全可用，并只在证书失效时重算”。它改变了调度目标和输出语义，不是简单增加第三层或换一块更快 FPGA。
-
-以上是**候选研究想法**。这里只依据本文及其参考文献重建问题，没有完成面向 event-triggered EMT/HIL、reachability-certified surrogate 与 device-stress bounding 的系统相关工作检索，因此不声称 novelty。
+**Wild-card alternative：**把论文固定的 \(-5/16\text{ V}\)、\(10\,\Omega\) gate drive 改成按 Miller charge 与 reverse-recovery 区间分段的 gate-current waveform，联合设计各段电流幅值和驻留时间，以相同开关能量预算直接塑造 \(dv/dt\)、\(di/dt\) 与反向恢复，而不是利用桥臂间共享寄生耦合。[pdf:E07] [pdf:E09]

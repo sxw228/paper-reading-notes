@@ -138,10 +138,18 @@ LB-LMC 的固定拓扑让精确端口分区成为可能，但多 FPGA 的最终�
 
 这个反例直接攻击两种可能的替代解释。第一，Table I 的成功可能主要来自“把 840 个 DSP 的容量变成两份”，而非分解降低了总计算；事实上分解后单板映射的 DSP 需求从 1,114 增到 1,178。[pdf:E10]（PDF 物理页 10，Table I）第二，两块对称 FPGA 的 50 ns/50 ns leapfrog 调度可能掩盖了真实模型中不均衡的关键路径。[pdf:E08]（PDF 物理页 8，Section VII-A）若增加分区后只能延长步长、丢弃同一步注入或让端口开销吞掉新增资源，那么“通过 nodal decomposition 实现可扩展的纳秒级 multi-FPGA 仿真”至少在强耦合网络上不成立。还可以在同一实验中注入极低概率单比特错误，因为原并行总线没有错误检测；若一次错误即可触发明显能量偏差或不稳定，就说明“通信错误可忽略”不是安全的系统假设。[pdf:E07]（PDF 物理页 7，parallel bus 无 error detection/correction）
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-**候选想法：把“通信必须隐形”改写为“通信延迟是可建模、可约束的端口动态”。** 这不是简单换更宽的总线，而是把 multi-FPGA EMT 的问题定义从理想同步等效，改为 deadline-aware、energy-consistent 的 latency-aware port model：端口显式携带时间戳、延迟和误差界，求解器用 passivity/energy accounting 或预测校正保证在有限延迟下仍可给出稳定性与误差证书。论文已经指出，分区过度会增长通信与资源开销，但没有给出跨越这一边界后的数值模型。[pdf:E10]（PDF 物理页 10，Conclusion）
+**主 bet：用可编程非互易 multiport 合成“现实中尚未接线”的定向变流器网络。** 新的研究问题不是如何继续拆大一个已知电路，而是：能否不再要求 Norton port 只是某个既有远端子网的被动等效，而把方向相关的 transconductance 直接作为实验自变量，在多 FPGA 上合成 \(Y_{tr,ij}\neq Y_{tr,ji}\) 的 active multiport？这将首次使研究者能在 100 ns 级 EMT 闭环中构造和重排 one-way transient propagation、circulator-like converter ring 等难以靠实体功率硬件快速搭建的网络，直接研究定向耦合如何改变换相扰动的传播次序、空间分布和集体模态。由于本次没有检索该方向的外部全文，以下只是一项由本文证据推出的候选判断，不声称 novelty。
 
-驱动需求是：真实大系统往往不能保证所有子网对称、所有切口都很少，也不能永远依赖短而无错的并行线缆。该方向若成立，价值在于允许更多 FPGA、远距离互连或 serial link，同时把“还能不能实时且可信”变成可计算的设计约束，而不是样机特例。可借鉴的相邻工具包括 networked control 的时延系统分析、passivity-based co-simulation、wave-variable 接口和 real-time scheduling；这里仅是基于本文局限的候选组合，本次未充分检索相关全文，不声称 novelty。
+因果链是：LB-LMC 先把 converter 的非线性动作留在逐步更新的功能源中，使网络求解层保持固定线性；一般 Norton multiport 又把不同方向的 \(Y_{tr,ij}\) 与 source-to-port 增益 \(\alpha,\beta\) 显式写入端口矩阵和源向量。[pdf:E02]（PDF 物理页 2，Eq. (1)–(5)）[pdf:E05]（PDF 物理页 5，Eq. (8)–(11)）若不再从一个既有 reciprocal 子网反求这些系数，而是直接设计非对称 off-diagonal transconductance，并让 duplex link 在同一步双向交换相应注入，则每个 FPGA 的局部求解仍保持原有结构，但跨子网作用获得方向性；在三个以上子网组成的环中，这种不对称会把本来双向扩散的端口扰动变成具有确定传播方向的 transient circulation。两个最基本的设计变量是端口矩阵的 symmetric/antisymmetric 比例 \(\gamma=\lVert(Y-Y^T)/2\rVert/\lVert(Y+Y^T)/2\rVert\)，以及 directed port graph 的边方向和 port placement；进一步变量是每条定向边的 transconductance 幅值与参与组合的子网数。
 
-第一个证伪实验是在同一个 monolithic reference 上系统扫描 0–3 个步长的可变延迟、不同切口数、突发 bit error 和非对称求解时间，对比本文的零延迟 Norton 接口与候选 latency-aware 接口。如果候选方法不能在给定 deadline 下同时改善稳定域和误差上界，或其额外逻辑让资源/时序比原方案更差，它就应被否定。与本文的实质区别是：本文把同一步、无错误的注入交换作为精确等价的前提，[pdf:E04] [pdf:E07] 候选方向则把通信非理想性提升为模型和认证对象。
+这个押注来自论文已经实现但未用于“合成新物理对象”的两处能力。方法上，Fig. 4 已把三个拓扑耦合子网写成可组合的 multiport，Eq. (11) 也分别保留 \(Y_{tr12}\) 与 \(Y_{tr21}\)，而不是只给一个无方向的标量连接；在线流程则让各子网直接交换同一步 current injection，无需系统级集中求解器。[pdf:E03]（PDF 物理页 3，Fig. 4）[pdf:E04]（PDF 物理页 4，Eq. (6)–(7)）[pdf:E05]（PDF 物理页 5，Eq. (11)）实验上，Fig. 12 的 16-bit source-synchronous DDR bus 本来就是 full duplex，样机已用 50 ns 本地计算加不超过 50 ns 注入交换闭合 100 ns 步长；但验证对象只有两个计算量和交换数对称的子网。[pdf:E07]（PDF 物理页 7，parallel bus 与 Fig. 9）[pdf:E08]（PDF 物理页 8，Section VII-A）Table I 还显示 decomposition 并未降低总资源，端口注入反而增加开销，所以新实验必须把“合成了新的定向耦合现象”作为收益，而不能把更多分区或更省资源当成默认结论。[pdf:E10]（PDF 物理页 10，Table I 与 Conclusion）
+
+成功后的最大收益，是得到一种 nanosecond EMT synthetic-network instrument：研究者可以在不制作 gyrator/circulator 功率样机的情况下，系统探索非互易耦合引起的 directional mode localization、扰动循环和 converter-network collective dynamics，并把端口矩阵本身作为可重复的物理实验材料。最大的科学风险则是，任意非对称 \(Y\) 可能并不对应一个因果可实现的功率网络；它也可能令盖印后的 \(G_s\) 奇异，或形成本文原有 reciprocal 等效中不存在的 instantaneous active algebraic loop。若如此，观察到的单向波形只是数值受迫或 controller feed-forward 的假象，而不是可解释的合成网络现象。
+
+最小区分实验只需三个参数完全相同的 half-bridge subnetwork。先用 symmetric \(Y_0=Y_0^T\) 建 reciprocal ring，再只在 off-diagonal port terms 上加入 \(\gamma A\)（\(A^T=-A\)），分别从 A、B、C 注入相同的小扰动，测量前几个 switching periods 内的 \(H_{i\rightarrow j}/H_{j\rightarrow i}\)、扰动到达次序、局部电压/电流轨迹与 monolithic fixed-matrix reference 的差异。随后做两个强对照：把 \(A\) 的方向整体反转，以及在不改变 \(Y\)、controller 和 load 的情况下轮换三个子网到不同 FPGA。若方向性随 \(A\) 反转而反转、却不随 board mapping 改变，并且 100 ns 步内的计算仍闭合，就支持“非对称端口算子产生定向网络作用”这一机制；若方向性绑定某个 controller、load 或 FPGA，最强替代解释就是局部不对称或硬件时序偏置。
+
+它与本文及已完成近邻方向的边界是明确的：problem 从“把既有微电网装入多板”变成“用多板创造可控的非互易网络”；mechanism 从“复制远端子网的精确 Norton 等效”变成“人为设计方向相关的 active transconductance”；representation 从由既有物理拓扑反求的 \(Y,\alpha,\beta\) 变成可扫描的非对称 port operator；experimental object 从两个已知子网的六变流器 microgrid 变成三个以上同构 converter nodes 构成的 synthetic directed network。这里不依赖跨周期 RTL 波前、图生成、行为状态、Poincaré、反事实分支、elimination、reduction tree 或 carrier macro-operator，核心可控量是端口矩阵的反对称分量与有向连接本身。
+
+**Wild-card alternative：** 把 Fig. 12 中仅用于观测的 DAC/IO 扩展成双向功率接口，让一个 Norton subnetwork 由真实 converter hardware 占据，从而研究可重组 physical–digital network；其机制是实体子网替换而非定向 transconductance，基本变量是 physical/digital boundary、接口电压/电流尺度和模拟带宽。

@@ -184,16 +184,16 @@ PENODE 的核心贡献是把 hybrid power converter 的“何时换方程”和�
 
 这个反例直接攻击 Eq. (3)–(8) 的 guard/event 闭合和 jump 连续性假设，而不是泛泛说“数据不够”。论文现有实验没有报告这类 guard drift 或 missing-mode 测试，因此结果无论支持还是反驳，都能显著改变我们对方法适用边界的判断。[pdf:E03][pdf:E08][pdf:E11]
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-在工业电子与 power electronics 领域，高影响工作通常不仅需要更低的离线误差，还要给出物理可解释性、真实硬件上的确定性实时性能、跨工况/拓扑证据，以及模型进入控制回路后的收益和安全边界。本文已经覆盖单一硬件案例的实时部署与控制演示，但复杂拓扑、在线老化和 fault prognosis 仍被作者列为未来方向。[pdf:E11][pdf:E12]
+**主 bet：让 Sim-to-Real EDT 给出可由真实元件替换验证的设计梯度，从固定样机的仿真器变成电路—FPGA 联合设计实验台。** 新问题不是“怎样把当前两级变换器拟合得更准”，而是：经过少量有计划的硬件变体训练后，模型能否在未制造的设计点上回答“换多大的电感/电容，并采用多大的 FPGA 并行度与数值位宽，才能以给定资源获得更好的真实动态性能？”若成立，它首次使同一个 edge twin 同时提出物理样机和推理硬件的可证伪改版，而不必为每组元件值从零采数、训练和综合。
 
-一个非增量的候选方向是：**把问题从“已知 event automata 下学习连续 residual”改写为“带不确定性的 guard、reset 与 vector field 联合数字孪生”**。它不再假定 mode 与 event time 已闭合，而是同时输出当前 mode posterior、下一事件时间分布、可能的 state reset，以及各模式的 physics-residual dynamics；当 event uncertainty 超过阈值时，EDT 不向 MPC 提供单一确定轨迹，而切换到可达集合或保守控制包络。
+核心机制是 **design-equivariant hybrid vector field**：把物理设计量从“拟合后解释当前样机的参数”改成实验中被主动改变的因果坐标。论文已令 \(A=\mathcal F_A(\theta_{\mathrm{phy}})\)、\(B=\mathcal F_B(\theta_{\mathrm{phy}})\)，并让轨迹 loss 的梯度同时流向 \(\theta_{\mathrm{phy}}\) 与 neural term；这提供了对 \(L,C,R\) 显式求导的结构基础。[pdf:E05] 研究中应在若干真实元件组合上训练一个由无量纲工作点和元件描述符条件化的 vector field，使元件变化引起的主导 ODE 变化进入 \(\mathcal F_A,\mathcal F_B\)，其余非理想效应也随设计坐标连续搬运，而不是被固定样机的网络参数吞掉。另一侧，用真实综合结果学习 FPGA 映射量到执行代价的离散响应面；论文的 Fig. 7 已暴露并行 MVM/MVTU 单元数 \(P\)、物理/神经支路位宽与硬件流水这些自由度，[pdf:E07] Table VI 又表明 solver/mapping 的变化可把单周期 latency 从 32.7 \(\mu s\) 降到 12.6 \(\mu s\)，同时改变 DSP48、BRAM 和 LUT 占用。[pdf:E11] 因果链因此是：真实元件干预赋予 vector-field 导数物理含义 → 条件化表示把这种导数搬运到未见设计点 → 实测 FPGA 响应面提供实现代价 → 外层搜索据此选择尚未制造的电路—推理组合 → 新样机直接检验预测方向。
 
-- **未满足需求：** 真实硬件的 dead time、DCM、保护动作、器件老化和异步故障会移动 guard 或产生新 mode；固定 LUT event automata 无法表达“我不知道现在是哪一种模式”。
-- **潜在研究价值：** 这会把 Sim-to-Real 从参数校准扩展到 hybrid structure calibration，并把模型不确定性直接连接到闭环安全，而不是只追求平均 MSE。
-- **可借鉴工具：** hybrid system identification、change-point detection、neural hybrid automata、Bayesian event-time inference，以及 reachability/conformal prediction 可分别用于 guard 学习、模式后验和安全包络。论文参考文献中已列出 neural hybrid automata，但本卡未做外部相关工作穷尽检索。[pdf:E12]
-- **首个证伪实验：** 训练时只给标称 dead time 与 CCM，测试时系统性扫 dead time、温度和 DCM 边界；若联合模型不能比固定 EA-PENODE 更准确地校准 event time，也不能减少 MPC constraint violation，那么“学习 guard uncertainty 有工程价值”的核心假设即被反驳。
-- **与本文的实质区别：** 本文把 event automata 作为已知调度骨架，主要学习每个模式内的 continuous residual；候选方向把 guard、reset、未知 mode 和安全决策本身变成研究对象，改变了问题定义，而不是给 PENODE 再叠一层网络。
+基本设计变量至少分成两组：电路侧的 \(\theta_{\mathrm{circ}}=\{L_{lk},L_b,C_d,C_{o1}\}\)，以及实现侧的 \(\theta_{\mathrm{hw}}=\{P,b_{\mathrm{phy}},b_{\mathrm{NN}}\}\)。论文中的 25 kHz DAB、四路 200 kHz buck 和 Table I 元件值给出了可操作的起点，[pdf:E06] 而 Fig. 9/Table IV 在 gray-box 下展示的“小而平滑”修正场及 \(R^2=0.97\) 说明部分物理已知时，这种结构至少有成为跨设计表示的希望；但现有结果只验证一个固定物理平台，不能证明设计梯度正确。[pdf:E09] 最大收益是把 Sim-to-Real 从“复制已经造出的硬件”推进到“用少量真实样机探索可制造的电路—计算 Pareto 面”，从而产生一种新的实验科学能力。最大科学风险也很尖锐：当前联合训练只保证轨迹拟合，\(\theta_{\mathrm{phy}}\) 与 neural term 可能不可辨识；对训练损失可用的梯度，未必等于真正更换 \(L_b\) 或 \(C_{o1}\) 后的因果导数，尤其当寄生参数和工作区间随器件一起改变时。
 
-由于没有对最新相关工作的系统检索，这里只把它称为证据约束的候选研究方向，不声称 novelty。
+最小判别实验可只改论文的两级平台。准备 \(L_b\times C_{o1}\) 的小型可插拔元件网格，并对每个物理设计综合若干 \(P\times b_{\mathrm{NN}}\) 配置；训练时故意留出“未见元件组合 + 未见映射组合”，比较 design-equivariant PENODE、固定标称 PENODE、同参数量 black-box NODE 和每个设计单独重训的上界。先检验模型对负载阶跃 overshoot、switch-level trajectory error、latency 与 DSP/BRAM 的局部有限差分符号和排序，再让各模型从同一起点各推荐一次在固定资源预算内的改版，并实际换件、综合、运行。若主模型不仅插值波形更准，而且在留出组合上预测对设计导数的符号、选出的单次改版也兑现改进，就支持“干预赋予梯度因果含义”；若它的轨迹误差较低却导数符号错误，或收益在真实换件后消失，则说明结果只是数据覆盖或 surrogate interpolation，而不是可迁移的设计机制。
+
+它与本文及最近对比对象的区别可按四层钉死：**problem** 从固定样机的状态预测变为未制造设计的反事实选择；**mechanism** 从名义参数初始化后的轨迹共适应变为跨真实元件干预保持设计导数；**representation** 从每个固定 converter 的 \(f_{\mathrm{phy}}+f_{\mathrm{NN}}\) 变为由设计坐标条件化的 hybrid vector field 加实测硬件响应面；**experimental object** 从一台 converter 的 1200 条工况轨迹变为可插拔 converter 族与多份 FPGA bitstream 组成的设计格点。论文列出的 physics-only、PRNN、PINN 与 conventional NODE 都以还原既定系统为评价对象，作者自己也把更复杂拓扑和 modular large-scale system 留给未来工作；现有正文与参考文献没有验证上述跨物理设计梯度。[pdf:E08][pdf:E10][pdf:E12] 因未做外部全文穷尽检索，这只是论文证据约束下的候选判断，不声称 novelty。
+
+**Wild-card alternative：** 把每个模式内的 \(f_{\mathrm{phy}}+f_{\mathrm{NN}}\) 直接映射为模拟连续时间计算阵列，让 FPGA 只传递 mode 与输入，并以物理—模拟时间缩放比和跨模式状态保持带宽为基本变量，检验 hybrid ODE solver 能否从数值程序变成器件自身的动力学；该机制与主 bet 的设计梯度完全不同，且论文只在参考文献中提及 conventional analog-memristive NODE，尚无本文系统上的验证。[pdf:E11][pdf:E12]

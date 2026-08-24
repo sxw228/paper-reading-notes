@@ -192,14 +192,18 @@ NSS 把 hybrid solver 中最昂贵的两个计算块改写成轻量 NN forward�
 
 若 NSS 在明确未训练的 parameter shift 与 dense events 下仍能维持 bounded error，论文的核心机制会得到更强支持；若失败，则说明当前 23 倍与 60% 是以未验证的 distribution coverage 换来的，而不是无条件的 solver improvement。这是基于论文输入结构与案例范围的推断，不是作者已经报告的实验结论。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-### 候选方向：带运行时误差证书的 deadline-guaranteed hybrid solver
+### 主 bet：用开关交互谱组合出未见过的系统矩阵
 
-电力电子与控制领域的高影响工作通常不只看平均 benchmark，还看 numerical stability、worst-case timing、硬件可实现性、跨工况复现和闭环安全价值。本文已经把推演做得快且资源友好，但最关键的未满足需求是：edge controller 不知道当前 NN correction 是否仍处于可信分布，也不知道错误何时会跨过闭环安全边界。
+**新能力。** 这项研究不再问“怎样把同一台 converter 的已见工况算得更准”，而是问：能否从少量精确配置中识别开关之间的组合规律，使 edge solver 第一次可以直接组装训练集没有出现过的 switch configuration，而不必先枚举指数增长的完整配置表？论文当前的 \(f_\theta\) 把 24 维 one-hot switch vector 整体映射到 110 个矩阵元素，并用 256 个 unique mappings 训练；这更像对有限配置域做一个整体函数拟合。[pdf:E03][pdf:E05] 主 bet 是用新的 configuration-space representation 取代这个整体 MLP，而不是在原 NSS 外面增加附属模块。
 
-候选研究目标可以从“让 NN 更准确”改成“在固定 deadline 内，同时输出状态推进与可校准的 local error certificate；证书失效时，切换到有界代价的保守积分/局部重校准”。这不是给 NSS 再叠一个 accuracy module，而是把求解器的输出定义从 point estimate 改成 **state + validity bound + deadline contract**。可借鉴相邻领域的 reachability、a posteriori error estimation、conformal calibration 和 anytime computation，把 event interval、parameter uncertainty 与 quantization error 一起纳入证书；FPGA 端只保留能在 deadline 内执行的轻量 bound propagation。
+**核心机制与基本设计变量。** 对每个矩阵元素，把 \(\Delta A(K),\Delta B(K)\) 展开为 categorical switch variables 的乘积基：常数项、单开关项、双开关交互项，直到少量必要的高阶项；再用同一组 interaction coordinates 条件化连续推进网络。其因果链是：Eq. (3) 已把离散拓扑变化写成确定的 \(K_k\mapsto(A_k,B_k)\) 映射，若真实电路只含少数占主导的 switch interactions，那么经过设计的配置采样就能恢复稀疏交互谱；未见配置随后由这些已识别交互项组合出矩阵，连续状态推进也复用同一 topology coordinates。[pdf:E02][pdf:E03] 至少三个基本设计变量由此显式出现：保留的最高 interaction order \(r\)、每阶矩阵系数的低秩维数 \(q\)，以及用于辨识各阶交互的 configuration sampling design。删除这种表示后，系统就退回“只会拟合见过的完整配置”，不再具备组合外推能力。
 
-第一个能证伪它的实验是：在 withheld topology、component drift、dead time、noise 与 dense-event 组合下，检查证书是否同时满足两件事——真实一步误差落在声明 bound 内的频率达到预设 coverage，且 fallback 后 worst-case latency 不越过控制 deadline。如果 bound 经常漏报，或者 fallback 使实时性消失，这个方向就失败。
+**为什么值得押。** 方法侧的依据很具体：论文已经把昂贵的 matrix inversion 隔离成 \(K_k\) 到 \(\Delta A_k,\Delta B_k\) 的独立学习问题，而且 \(g_\phi\) 的 122 维输入中有 110 维正是向量化的 \(A_k,B_k\)，说明离散模型表示是整个后续求解的数据入口。[pdf:E03][pdf:E05] 实验侧则显示，这种分解在固定两级 dc-dc converter 上已经能进入 FPGA dataflow：NSS 的动态波形贴近 DOPRI，FPGA 实现报告 DSP48/BRAM/LUT 为 26.0%/15.0%/22.0%。[pdf:E05][pdf:E06] 最大收益不是再省一点资源，而是把训练数据对配置数的依赖从接近枚举降为由有效 interaction order 决定，并把“哪些开关必须共同出现才改变某个状态耦合”变成可检验的科学对象。最大风险也来自 Eq. (3)：\((I-D_1K_k)^{-1}\) 可能产生稠密的高阶全局交互；若交互谱不稀疏，组合表示既不能压缩数据，也不能外推。
 
-它与本文的实质区别在于，本文优化 nominal known-model 下的速度、资源和 average accuracy，并未提供 error bound 或 sim-to-real guarantee。[pdf:E05][pdf:E06] 新方向把“何时可以信任 neural surrogate”变成首要研究问题，并把 failure observability 纳入硬件接口。由于本卡未对 certified neural ODE、hybrid reachability 与 conformal time-series solver 做充分相关工作检索，这里只把它标为候选想法，不声称 novelty。
+**最小判别实验。** 直接利用论文已有的 256 个精确 mappings，不先做更大的硬件实现。构造 structured holdout：训练集中保留每个单独 switch state 的相同边际频率，却系统排除若干指定的二阶或三阶组合；测试只放这些未见组合。固定训练样本数和参数量，比较原 24→110 MLP、等容量 random categorical-feature model，以及 \(r=1,2,3,\ldots\) 的交互谱模型；先测 \(A_k,B_k\) 的 Frobenius error，再把各自预测矩阵送入同一个高精度 propagator 测 event-point trajectory error。最强替代解释是“提升只来自更强正则化或参数分配，而不是可组合的开关机制”。若只有按真实 switch coordinates 构造的乘积基在 structured holdout 上胜出，且误差随 \(r\) 出现可重复的阶次饱和，而等容量随机特征和整体 MLP 都不能复现，就支持交互机制；若 MLP 同样成功或必须保留接近满阶的项，主 bet 即被否定。
+
+**与本文及邻近工作的实质区别。** problem 从 fixed known-model inference 改为 unseen-configuration composition；mechanism 从一次整体 NN forward 改为可辨识的 switch-interaction composition；representation 从 flattened one-hot 与整块 matrix output 改为按阶组织的 categorical interaction spectrum；experimental object 从同一 converter 的普通 dynamic trajectory 改为保持边际分布但切断特定组合的配置干预。论文所述邻近 GNN 工作面向 circuit transient prediction，而本 bet 的对象是 event-driven solver 内部的离散配置—系统矩阵代数；本文自己的 benchmark 也没有 ML baseline 或 topology/configuration holdout。[pdf:E02][pdf:E05] 论文没有 appendix，也未给 interaction-order ablation 或量化位宽，因此这里是由本文结构推出的候选判断；未做外部全文检索，不声称 novelty。
+
+**Wild-card alternative：** 把 Eq. (10) 的 normalized one-step error 改写成可学习的 B-series coefficient field，用保留的 rooted-tree order 与 step-size sampling law 作为两个设计变量，让同一模型按需合成不同阶数的 event-aligned integrator，而不是绑定在固定的“1st + NN”形式上。[pdf:E03][pdf:E04][pdf:E05]

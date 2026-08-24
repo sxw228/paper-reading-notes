@@ -215,25 +215,30 @@ TL-PEODE 用可微分的 DAB-ODE/GLIRK 管住主动态、用 ResNet-LSTM 补残�
 
 若 TL-PEODE 在短窗口 MAE 上仍最好，但出现更大的 KCL/KVL residual、非物理能量产生或 rollout instability，就得到一个有力替代解释：优势来自 residual network 对测量分布的统计拟合，而不是在新工况下仍保持 physics-consistent dynamics。反过来，若它在该测试中同时保持低 MAE、低方程残差和 bounded energy drift，才真正补上论文当前缺失的证据。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-### 候选方向：从“输出残差补偿”改成“可容许缺失物理的辨识”
+### 主 bet：把 DAB 建模对象改成“开关事件组成的可重排流算子”
 
-这是一个**候选研究方向，不声称 novelty**；本卡没有对相邻领域做完整检索。
+这是一个**候选判断，不声称 novelty**：本卡没有对相邻方向做完整全文检索，下面与最近路线的比较只限于本文的方法描述及其实际实例化的 PINN、PA-RNN 等 baselines。
 
-**（a）未满足的需求。** 当前 TL-PEODE 把 residual 直接加到 state output，accuracy 可以提高，但最终输出是否满足 circuit law 没有保证；同时 GPU speed 也没有转化为 FPGA 上的 deterministic real-time budget。[pdf:E04][pdf:E07]
+**新能力。** 研究问题不再是“在固定采样网格上预测下一个 \(i_L,v_o\)”，而是：如果训练数据已经覆盖各个局部导通 mode，却从未出现某个完整的 TPS/SPS/DPS/EPS 事件序列，模型能否仅凭新的事件顺序与持续时间，组合出该 modulation program 的整周期乃至跨周期波形？若成立，它将首次使本文这类模型具备一种可检验的组合外推能力：不依赖目标序列的波形标签，把已学过的局部开关物理重排成未见过的合法调制轨迹，而不只是从 case 1 插值到一个 case 2 点。
 
-**（b）问题重定义。** 不再问“怎样用 network 把预测误差补小”，而问“怎样只学习允许进入 DAB state equation 的 missing physics”。例如让 network 输出 dead-time voltage、parasitic loss、unmodeled current injection 或 parameter drift，再把它们作为受约束项送回 ODE：
+**因果机制与基本设计变量。** Eq. (2)–(5) 表明，在相邻开关事件之间，\(s_{\mathrm{pri}}\) 与 \(s_{\mathrm{sec}}\) 保持常值，DAB 按一个确定的局部向量场演化；\(D_1,D_2,D_\phi\) 的作用则是移动 Fig. 3 中 \(t_0,\ldots,t_{10}\) 的边界并改变这些局部 mode 的持续时间与排列。[pdf:E03] 因此可把一个周期表示为
 
 \[
-\dot{x}=f_{\mathrm{known}}(x,u,\theta)
-+G(x,u)\,r_\phi(\text{history}),
+x_{m+1}=\Phi_{q_m}^{\Delta\tau_m}(x_m;\theta),\qquad
+x(T)=\Phi_{q_M}^{\Delta\tau_M}\circ\cdots\circ
+\Phi_{q_1}^{\Delta\tau_1}(x(0)),
 \]
 
-其中 \(r_\phi\) 必须满足 dimensional consistency、bounded dissipation 或 passivity constraint。这样 residual 修正的是 differential equation，而不是绕过方程修改最终 state。
+其中 \(x_m=[i_L,v_o]\) 是第 \(m\) 个开关边界的状态，\(q_m=(s_{\mathrm{pri}},s_{\mathrm{sec}})\) 是离散导通 mode，\(\Delta\tau_m\) 是该 mode 的持续时间。核心不是在原输出上再加模块，而是分别学习或解析—学习每个 \(\Phi_q\)，再按合法事件序列做函数复合；“同一局部 mode 在不同调制策略中复用”才是组合外推的原因。它至少改变三个基本设计变量：从 uniform time index 改为 event boundary，从 \(D_1,D_2,D_\phi\) 三个静态输入改为 mode order 与 interval-duration vector，从单步 \(\Delta t\) rollout 改为 cycle-level composition。
 
-**（c）可借鉴工具。** 可以借鉴 port-Hamiltonian neural network、passivity-constrained system identification、differentiable circuit simulation 和 constrained neural ODE；部署侧再用 fixed-point-aware training 与 hardware-in-the-loop timing analysis，把“物理可容许”与“FPGA 可执行”放到同一个验收里。
+**论文特异依据。** 当前 PEODE 的 MLP 产生 GLIRK latent stages，并由 Eq. (10)–(14) 在相邻观测时刻递归更新；TL 分支再读取长度 \(L\) 的 uniform-time history。这说明本文已有可微局部 flow 的雏形，却没有把 switching event 本身作为数学对象。[pdf:E04][pdf:E05][pdf:E06] 实验侧，Fig. 12 显示 window 内第 8–11 个时间步与末步更有信息，而 Table V/Fig. 13 只比较 \([0.115,0.116,0.32]\) 与 \([0.395,0.405,0.275]\) 两个固定点；case 2 上纯 data-driven baselines 明显失效、TL-PEODE 仍较准，但这不能区分“学会可复用的局部 mode”与“只是对第二个波形分布做了 residual adaptation”。[pdf:E07][pdf:E09] 全文没有独立 appendix 或 limitations section；与此押注直接相关的负面线索来自方法部分承认的 switching ripple、parasitic effect、component degradation，以及实验没有跨 modulation family 或连续参数路径。[pdf:E05][pdf:E09]
 
-**（d）第一个可证伪实验。** 直接使用 §11 的复合 domain shift，对比 output-additive TL-PEODE 与 equation-residual model。若后者不能在相近 MAE 下显著降低 Eq. (4)–(5) residual、energy drift 和 long-rollout failure，或者其 implicit solve 无法满足目标 FPGA step budget，就应淘汰这个方向。
+**最大收益与科学风险。** 最大收益不是再降低一个固定工况的 MAE，而是得到可重排的 DAB dynamics basis：一次学习局部 mode 后，可以系统检验未见的调制族、连续 \(D_1,D_2,D_\phi\) 路径和 switching-frequency 变化，并把误差定位到具体事件区间。最大的科学风险是 \(q_m=(s_{\mathrm{pri}},s_{\mathrm{sec}})\) 并非充分状态：dead time、current direction、器件结电容、磁性迟滞与温升可能让“同名 mode”的向量场依赖此前整段路径。若这种隐藏记忆占主导，局部 flow 不能跨序列复用，事件复合假设会从根上失败，而不是只损失一些精度。
 
-**（e）与本文的实质区别。** 本文把已知物理做成 backbone、把未知部分做成 output residual；候选方向把未知部分也限制为“可进入物理方程的机制项”，研究目标从 waveform approximation 改成 admissible missing-physics identification，并把 real-time determinism 作为一等约束。这不是简单再加一层 network，而是改变 residual 的语义、约束位置和验收标准。
+**能区分机制的最小实验。** 在同一台 Fig. 8 原型上采集一个小型 factorial dataset：训练集覆盖所有实际出现的 \(q_m\) 及各自的 \(\Delta\tau_m\) 区间，但刻意留出若干完整的合法 mode ordering，并留出一条跨 TPS mode 边界的 \((D_1,D_2,D_\phi)\) 扫描；测试集只由这些“局部片段见过、完整组合未见过”的序列构成。用完全相同的原始波形、参数量和训练预算，比较事件复合模型与加入 switching phase 编码的 sample-based PEODE，并同时报告 event-boundary state error、整周期 waveform error 和多周期 rollout error。最强替代解释是收益仅来自 switching-edge alignment 或较短的有效预测跨度，而不是局部 flow 可复用；若 phase-aligned PEODE 达到同等外推效果，或事件模型在未见 ordering 上失效，这个押注即被反驳。只有事件模型在每个局部 mode 都已见过、组合顺序未见过时仍显著胜出，才支持“函数复合产生组合外推”这一核心机制。
+
+**与本文及其 baselines 的实质区别。** problem 上，本文验证 fixed-grid next-state regression 与两个 operating points，本方向研究未见 modulation program 的组合生成；mechanism 上，本文是 GLIRK state update 加 output residual，本方向是 mode-specific flow 的有序复合；representation 上，本文使用 uniform-time history 与连续输入，本方向使用 \((q_m,\Delta\tau_m,x_m)\) 构成的 hybrid event sequence；experimental object 上，本文对象是 Mode 1/Mode 2 的两组稳态与瞬态波形，本方向对象是被主动留出的合法事件排列、跨 mode-boundary 轨迹与 modulation-family 变换。删除事件分解后，这项能力和可证伪命题都不再存在，因此它不是泛用 wrapper。
+
+**Wild-card alternative：**把任务改成主动辨识，联合设计连续若干周期的 \((D_1,D_2,D_\phi)\) 激励序列与传感器采样相位，使 \(L_s,C_2,R_T,R_{\mathrm{load}}\) 的波形响应最大程度分离，并用 Fig. 16 中 \(C_2\) 收敛较慢、Fig. 17 中 \(L_s/R_T\) 最敏感的现象检验“小样本可辨识性”而非被动预测精度。[pdf:E10]

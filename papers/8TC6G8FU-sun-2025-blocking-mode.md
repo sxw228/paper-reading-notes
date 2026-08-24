@@ -160,14 +160,18 @@ H_{2\Delta t}^{\sigma^\*}=2\Delta t F_{2\Delta t}^{\sigma^\*}B^{\sigma^\*}.
 
 用 event-resolved variable-step reference 和迭代 \(R_{\mathrm{ON}}/R_{\mathrm{OFF}}\) 模型作为真值，比较本文算法是否选错 \(2\Delta t\) 矩阵、漏掉第二次状态变化，或产生持续过零振荡。若错误仅来自寄生参数缺失，那只是器件模型局限；若即便使用同一理想开关模型也因连续事件而失败，就击中了 prediction-correction 机制本身。这个反例还应扫 gating-to-grid phase，因为论文当前两个固定工况可能只是没有把换流边界落在最不利采样位置。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-在 power electronics realtime simulation 领域，高影响工作通常需要同时给出明确的数值机制、可综合的延迟/资源结果、硬件或 HIL 级实验，以及跨拓扑的适用边界。基于上述最脆弱假设，一个更有潜力的候选方向是：把“blocking mode 判态”改写成**可认证的 hybrid-event envelope** 问题，而不是继续默认每个宏步最多一个自然换流事件。
+**主押注：把多台高频 converter 的 blocking interval 变成可共同设计的计算稀疏窗口，联合优化 carrier phase 与共享 FPGA 的 PE/BRAM 时隙。** 新问题不再是“单台模型每一步怎样少算一次 MVO”，而是：在每台模型仍按本文的 20 ns BE 方程逐步更新时，能否通过改变各 converter 的 carrier phase 和允许的 edge arrangement，让需要完整交叉耦合乘加的时段彼此错开，使一个共享 datapath 承载原本需要多套独立求解器的多通道 HIL？如果成立，首次可能让同片可实时运行的 converter 数量由“可复制多少套最坏工况 MVO”提升到“同一时刻有多少台处于完整耦合状态”，而不牺牲单机波形、开关频率和外部 20 ns 时标。
 
-（a）未满足需求是：20 ns 并不能自动保证所有拓扑、参数和 gating phase 下事件稀疏，现有方法缺少运行时可检查的正确性边界。  
-（b）研究价值在于同时提供“什么时候可安全走单 MVO 快路径”和“什么时候必须局部细分或回退”的证书，使速度优势不再依赖不可观测假设。  
-（c）可借鉴 hybrid systems 的 event localization、interval arithmetic 和 reachability bound：用当前 \(i_h,v_h\) 及其斜率区间预测下一宏步内可能穿越的 blocking boundary 数量；若至多一次，走本文路径；若可能多次，仅对相关半桥臂启动局部 micro-step，而不拖慢全系统。  
-（d）第一个证伪实验就是第 11 节的连续事件相位扫描：若 envelope 经常误判“至多一次”，或保守回退率高到抵消一次 MVO 的收益，这个想法即失败。  
-（e）它与本文的实质区别是把事件稀疏从默认前提变成显式、在线、可验证的求解条件，并允许一个宏步内多个自然换流事件；这改变了问题定义，而不只是再加一个 correction flag。
+这里的核心不是把 blocking mode 当成“整台模型停算”，而是利用它产生的**精确结构稀疏性**。由 Appendix Eq. (21) 可直接推出：SLR 次级二极管桥对称 blocking 时 \(R_{d1}=R_{d2}=R_{\mathrm{OFF}}\)，因此 \(T_2=(R_{d1}-R_{d2})/(R_{d1}+R_{d2})=0\)，谐振电流与输出电压之间的两项交叉乘加消失；Eq. (23) 中四只次级二极管同时 blocking 时同理有 \(l_2=0\)，LLC 的 primary resonant states 与 \(v_o\) 之间由 \(l_2\) 产生的四项耦合也消失。[pdf:E09]（PDF 物理页 9–10，Appendix Eq. (20)–(23)）这是基于附录公式的推断，不是作者已经验证的资源结论。对第 \(j\) 台 converter，可把每个 20 ns 步的非零乘加集合记为计算日历 \(C_j[k;\phi_j]\)；carrier phase \(\phi_j\) 平移其 gating edge，也随之平移周期稳态下的 blocking 稀疏窗口。内部高频 fabric 再把各 \(C_j\) 中的 row-MAC 分配到 micro-slots 与 BRAM banks：一台处于完整耦合段时，优先占用另一台 blocking 后空出的 cross-coupling slots。因而“phase 改变稀疏窗口的绝对位置 → 峰值并发乘加下降 → 同一 PE 阵列复用率提高 → 20 ns 内可容纳更多模型”构成完整因果链。
 
-该方向只由本文证据和 hybrid-system 工具类比推出，相关工作尚未完整检索，因此是候选研究想法，不声称 novelty。
+基本设计变量至少有四组：每台 converter 的 carrier phase \(\phi_j\)，不改变 duty 和 switching frequency 的 edge arrangement，按 \(\sigma^*\) 精确展开的 blocking calendar，以及 row-MAC 到 PE micro-slot/BRAM bank 的映射；若多台功率级共享 dc bus，还要把总线电流 ripple 作为必须保持的电气边界，而不是把相位任意错开。这个方向之所以是本文特异的，是因为 Eq. (4)–(6) 明确把 blocking mode 约束在两路 gating 都为低的自然换流区，Eq. (9)–(10) 又允许逐半桥臂形成 corrected status；Fig. 4 则显示 MVO 是主计算负担、矩阵驻留 LUT/BRAM，常数项已经可以绕过 DSP。[pdf:E02]（PDF 物理页 2–3，Eq. (4)–(6)）[pdf:E03]（PDF 物理页 3，Eq. (9)–(10)）[pdf:E06]（PDF 物理页 6，Fig. 4）Fig. 6 与 Fig. 10 在 100 kHz SLR 和 200 kHz LLC 的稳态波形中均标出了重复出现的 blocking 区间，Table III 又表明单台模型已经分别占用 36 和 68 个 DSP48；论文没有测试多模型共享或 carrier phase 对计算并发度的影响。[pdf:E07]（PDF 物理页 7，Fig. 6）[pdf:E08]（PDF 物理页 8，Fig. 10）[pdf:E09]（PDF 物理页 9，Table III）
+
+最大收益是把 FPGA 扩容对象从“复制完整 solver”改成“调度时间变化的真实乘加集合”：若 blocking windows 足够长且可错开，DSP 数可能随峰值完整耦合台数而非 converter 总数增长，从而提高多通道 controller-HIL 密度。最大科学风险是这些窗口未必提供足够多的零乘加，且自然换流位置会随负载和暂态漂移；此外，为了满足共享母线 ripple 所允许的 carrier phase 可能正好与计算错峰相冲突，micro-slot multiplexing 和 BRAM 冲突也可能吞掉理论节省。任何一项出现，都可能使联合设计相对直接复制 solver 没有优势。
+
+最小判别实验是在同一 XC7K325 上实现四台 Table II 的 LLC，全部保持 200 kHz、20 ns、论文的 37/29 bit fixed-point 格式和同一 blocking 判态。先从 Appendix 矩阵逐状态生成精确 row-MAC 日历，再在相同内部 fabric clock、相同 PE 数和相同 BRAM 端口下比较三组：四套独立 solver；carrier 采用常规等间隔 interleaving、仅做通用 PE time-multiplexing；联合选择 carrier phase 与 slot mapping，并把 aggregate input-current ripple 限制在常规 interleaving 的水平以内。测量每步峰值并发 MAC、可满足 20 ns deadline 的最大 converter 数、DSP/LUT/BRAM、worst negative slack、各状态相对四套独立 solver 的逐点误差与总线 ripple；再做一次 50%–100% load sweep，检验 blocking calendar 漂移是否立即抹掉收益。若联合方案在相同算术和相同电气边界下显著降低峰值 MAC 或增加可运行台数，而仅通用 time-multiplexing 做不到，才支持“blocking-window × phase”机制；若两种共享方案等价，最强替代解释就是收益只来自普通硬件复用，而不是 blocking 稀疏窗口。
+
+相对本文及其全文所述的 [30]/[37]，四个层面均不同：**problem** 从单台 converter 的 per-step blocking 判态成本，改为多台 converter 的物理相位与计算并发度联合设计；**mechanism** 从事件步状态保持和下一步 \(2\Delta t\) 推进，改为平移由 blocking 产生的精确零耦合窗口并做静态 row-MAC 排程；**representation** 从 \(x(k),\sigma^*(k),flag\) 与矩阵表，增加为跨 converter 的 \(C_j[k;\phi_j]\) 计算日历及 PE/BRAM slot assignment，但每台的状态方程仍保持原样；**experimental object** 从单台 SLR/LLC 波形，改为共享 FPGA 与可能共享 dc bus 的 converter bank。[pdf:E02]（PDF 物理页 2，相关工作边界）[pdf:E03]（PDF 物理页 3，本文与 [30]/[37] 的比较）它也不同于共享寄生参数驱动的相干换流、一般网络图分解或物理 band structure：这里不增加寄生物理、不切分任意拓扑，也不构造频带，唯一新增机制是 carrier 可控相位对 blocking 计算稀疏性的时间搬移。由于没有对相关工作的外部全文做系统检索，这仍是候选判断，不声称 novelty。
+
+**Wild-card alternative：** 把 Appendix 的 \(T_{1\text{–}4}\) 与 \(l_{1\text{–}5}\) 当作最小 coefficient algebra，在 FPGA 上直接生成参数化 \(A^{\sigma^*},B^{\sigma^*}\) 及其 BE 系数，使 \(R_{\mathrm{ON}}/R_{\mathrm{OFF}}\)、负载和变比可在实时实验中连续扫参而无需存满矩阵表；它的基本变量是 scalar basis 与 fixed-point 求值次序，而不是 carrier phase 和硬件时隙。[pdf:E09]（PDF 物理页 9–10，Appendix Eq. (20)–(23)）

@@ -239,18 +239,18 @@ MOODFG 把高维工艺输入压到 latent space，用 GP 均值和不确定度�
 
 实验上，把隐藏状态在第 25 个 run 突变，比较 nominal certificate、真实双目标误差和 false-release count。如果 \(D_t^{\mathrm{UCB}}\le\varepsilon\) 却连续出现实测超规格，Eq. (14) 的制造解释就被推翻；理论不会被逻辑反驳，因为 A1–A3 已失效，但这恰好证明这些假设不是可忽略的数学细节，而是 deployment 的前置条件。[pdf:E12]（PDF 物理页 12，Eq. (14) 与 assumptions）
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-在 automation science and semiconductor manufacturing 领域，高影响工作通常不只看离线预测误差，还看实际闭环可执行性、跨时间和跨 tool 的稳定性、错误释放风险、可复现 benchmark，以及与既有 MES/APC/SPC 的集成成本。本文已经把未来工作指向 sequential objectives：后一个目标 \(Y_2\) 反过来改变前一个目标 \(Y_1\)，需要 conditional surrogate 与动态 target。[pdf:E21]（PDF 物理页 21，Section VIII）
+**主 bet：把“每片晶圆选一个静态 recipe”改写成“用片内波形主动操纵 reactor memory”。** 这是一个尚未做外部全文检索的候选判断，不声称 novelty。新的研究问题是：在平均温度、总前驱体/掺杂剂剂量和总工时相同的条件下，能否仅改变气体与加热动作的时序，主动把 SiC 外延反应器从不同初始历史导向同一个厚度—掺杂空间分布？若成立，它首次使 DT 不只寻找一个静态参数点，而能为清腔后首片、产品切换和目标变化合成一段可执行的片内 recipe trajectory。
 
-基于第 9 节，我提出一个**候选研究方向**：把问题从“最小化 posterior target distance”改写成“在 drift 和 delayed labels 下，控制错误 recipe release 的长期风险”。核心不是再给 MOODFG 加一个网络模块，而是用 sequential conformal prediction、change-point detection 与 safe abstention 形成一个 distribution-aware release contract：只有当近期残差校准仍有效、双目标联合 prediction set 完全落入 specification set 时才释放；否则回退到已验证 safe recipe 并主动请求一次有信息量的实验。
+核心机制是**反应路径的非交换性**：先改变载气/温度再注入掺杂剂，与先注入掺杂剂再改变载气/温度，即使总剂量和均值相同，也会通过气路驻留、表面 site competition、热状态和 chamber memory 形成不同的隐藏状态 \(h(t)\)，进而改变生长速率与掺杂并入。基本设计变量至少包括 Si 前驱体、掺杂剂与载气波形的相对相位和顺序，脉冲幅值与 duty cycle，以及 heater ramp rate 和初始 seasoning state；模型对象相应从 \(x\in\mathbb R^{15}\mapsto(\text{thickness},\text{doping})\) 变成受控状态空间 \(h_{s+1}=F(h_s,u_s)\)，输出则是晶圆上的厚度与掺杂场，而不是两个 wafer-level 标量。
 
-具体地说：
+这个押注直接来自论文尚未开发的自由度。本文把连续 APC stream 聚合成每片晶圆的 mean/max/last 或 EWMA，片内 sensor/actuation dynamics 明确留给 APC、排除在优化器之外；当前 shared deep feature 加 per-objective GP 因而学习的是 wafer aggregate 到输出的静态映射。[pdf:E07]（PDF 物理页 7，Fig. 2 与 run-to-run handling）[pdf:E09]（PDF 物理页 9，surrogate choice）但作者又明确区分 thickness 的 growth-rate physics 与 doping 的 chemistry、site competition 和 reactor memory；Fig. 10 中 thickness-only 映射对实际 doping 轨迹存在持续偏差并漏掉 drift excursion。[pdf:E18]（PDF 物理页 18，Fig. 10）同时，Table VI 中 MOODFG、ParEGO 与 NSGA-II 的 final median Best Dist. 都是 0.889，说明在同一个静态 candidate pool 上继续更换选择器未打开新的终态能力。[pdf:E19]（PDF 物理页 19，Table VI）论文没有 appendix，也没有片内波形或受控 history experiment；Section VIII 只提出 evolving sequential objectives，并未把反应器历史变成可操纵的物理状态。[pdf:E21]（PDF 物理页 21，Section VIII）
 
-- **未满足需求。** 现有 GP certificate 的可信度依赖核、feature 与噪声假设；产线真正关心的是“错误放行率是否受控”。
-- **潜在研究价值。** 它把单次 target attainment 提升为可审计的 run-to-run safety guarantee，能直接对应质量、报废和设备风险。
-- **可借鉴工具。** 从 online conformal prediction 借用有限样本 coverage，从 statistical process control 借用 drift alarm，从 safe Bayesian optimization 借用 verified safe set 与 abstention。
-- **首个证伪实验。** 在多 tool、多时间段 replay 中注入 abrupt drift、慢漂移、heavy-tail metrology noise 和 1–3 run 标签延迟；若方法不能控制 false-release rate，或为保持覆盖而长期拒绝下发导致不可接受的 throughput loss，方向即被证伪。
-- **与本文实质区别。** 本文优化的是 GP posterior 下的 target-distance upper bound；新方向优化的是真实 release error 的在线可校准风险，并允许“证据不足时不下发”成为一等决策。
+最大收益是得到一类静态 recipe 根本表达不了的控制自由度：利用相同平均 setpoint 和相同材料剂量，通过路径设计独立塑造厚度与掺杂，并把换线/清腔后的 seasoning wafer 从被动等待变成可设计的状态迁移。最大的科学风险也很清楚：反应器混合与热惯性可能把可执行带宽内的波形全部低通掉，所谓增益也可能只是更大的瞬时幅值或更丰富的数据，而不是 memory steering。
 
-论文 Table VIII 表明 feature 数和速度之间已有明确 trade-off，但这仍是 accuracy/cost 取舍，不是 release-risk 保证。[pdf:E20]（PDF 物理页 20，Table VIII）相关工作尚未做系统检索，因此上述方向只标为候选想法，不声称 novelty。
+最小判别实验应做 prospective、equal-dose crossover，而不是再 replay 离线 candidate pool。选择两档受控初始历史 \(H_0/H_1\)，对同一组温度与气体动作执行 AB 和 BA 两种相序；两者严格匹配总剂量、均值、极值、run duration 和 wafer type，并做重复片及全片厚度/掺杂 mapping。用相同样本数比较三种预测：只看 wafer aggregate 的 MOODFG、加入固定 lag 的静态模型、显式学习 \(h(t)\) 的动态模型。只有当 AB/BA 在两种历史下产生可重复的交叉效应，且动态模型能在 held-out history 上预测并反向合成目标场，才支持“路径依赖状态可被操纵”；若交换顺序后结果不变，或静态/lag 模型同样解释全部增益，则最强替代解释“只是扩大输入覆盖或瞬时幅值效应”获胜。
+
+它与本文的实质区别同时落在四层：problem 从静态 target matching 变成有限时间状态迁移；mechanism 从低维平滑映射上的候选搜索变成表面化学与 reactor memory 的路径操纵；representation 从 15 维 wafer aggregate 和两个独立输出变成函数型控制 \(u(t)\)、隐藏状态 \(h(t)\) 与空间场；experimental object 从 de-identified historical candidate pool 变成受控初始历史下的 equal-dose waveform wafer。
+
+**Wild-card：**沿另一条机制，把 experimental object 扩到“外延—器件”整条 process chain，用下游 breakdown voltage 与 on-resistance 反向定义上游厚度/掺杂 profile，并联合选择 profile target 与下游工艺条件，从而检验论文提出的 sequential-objective 因果链，而不是操纵片内 reactor memory。

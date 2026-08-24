@@ -167,24 +167,25 @@ V(0)=0,\quad x\ne0\Rightarrow V(x)>0,\quad
 
 这是基于证据的反例设计。论文只验证了三个 ROA 内回稳案例，并未展示这种 hidden-mode 攻击；因此这里不声称已有实验已经发现失败，只说明什么结果会真正推翻核心机制。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-在 power electronics 与 power systems 领域，高影响结果通常不仅需要新的 learning architecture，还要同时给出可审查的稳定性论证、与强基线的定量比较、跨运行点或硬件条件的 HIL/实验验证，以及实现成本和适用边界。基于第 9 节，候选研究方向可以从“先学一个点估计动力学，再为它找 ROA”改成“直接为所有与数据一致的动力学集合构造 robust ROA”。
+**主 bet：从 learned vector field 重建参数化 bifurcation skeleton。** 新问题不是再判断一条故障轨迹最终是否回到平衡点，而是追问：随着负载、线路阻抗或可调控制参数连续变化，equilibrium、saddle、separatrix 和局部 normal form 以什么顺序重排，哪一种几何事件生成了观测到的失步、振荡增长或长时间滞留？如果成立，它会首次在本文流程中使黑盒 GFM 网络具备“机制级相图”：不仅预测某个工况下会出现何种大扰动形态，还能给出该形态来自 saddle-node 消失、Hopf 型谱穿越，还是 separatrix 扫过后故障状态的可实验判别。
 
-**（a）未满足需求。** 厂商黑盒恰恰意味着 \(f(x)\) 不可能被有限轨迹唯一确定；现有流程却把单个 \(f_\theta\) 当成后续 falsification 的唯一对象。[pdf:E03] 需要的是一个能显式表示“哪些动力学仍与数据相容”的 set-valued model，而不是更大但仍然单值的网络。
-
-**（b）潜在研究价值。** 若能证明
+为此，需要在一条运行参数路径 \(\lambda(s)\) 上学习光滑的参数化向量场 \(f_\theta(x;\lambda)\)，并把研究表示改成其 \(k\) 阶 vector-field jet
 
 \[
-\max_{f\in\mathcal F(x)}\nabla V(x)\cdot f(x)<0
+\mathcal J_x^k f_\theta
+=\left\{f_\theta,D_xf_\theta,D_x^2f_\theta,\ldots,D_x^kf_\theta\right\}.
 \]
 
-在某一区域成立，那么证书面对的就是数据允许的最坏动力学，而非某个平均拟合模型。这样的 ROA 会更保守，但其边界、数据覆盖和失败条件都可解释，更接近黑盒设备接入和安全运行真正需要的保证。
+核心因果链是：沿 \(\lambda(s)\) 的离散工况轨迹约束 \(f_\theta\) → 求解 \(f_\theta(x^\star;\lambda)=0\) 得到 equilibrium 与 saddle 分支 → 用 Jacobian 特征值定位分支失稳类型，用 Hessian/三阶项确定 center-manifold normal form 的方向和幅值律 → 从 saddle 的局部特征方向积分其 invariant manifolds，追踪 separatrix 的全局移动 → 把这些几何重排映射为 HIL 中可观察的瞬态形态。三个不可合并的基本设计变量是 continuation path 及步长 \(\lambda(s)\)、jet order \(k\) 与坐标选择，以及被连续改变的物理轴，例如负载水平、\(R_{ij}/X_{ij}\)、droop gain 或 filter time constant；它们分别决定“经过哪段参数空间”“能分辨哪类局部几何”和“哪种网络或控制机制被改变”。
 
-**（c）相邻领域工具。** 可借鉴 set-membership system identification、differential inclusion、robust control 与 neural network bound propagation：先从保留验证轨迹得到状态相关的 residual set \(\mathcal E(x)\)，形成 \(\mathcal F(x)=f_\theta(x)\oplus\mathcal E(x)\)，再让 falsifier 搜索“存在某个允许误差使 \(\dot V\ge0\)”的 robust counterexample。关键不是给点估计附一个经验 error bar，而是让不确定性进入 Lyapunov 条件本身。
+论文的方法与实验为这个押注提供了具体入口。Level I 的 FNN 直接表示 \(\dot x=f_\theta(x)\)，并通过 ODE solver 的轨迹损失训练，因此训练后网络天然可由 automatic differentiation 给出 Jacobian 和更高阶导数。[pdf:E02] Fig. 2 列出了三台 GFM 不同的 \(\tau_a,\tau_v,m_a,m_v\) 以及三条线路的 \(R_{ij},X_{ij}\)，但这些量只用于固定工况 benchmark，没有被当作 continuation axes；Fig. 4 也只在该固定参数集上比较四条相轨迹。[pdf:E04] Fig. 6 给出一个静态 ROA 的二维投影，Fig. 7 的三组故障全部选在该区域内并回稳，没有展示 equilibrium branch、saddle、临界参数或跨参数的形态变化。[pdf:E05][pdf:E06] 全文没有 appendix、table、ablation 或 negative result，因此目前没有证据说明轨迹拟合精度足以支持一阶以上的局部几何恢复。
 
-**（d）首个证伪实验。** 刻意把一种 controller limit 或一个运行点完全留出训练集，用其余数据构造 \(\mathcal F(x)\)。如果留出模式的真实导数频繁落在 \(\mathcal F(x)\) 之外，或 robust ROA 仍预测其入域轨迹稳定但 HIL 轨迹逃逸，那么研究设想首先在“不确定性集合可校准”这一步被证伪。
+最大的研究收益，是把黑盒暂态分析从“逐案例输出结果”推进到“解释结果为何改变”：同一张参数化 skeleton 可以把网络改动、控制整定和不同失稳波形放进一个可检验的机制图中，并可能发现显式模型尚未指出的分支重排。最大的科学风险也正来自 jet：轨迹 L1 loss 约束的是积分结果，不直接约束 \(D_xf\) 或 \(D_x^2f\)；两个网络可以生成几乎相同的 Fig. 4 轨迹，却给出相反的特征值穿越和 normal-form coefficient。angle-only 坐标若遗漏电压或控制器内部慢状态，还可能把投影折叠误认成真实 bifurcation。
 
-**（e）与本文的实质区别。** 本文的顺序是单值动力学辨识 \(f_\theta\) → 相对于该动力学训练和检查 \(V_\theta\)；候选方案的研究对象则是数据一致动力学集合 \(\mathcal F\) 与最坏情形 Lyapunov 证书，改变了“什么才算被认证”的问题定义，而不只是给 Level I 或 Level II 多加一个模块。
+区分真实几何机制、普通轨迹拟合和 numerical-Jacobian noise 的最小实验，可以在论文的三机 HIL 上选一条 load continuation path，并用一条 line-impedance path 作独立复核。只在临界区两侧的粗网格工况训练 \(f_\theta(x;\lambda)\)，故意留出模型预测的首个几何事件附近参数带；随后比较三类结果：匹配数据预算的 trajectory-only baseline、五个独立初始化网络得到的 autodiff jets，以及由高采样率小扰动轨迹作有限差分得到的局部线性化。主机制只有在三个条件同时成立时才获得支持：不同初始化与 jet order 给出一致的临界参数和 normal-form 符号；HIL 在留出参数带复现对应的可区分 signature，例如 saddle-node 的临界减速与单向漂移、supercritical Hopf 的频率连续而振幅从零生长，或 separatrix 两侧近邻初值走向不同；由 normal form 预言的 dwell-time、振幅或边界位移尺度律优于 trajectory-only baseline。若轨迹仍拟合良好但临界点随网络初始化、坐标或差分步长大幅漂移，或者 HIL 只复现波形而不复现所预测的尺度律，就应判定 skeleton 是导数噪声或插值伪影。
 
-这个方向尚未在本卡中完成紧密相关工作的系统检索，因此只作为由本文证据约束出的候选想法，不声称 novelty。
+与本文及其引用的 Neural ODE / neural Lyapunov 路线相比，区别可以逐项钉死：**problem** 从固定工况下恢复自治动力学并估计 ROA，改为解释参数变化如何生成不同暂态形态；**mechanism** 从轨迹积分拟合与耗散函数构造，改为 continuation、jet 展开、normal-form reduction 和 invariant-manifold tracking；**representation** 从单个 \(f_\theta(x)\) 与标量 \(V_\theta(x)\)，改为覆盖参数路径的 jet bundle 与分支—流形骨架；**experimental object** 从四条预测轨迹和三个入域故障案例，改为临界参数、分支合并、谱穿越、separatrix 位移及其时间域尺度律。由于本卡没有系统检索 data-driven bifurcation discovery、normal-form learning 或 black-box continuation 的相关全文，这只是由本文可微动力学表示与固定工况实验缺口推出的候选判断，不声称 novelty。
+
+**Wild-card：** 以 flow-map horizon \(T\) 和 state-space metric \(M\) 为基本变量，从 learned dynamics 构造 finite-time Cauchy–Green strain field 与 Lagrangian coherent structures，检验大扰动角度放大是否由有限时间 shear/folding 而非局部 bifurcation 主导。

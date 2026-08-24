@@ -163,18 +163,20 @@ ISEC 的数学作用可以看成“保持端口不变的内部投影”。Eq. (3
 
 若 GHB-ADC 在这个实验中仍能以固定矩阵重现事件顺序、真实高频能量和闭环行为，论文的机制证据会显著增强；若它只能给出平滑但错误的平均波形，则现有“低尖峰”不能再单独解释为更高物理精度，而可能只是更强的数值投影。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-在 power electronics/EMT 领域，高影响结果通常不仅需要更小的波形误差，还要给出可解释的稳定域、跨工况可实现性、硬件实时 deadline 与真实装置或 HIL 证据。基于本文最脆弱假设，一个非增量的候选方向是：**把固定导纳 ADC 从“预设端口慢变量”改写成“带可观测性证书的混杂事件模型”**。它不是再加一个补偿模块，而是改变问题定义：模型在每一步先判断当前端口信息是否足以唯一确定 GHB 事件序列；只有证书成立时才执行 ISEC，否则显式暴露“本步事件不可辨识”，并触发局部 substep 或保守集合传播。该想法尚未做相关工作完整检索，不声称 novelty。
+**主 bet（候选判断，尚未完整检索相关全文，不声称 novelty）：构造“事件序列提升的 GHB macro-operator”。** 它要使当前模型首次具备的能力是：外部网络一次跨过一个 PWM carrier period，只做一次宏步网络求解，却仍保留该周期内门极边沿的先后顺序、CCM/DCM/同时阻断路径、周期末状态与选定的 switching-ripple moments；这不是把波形平均掉，也不是在宏步里暗中重复原来的全局微步求解。
 
-**（a）未满足的需求。** 现有 GHB-ADC 默认一个步内只有可由上一步端口量判定的有效状态转移，无法告诉使用者何时端口已不再是可靠锚点。工程上需要的不是所有时候都给一个平滑答案，而是在 dead time、寄生、量化和多事件步出现时知道答案是否仍可信。
+**核心机制。** Eq. (4) 把每只开关写成固定 \(G_{\mathrm{sw}}\) 与 history source，Eq. (8) 和 Eq. (19) 又把互补导通、同时阻断分别写成低维 affine recurrence；Table I 只随 GHB mode 改变局部参数，Eq. (34)-(35) 的 ISEC 则是 mode 边界上的代数状态重置。[pdf:E03]（PDF 物理页 3，Eq. (4)）[pdf:E04]（PDF 物理页 4，Eq. (8)）[pdf:E06]（PDF 物理页 6，Eq. (19)、Table I）[pdf:E08]（PDF 物理页 8，Eq. (34)-(35)）因此，给定一个 carrier period 内的有序 mode word 后，可以把各段 affine map 与 ISEC reset 依次相乘，形成一个从宏步起点端口状态到终点状态及端口电流 moments 的 lifted operator；再把中间微步变量作块消元，只把宏步端点和少数端口时间基函数留给网络。因果链是“固定 mode matrix → 有序事件图可组合 → 内部微步变量可消元 → 网络只处理宏步端口关系 → 仍可回代恢复 DCM/阻断次序与 ripple”。删除这一 lifted representation，系统就退回 Fig. 8 的“每步状态判断—ISEC—history source—网络求解”，基本能力随之消失。[pdf:E09]（PDF 物理页 9，Fig. 8）
 
-**（b）潜在研究价值。** 若能同时给出固定矩阵实时执行和“何时会错”的在线证书，模型评价将从平均精度提升到可验证的 worst-case correctness；这更接近保护、控制器 HIL 与安全相关实时仿真的要求。
+两个最基本的设计变量是：宏窗口 \(H\)（覆盖多少个 gate event 或 carrier period）以及宏端口时间基的阶数 \(q\)（只保留端点，还是再保留斜率/低阶 ripple moments）；第三个变量是保留哪些端口 moments，而不是保留哪些内部微步节点。\(H\) 决定一次消元跨多长时间，\(q\) 决定网络与 GHB 在宏步内交换多少动态信息，两者共同决定“少做全局求解”与“保留 switching-order effect”之间的科学边界。
 
-**（c）相邻领域工具。** 可以借鉴 hybrid systems 的 guard-set reachability、set-membership state estimation 和 event localization：不是预测一条确定轨迹，而是计算由量化误差、延迟与寄生参数允许的下一状态集合。集合只有一个元素时，ISEC 安全；集合多值时，本地细分时间步或保留能量区间。
+**论文特异依据。** Fig. 10 的 boost case 表明，同一电路会在 CCM、DCM 与电压跌落之间移动，mode 顺序会直接改变二极管电流和 virtual power；Fig. 13 的 control-signal loss 又显示，错误事件序列会产生 repetitive switching，而不只是稳态幅值偏差。[pdf:E10]（PDF 物理页 10，Fig. 10、Section V-B）[pdf:E11]（PDF 物理页 11，Fig. 13）但本文仍逐微步推进：20-PV Case C 在 \(10\,\mu\text{s}\) 步长下每仿真 1 s 需 231.62/232.73 s，单 VSC 的 FPGA 平均每步为 \(0.360\,\mu\text{s}\)。这说明固定导纳已经降低了单步成本，却没有消除“开关越快，网络步数越多”的时间离散负担。[pdf:E12]（PDF 物理页 12，Table IV）[pdf:E13]（PDF 物理页 13，Table V）Appendix A 只证明单个 operating state 内电容电压增量近似带来 \(O(h^2)\) 误差，并没有证明把该近似直接跨到一个 carrier period 仍成立；这正是 macro-operator 必须重新研究端口时间基的原因。[pdf:E14]（PDF 物理页 14，Eq. (A.1)-(A.5)）[pdf:E15]（PDF 物理页 15，Eq. (A.6)）
 
-**（d）第一个证伪实验。** 使用第 11 节 VSC 反例，离线高精度 reference 生成真实事件序列；让证书仅访问实时实现可获得的上一步端口量、门极和误差界。若证书经常宣称“唯一状态”但真实事件落在集合外，或为了不漏判而在普通工况中几乎总是触发 substep，这个研究方向就失败。
+**最大收益与最大科学风险。** 若成立，最大收益不是再降低若干百分比误差，而是把 switching-level EMT 的主要规模变量从“全系统网络微步数”改成“宏步数 + 每个 GHB 的局部事件数”，从而可能在同一 FPGA deadline 内同时容纳更高 carrier frequency 和更多 converter，同时保留 averaged model 无法区分的 event ordering。最大风险是 GHB 并非在宏窗口内真正闭合：二极管换流和 DCM 边界取决于同时变化的网络端口电压，若 \(q\) 必须随微步数增长，或每个 event 都必须重新做全局网络求解，块消元就只是在搬运原计算量。实现证据也尚未闭合：Table V 只有 average execution time，正文称 BRAM-free，而 Table VI 对完整 GHB-ADC solver 报告 4 BRAM；因此 memory traffic、Ethernet control latency 与 worst-case event count 都必须作为实现结果实测，不能由现有资源表推定。[pdf:E13]（PDF 物理页 13，Tables V-VI）[pdf:E14]（PDF 物理页 14，Section VI-B）
 
-**（e）与本文的实质区别。** 本文的目标是为已假定可判定的 GHB 状态选择最优参数并校正内部变量；候选方向的首要问题则是“这一时刻是否有足够信息安全地校正”。它把固定导纳模型从无条件状态机变为带可信边界的实时混杂模型，代价和收益都可由证书误判率、局部 substep 比例、最坏执行时间和硬件闭环偏差直接衡量。
+**能区分机制的最小实验。** 复用 Case A 的 48 V boost、\(0.2\,\mu\text{s}\) reference step、20 kHz carrier 和 50% voltage sag，在相同 duty 与相同 carrier period 下制作两种 gate word：一个连续脉冲与两个分裂脉冲；两者平均占空比相同，但边沿顺序和 DCM 进入时刻不同。[pdf:E09]（PDF 物理页 9，Section V-A）[pdf:E10]（PDF 物理页 10，Table II）用原始微步 GHB-ADC 与 \(R_{\mathrm{on}}/R_{\mathrm{off}}\) 生成 reference，再在一次一 carrier-period 网络求解的预算下比较 lifted operator 和 duty-averaged model，测周期末 \(i_L,u_C\)、二极管导通区间、首个 DCM 周期及预先选定的 ripple moments。若 lifted operator 能区分两种 equal-duty gate word，并同时复现 reference 的事件次序和终点状态，而 averaged model 对二者给出近乎相同结果，就支持“有序 affine composition”这一核心机制；若只有把 \(q\) 或内部网络求解次数提高到接近原微步数才匹配，或两种 gate word 的差异仍被抹平，则主 bet 被反驳。
 
-最后必须记录一处论文内部证据歧义：Section VI-B 正文称 CPU+FPGA 架构实现了 “BRAM-free design”，但 Table VI 对 XCKU060 上的 GHB-ADC 报告 4 个 BRAM（0.2%）。可能的解释是“GHB 模块本体不使用 BRAM，而完整 solver 使用 4 个”，但论文没有定义口径，因此本卡不把 BRAM-free 当作已闭合事实。[pdf:E13]（PDF 物理页 13，Table VI）[pdf:E14]（PDF 物理页 14，Section VI-B）
+**与本文及最近边界的实质区别。** problem 从“怎样在每个 EMT 微步降低 GHB switching error”变为“怎样跨越整段有序 switching events 而不逐次求解全局网络”；mechanism 从逐步 state judgment + ISEC 变为 mode-conditioned affine maps 的时间提升与内部变量块消元；representation 从某一时刻的 GHB internal state 变为由 mode word、\(H\)、\(q\) 参数化的 carrier-scale operator；experimental object 从单一 gate schedule 下的点波形误差变为 equal-duty、different-order gate words 的可区分性及宏步网络求解次数。论文把 small-step synthesis 描述为 topology-specific，并仅在效率表中列出既有 FPGA 对比；这些相邻工作的全文未在本卡中独立核验，因此这里不能据此声称本方向具有 novelty。[pdf:E02]（PDF 物理页 2，Section I-B）[pdf:E13]（PDF 物理页 13，Table V）
+
+**Wild-card alternative：** 改用空间机制，把独立 GHB 重写为共享 floating-capacitor charge state 的 multilevel cell graph，以 cell adjacency 与 retained charge coordinates 为设计变量，并用“同一端口电压、不同 redundant switching word”的三电平 flying-capacitor 实验检验固定端口导纳下能否重现内部电荷迁移。

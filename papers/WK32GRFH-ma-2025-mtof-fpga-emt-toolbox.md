@@ -175,18 +175,22 @@ R(t)=-R^{out}_{dq0}(t)+\frac{2}{\Delta t}L_{dq0}+\omega^M_{pre}(t)L_{dq0}+R_{dq0
 
 一个真正能推翻核心机制的结果是：静态 MTOF 方案在普通稳态步中正常，但在事件密集步必然超时或选择错误矩阵，而一个允许 runtime event queue（运行时事件队列）和有界迭代的实现能在相近资源下保持 deadline 与误差。这样就排除了“只是工程优化不够”的替代解释，直接说明静态可分析性不是一般 EMT 工作负载的可靠前提。当前论文只展示少量单相故障和预定义 IBR，尚未覆盖这个反例空间。PDF 物理页 11–12，实验工况、Fig. 29–30。[pdf:E19][pdf:E21][pdf:E23]
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-在 EMT + FPGA 领域，高影响工作通常需要同时证明：物理模型 fidelity（保真度）、hard real-time deadline、资源可实现性、跨平台或跨规模泛化、与强基线的公平比较，以及可复现的端到端工具链。论文已经覆盖其中的模型、单板 timing 和资源，但其最脆弱处仍是静态事件假设。
+**候选判断。** 下面是基于本文全文的研究押注；本任务没有检索附件外相关全文，因此不声称它在文献中具有 novelty。
 
-**候选研究方向：带 deadline-and-error contract（时限与误差契约）的事件自适应 EMT 编译器。** 这是候选想法，不声称 novelty，因为本任务没有检索附件外相关工作。
+**主 bet：把 MTOF 变成可热装载 EMT 微码的常驻 FPGA 空间机器。** 新问题不是“怎样为另一个电网更快生成 VHDL”，而是：能否只综合、布局布线和下载一次 FPGA，之后把论文支持范围内、在 bitstream 生成时尚未给出的元件组合与网络拓扑作为 EMT program 装入，并直接实时运行？在这条路线中，新增能力是**同一块已部署硬件执行 held-out（预留未见）模型组合**；删除微码层后，系统就退回“一套模型对应一套 VHDL/controller/port map”，这不是附加 wrapper 能保留的能力。
 
-**(a) 未满足的需求。** 当前 MTOF 能编译固定、可预分析的数据流，却不能说明在动态拓扑、限流、饱和和数据依赖迭代下是否仍能准时且准确。10-machine 案例 47 μs/50 μs 的余量和高 DSP/LUT 使用率表明，简单继续堆模块不是稳健答案。PDF 物理页 12，Fig. 30 与 Table I。[pdf:E23][pdf:E22]
+**核心机制与因果链。** MTOF 已经把一个模型拆成 parameter/state、arithmetic sub-module 和 calculation sequence 三类对象，且把线路历史量改写成固定深度、显式地址的状态存储。PDF 物理页 4–5，Fig. 4–6 与 Eq. (31)–(33)。[pdf:E07][pdf:E08] 主 bet 把这次 lowering（降级）的终点从“专用 VHDL”前移为一套 EMT-specific bytecode：每条指令显式携带操作、源/目的状态地址、历史代次以及 read/calculate/write 阶段；固定的 Floating-Point 运算阵列、BRAM bank 和互连读取这段程序。这样，方程依赖决定微码，微码决定地址访问与运算发射，而拓扑或元件组合的变化只重写 program image 与状态表，不再改变 FPGA 物理连线。论文的 FSM 已能按已知 latency 错开非流水模块，并把流水数据集纳入统一状态，说明“顺序作为显式硬件对象”已有实现基础。PDF 物理页 6，Fig. 12–13。[pdf:E10] Fig. 15 和 Fig. 23 则表明当前边界正好相反：MTOF 输出 main controller、memory unit、sub-module，随后仍要交给 ISE 生成并下载新的 bitstream；主 bet 要移动的正是这条边界。PDF 物理页 7、10，Fig. 15、Fig. 23。[pdf:E11][pdf:E16]
 
-**(b) 可能产生的研究价值。** 新目标不是“自动生成更多模型”，而是让编译器对每个模型生成可机器检查的 contract：允许哪些事件、最坏执行时间是多少、数值误差在什么范围、资源超限时如何降级。这样评价标准从“能生成代码”提升为“能证明在给定事件包络内准时并满足误差界”。
+两个基本设计变量决定它是不是一种新的机器，而不只是慢速解释器。第一是 **instruction granularity（指令粒度）**：逐算术操作发射，还是把 RLC 历史更新、线路延迟插值、节点行乘加等融合为带明确状态语义的指令；它改变 instruction bandwidth、可组合性与流水利用率。第二是 **spatial lane / memory-bank geometry（空间运算通道与存储 bank 几何）**：并行 Floating-Point lane 数、bank 数及读写端口如何配比；它决定多少独立元件可以同拍发射以及何时发生地址冲突。第三个可扫变量是 program schedule depth，即一个时间步的微码长度与可并行发射宽度，它直接连接模型表达力和实时吞吐。
 
-**(c) 可借鉴的相邻方法。** 可以组合 synchronous dataflow（同步数据流）与 worst-case execution time analysis（最坏执行时间分析）建立静态骨架，用 partial evaluation（部分求值）保留 MTOF 的离线优势；对少量运行时分支使用 bounded event queue 和 mixed-criticality scheduling（混合关键性调度）；用 interval arithmetic（区间算术）或 shadow simulation（影子仿真）在线监控误差余量。这里的关键不是加入一个模块，而是让编译器同时优化数值误差、deadline 和资源。
+**论文特异依据。** 方法侧最关键的依据不是一般意义上的 code generation，而是本文已经显式分离数据、算术和时序，并把传播延迟压成“地址偏移 + 插值 + 有界历史存储”。[pdf:E07][pdf:E08][pdf:E10] 实验侧给出了会约束这种机器形态的交叉现象：10-machine 39-bus 在 50 μs 步长内用到 47.0 μs，资源为 87% LUT、92% DSP；1-IBR 39-bus 虽只需 17.0 μs，却达到 94% LUT、仅用 14% DSP，作者解释其 multiplier IP CORE 没有使用 DSP48E。PDF 物理页 12，Fig. 30 与 Table I。[pdf:E23][pdf:E22] 因而固定微码机不能只追求“通用”，还必须用上述两个设计变量回答 SG 型 workload 的 DSP 压力与 IBR 型 workload 的 LUT 压力为何互换。Table II 的 30–300 s 只是 files generation time，Fig. 23 把 ISE compile、bitstream 和 download 列为后续步骤；这也意味着本文尚未测量主 bet 真正要消除的 post-generation deployment cycle。PDF 物理页 10、13，Fig. 23 与 Table II。[pdf:E16][pdf:E24] 全文没有 appendix 或独立 limitations/negative-result 小节；因此这里采用的是公开的实现细节、资源交叉和未覆盖的 post-bitstream 实验，而不是把作者未报告的结果补成事实。
 
-**(d) 第一个可证伪实验。** 在同一个 39-bus 基底上构造三组事件密度：单故障、并发多故障、限流与拓扑切换叠加。要求编译器在两种不同资源配置上自动生成实现，逐步报告 worst-case clocks、实际 clocks、误差和资源；若它无法在不手工改 RTL 的情况下覆盖最高事件密度，或为了保证 deadline 需要不可接受的资源复制，这个方向立即被证伪。
+**最大收益与最大科学风险。** 最大收益是把研究对象从“某一网络的自动生成 bitstream”提升为“可发行、可复用的 EMT program 与执行语义”：同一实验装置可在不重做硬件实现的前提下接受新拓扑和新元件组合，模型库、编译器与硬件执行层也因此能被分别比较。最大科学风险是，EMT program 的通用取指、地址间接访问与共享互连会破坏专用 RTL 的局部性和并行度；考虑到 10-machine 案例只有约 3 μs 余量，这套机器可能在最值得运行的混合 SG–IBR workload 上全面慢于现有 MTOF。若 held-out 模型仍需新增 IP CORE、端口或 VHDL，或者只有预先放入的整模型模板能够运行，那么“可编程机器”这个机制就失败了，剩下的只是部署便利性。
 
-**(e) 与本文工作的实质区别。** MTOF 的目标是把预定义 EMT 模型翻译成固定硬件架构；该候选方向把问题重新定义为“在动态事件不确定性下，自动合成带可验证 timing/accuracy contract 的硬实时 EMT 系统”。前者主要做静态模板化与离线预计算，后者把运行时适应性和可证明边界纳入编译目标，因此不是简单增加模型库或更换应用场景。
+**最小区分实验。** 先冻结一份只含本文 RLC、distributed line、nodal solve 和 GFM 所需算术原语的 ML605 bitstream，并记录其 hash；冻结之后才公布三个 program image：4-machine 11-bus、1-IBR 39-bus，以及一个训练阶段未出现、但只使用同一原语的新拓扑与元件组合。实验只能传输微码、地址表、参数和初值，不能重新综合或加入新的 VHDL。与它并列比较两条同资源基线：当前 MTOF 为每个系统生成的专用实现，以及在 bitstream 中预放若干完整模型再用 mux 选择的 template bank。测量 program load size/time、每步 clocks、存储冲突、资源占用和相对 MATLAB 的波形误差。最强替代解释是“所谓可编程性其实来自预装模板或一个覆盖已知案例的硬件并集”；held-out 组合正好区分这一解释：若固定 bitstream 仅凭新微码正确执行它，并且执行 trace 随微码依赖而改变，支持 bytecode-driven mechanism；若必须改 netlist/bitstream，或 template bank 与它具有同样的 held-out 能力，则反驳主 bet。
+
+**与本文工作的四个实质区别。** problem 从“由已知输入生成一个专用实现”变成“已部署硬件如何接受未见的模型程序”；mechanism 从生成 model-specific VHDL/FSM/port map 变成固定空间 datapath 执行 EMT 微码；representation 从 MATLAB array 最终展开成物理连线，变成携带状态代次、地址和时序阶段的可装载 program image；experimental object 从一张 bitstream 上一套预编译测试系统的波形，变成一张 bitstream 上一组 held-out 程序的可执行组合空间。
+
+**Wild-card alternative：** 用 reverse-mode discrete adjoint（反向离散伴随）自动改写本文的 RLC、线路历史和 GFM 更新式，以 checkpoint 间隔与 adjoint lane 数为基本变量，在 FPGA 上直接产生暂态目标对线路、机器和控制参数的梯度，并用梯度误差及其随参数数目的计算量变化区分该机制与有限差分加速。
