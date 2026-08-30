@@ -6,6 +6,7 @@
 
 - Codex 本地索引：`D:\proj\mac\paper-reading-notes\README.md`
 - Codex 本地卡片目录：`D:\proj\mac\paper-reading-notes\papers`
+- 跨卡片术语账本：[TERMINOLOGY.md](TERMINOLOGY.md)
 - ChatGPT 网页端索引：https://github.com/sxw228/paper-reading-notes
 - 下表中的相对链接在本地解析为 Codex 可读路径，在 GitHub 上解析为 ChatGPT 可打开的网页链接。
 - 文献检索先搜索全部卡片正文和 Zotero；这两者都是本地候选发现源，不只是外部结果的查重工具。
