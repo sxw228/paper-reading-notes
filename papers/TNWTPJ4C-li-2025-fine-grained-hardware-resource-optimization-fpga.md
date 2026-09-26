@@ -1,276 +1,123 @@
 # Fine-grained hardware resource optimization and design for FPGA-based real-time simulation of large-scale renewable energy generations
 
-作者：Yanfei Li、Zhiying Wang、Xiaopeng Fu、Peng Li、Ligang Zhao、Xiaoshan Wu [pdf:E01]
-
-出处：International Journal of Electrical Power & Energy Systems，169 (2025) 110754 [pdf:E01]
-
-年份：2025 [pdf:E01]
-
-DOI：10.1016/j.ijepes.2025.110754 [pdf:E01]
-
-Zotero key：TNWTPJ4C
-
-证据说明：公式、报告数字和关键事实均直接取自源 PDF，并在本卡引用范围内绑定可定位证据；未引用内容未做全篇转换或认证。
+**作者：** Yanfei Li, Zhiying Wang, Xiaopeng Fu, Peng Li, Ligang Zhao, Xiaoshan Wu  
+**出处：** International Journal of Electrical Power and Energy Systems, Vol. 169, Article 110754  
+**年份：** 2025（Available online：2025-05-22）  
+**DOI：** 10.1016/j.ijepes.2025.110754  
+**Zotero key：** TNWTPJ4C  
+**证据说明：** `[pdf:E..]` 对应源 PDF 物理页与 Eq./Fig./Table 定位。
 
 ## § 1 — 研究问题与重要性
 
-**结论：这篇论文解决的不是“怎样把 EMT（electromagnetic transient，电磁暂态）模型放上 FPGA”这一宽泛问题，而是更窄、更具体的编译问题：在控制系统的算术依赖和最低可行时延不变时，怎样以 operation（算术操作）为粒度减少 FPGA 上的 arithmetic unit、MUX 和 FIFO，并把优化结果自动变成可综合 HDL。** 作者把研究对象限定为大规模 renewable energy generation（REG，可再生能源发电）系统中的控制系统求解；电气网络求解模块沿用前作，并非本文优化模型的主体。[pdf:E03]（PDF 物理页 3，Section 2 与贡献概述）[pdf:E05]（物理页 5，Section 3.1）
+新能源发电（REG）系统的实时仿真用于开发和测试集中调度控制器、逆变器控制器与边缘计算设备。REG 规模扩大后，实时仿真的计算量急剧增加，其中控制系统的求解尤其突出：光伏阵列、风机发电机这类强非线性设备通常放在控制系统里建模，再加上大量变流器控制器，控制系统的规模超过电气系统、消耗的硬件资源也更多。[pdf:E01][pdf:E02]（PDF 物理页 1–3，Abstract 与 Introduction）
 
-这个问题重要，是因为 REG 实时 EMT 仿真同时面对两个方向相反的压力：一方面，高频电力电子要求几微秒到几十微秒的 time-step；另一方面，大量发电单元、变流器控制器和系统级控制器使控制侧 operation 数量和资源需求迅速增长。论文直接陈述，在其目标场景中，控制系统的规模和硬件消耗可能超过电气系统；现有 CPU/集群方案又主要按串行方式执行底层运算。[pdf:E01]（物理页 1，Abstract 与 Introduction）[pdf:E02]（物理页 2，Introduction）
-
-论文报告的工程目标不是概念性加速：两套单 FPGA 实验分别包含 15 个 detailed PV units 和 15 台 detailed WTG，time-step 分别为 9 μs 和 10 μs；摘要还报告相对 PSCAD/EMTDC 的误差低于 0.5%，硬件资源利用率相对传统设计约下降 30%。这些数字说明作者瞄准的是“在硬实时步长内扩大可装入单片 FPGA 的模型规模”，而不是单纯缩短离线仿真时间。[pdf:E01]（物理页 1，Abstract）
+论文提出一种面向 FPGA 的细粒度硬件资源优化与设计方法：在算术运算层面建立资源需求模型，在最短求解时间约束下最小化资源，并自动生成 HDL。在单片 FPGA 上分别实时仿真含 15 个详细光伏阵列（步长 9 μs）和 15 台风机（步长 10 μs）的系统，与传统设计相比资源约减少 30%，与 PSCAD/EMTDC 相比相对误差小于 0.5%。[pdf:E01] 这件事重要，是因为它把控制系统的 FPGA 实现从“按经验手工搭模块”变成“由优化模型决定每个运算在哪个单元、哪个时钟执行”，并把复用运算单元带来的选择器与缓冲开销写进了资源模型。
 
 ## § 2 — 前人工作与不足
 
-论文对前人工作的归纳分成两类。第一类是 CPU 或 PC-cluster 实时仿真：作者列举了 4-core CPU 上的 6-array PV、集群上的 30 台 averaged-value WTG、10 台 WTG 且 time-step 为 50 μs 的 detailed transient，以及含 25 台 averaged-value 与 5 台 detailed switching WTG 的 offshore wind farm。论文给出的不足是底层运算仍以串行为主，控制系统扩展时计算负担很快上升。[pdf:E02]（物理页 2，Introduction）这里是**论文对相关工作的直接概括**，本卡没有联网读取那些被引论文，因此不把这些比较当作独立复核后的结论。
+**CPU 类实时仿真器。** 已有工作在 4 核 CPU 上仿真含 6 个阵列的光伏系统，在 PC 集群上仿真含 30 台平均值模型风机或 10 台详细风机（50 μs 步长）的风电场；CPU 仿真器底层串行，通用但效率有限。[pdf:E02]（PDF 物理页 2 左栏）
 
-第二类是 FPGA 实时仿真。FPGA 本身具有 spatial-temporal parallelism（空时并行）、分布式存储和深流水优势，但论文认为既有控制系统硬件通常按控制元件的输入输出关系手工搭块，parallel schedule 依赖研究者经验；operation 之间可挖掘的并行关系没有被系统利用，而且每换一个目标系统都要重新设计硬件。[pdf:E02]（物理页 2，Introduction）[pdf:E03]（物理页 3，Introduction 末段）
+**FPGA 类实时仿真器。** FPGA 具有时空并行优势，但多数 FPGA 仿真器的控制系统按控制元件的输入输出关系手工搭建专用硬件块，并行计算主要依赖研究者的经验；底层数学运算之间的并行关系没有被充分挖掘，计算资源利用率低；手工搭建耗时，换一个目标系统就要重新设计。[pdf:E02]（PDF 物理页 2–3）
 
-因此，论文真正补的缺口有两个。其一，把资源需求、critical-path lower bound（关键路径下界）和数据缓存写成 operation-level 优化模型，而不是只给经验性的并行结构；其二，把优化器输出的静态 schedule、unit 数量、MUX/FIFO 配置编码成输入文件，再由模板化 HDL generator 自动实例化硬件。[pdf:E03]（物理页 3，Section 2.1）[pdf:E07]（物理页 7，Section 3.3）
-
-需要限定 novelty（新颖性）判断：论文没有与通用 HLS scheduler、resource-constrained scheduling、MILP/CP-SAT 高层综合工具做系统比较，也没有给出同类自动 HDL 工具的覆盖率或生成时间。因而，“第一次”或“优于所有现有编译器”不是本文证据能够支持的表述。
+作者的缺口判断是：需要一种基于优化的、能自动生成硬件模块的控制系统实现方法，同时兼顾求解时间与资源。[pdf:E02]（PDF 物理页 3 左栏，三点贡献）
 
 ## § 3 — 重建作者的思考路径
 
-下面是**基于论文结构的逆向重建**，不是作者逐字陈述。
+出发点是控制系统求解的结构：控制元件按输入输出关系顺序求解，反馈回路插入一步延迟以避免迭代，于是整个控制系统是一个有向无环图（DAG），每个节点是一次浮点运算（加、乘、正弦、余弦等），边长是运算单元的输出延迟。[pdf:E03][pdf:E04]（PDF 物理页 3 右栏至物理页 4）
 
-第一步，作者先把控制系统从“控制框图”降到“typed floating-point operations（带类型的浮点操作）”。这样，加、乘、sin、cos 等 operation 都有确定的 pipeline latency 和已知 FPGA 资源单价，控制模型就能被处理成硬件调度问题。[pdf:E03]（物理页 3，Section 2.1）
+第一步，DAG 的最长路径决定最短求解时间。作者用 Floyd–Warshall 算法求出最长路径长度 Tmin，作为时间约束。[pdf:E04]（PDF 物理页 4，Eq. (7)–(12)）
 
-第二步，控制图原本可能有 feedback loop。循环依赖会让一次 time-step 内需要多少次迭代、何时结束都不确定，因此无法先验得到固定 schedule。作者选择在反馈环上插入一个 **one-time-step delay**，用上一步数据切断本步内的环，从而把连接关系改写为 DAG（directed acyclic graph，有向无环图）。论文明确给出的理由是“消除迭代时间不确定性”。[pdf:E03]（物理页 3，Section 2.2）
+第二步，资源不只来自运算单元。一个运算单元若承担多次运算，输入端就需要多路选择器，其 ALM 开销与该单元承担的运算次数成正比；一个运算的结果若不被下一个运算立即使用，就需要 FIFO 缓存。[pdf:E03]（PDF 物理页 3，Eq. (1)–(6)）
 
-第三步，在 DAG 上把每个 operation 当作节点，把源 operation 的 output latency 当作边长。无限资源时，任何可行 schedule 都不可能快于最长依赖路径；作者用 max-plus 形式的 Floyd–Warshall 计算全部节点对的最长路径，并取最大值作为 `Tmin`。[pdf:E04]（物理页 4，Eq. (7)–(12) 与 Section 2.2）
+第三步，把以上关系写成整数规划：决策变量是每类运算单元的个数、每个运算的开始时刻和执行单元；约束是数据依赖、每个时钟占用的单元数不超过单元总数、缓冲判定；目标是加权的 ALM 与 BMB 用量最小。[pdf:E05]（PDF 物理页 5，Eq. (13)–(27)）
 
-第四步，作者不再优化时间，而是把 `Tmin` 固定成 deadline。非关键路径上的 slack 被用来延迟 operation，使同类型 arithmetic unit 可以复用；若 producer 输出后不能立刻被 consumer 使用，就用 FIFO 暂存；多路输入由 MUX 送入共享 arithmetic unit。于是“时间余量”被转换成“资源复用机会”。[pdf:E05]（物理页 5，Eq. (13)–(19)）
-
-第五步，优化结果被降成一个静态硬件配置：每种 arithmetic unit 的数量、每个 operation 的 start time、论文声称的 unit binding、需要的 MUX/FIFO 及其控制时刻。HDL generator 再把这些值填入 static/dynamic/nested templates，生成 global control、data integration、core computation、data storage/buffering 等模块。[pdf:E05]（物理页 5，Section 2.3.2 末段）[pdf:E07]（物理页 7，Section 3.3）
+第四步，把优化结果写成输入文件，用三层嵌套的 HDL 模板自动生成硬件。[pdf:E07]（PDF 物理页 7，Section 3.3）
 
 ## § 4 — 核心 Intuition
 
-核心 intuition 是：**先用 operation DAG 的关键路径锁死“不能再快”的 `Tmin`，再把所有非关键 operation 在 slack 内尽量错开，从而用更少的 arithmetic units 完成同一 deadline。** 被错开的 producer/consumer 之间用 FIFO 保数据，多个 operation 通过 MUX 轮流使用共享 unit；最后把这套静态 schedule 直接固化成 HDL。[pdf:E04]（物理页 4，Fig. 1 与 Eq. (7)–(12)）[pdf:E05]（物理页 5，Eq. (13)–(19)）
-
-这不是一个动态 runtime scheduler，也不是求最小 `T_commit` 的算法。它是 compile-time（编译期）的“固定 `Tmin` 下最小加权资源”问题，实际 clock frequency 和整个 EMT time-step 的完成时刻要到综合实现及电气模块并行执行后才体现。[pdf:E03]（物理页 3，Section 2.2 首段）[pdf:E10]（物理页 10，Table 3）
+控制系统求解可以拆成一张浮点运算的数据流图。在不拉长最长路径的前提下，让同类运算尽量分时共用同一个运算单元，就能大量省掉运算单元；但共用会带来选择器和缓存的开销，所以资源模型必须同时计入运算单元、选择器与 FIFO，才能找到真正最省的调度。[pdf:E03][pdf:E05]（PDF 物理页 3，Eq. (1)–(6)；物理页 5，Eq. (13)–(19)）
 
 ## § 5 — 具体方法与完整 Pipeline
 
-**1. 从控制模型得到 arithmetic operation graph。** 输入是目标 REG 控制系统的元件类型、连接关系和重复子系统数量。控制方程被拆成 floating-point add、multiply、divide、sin/cos 等 operation；每种 unit 有固定 output latency 和 ALM/BMB 资源参数。反馈边不是在本 time-step 内迭代求解，而是插入一个 time-step delay 后再建 DAG。[pdf:E03]（物理页 3，Section 2.1–2.2）
-
-**2. 计算关键路径下界 `Tmin`。** 每个 operation 是节点，边长是 predecessor 的 output latency。Floyd–Warshall 的更新规则在 `-∞` 初始化的非连通条目上取更长路径；`D_FW` 的最大值被定义为控制系统的最短 solution time，即后续优化的固定 clock-cycle bound。[pdf:E04]（物理页 4，Eq. (7)–(12)）
-
-**3. 建立粗粒度资源成本。** 总资源向量只保留 ALM 与 BMB 两类：arithmetic units 消耗 ALM/BMB，MUX 消耗 ALM，FIFO 消耗 ALM/BMB。FIFO 成本按“是否需要 buffer 的依赖边数 × 单个 FIFO 固定成本”计，MUX 成本按各类 operation 的输入数和 operation 数计。[pdf:E03]（物理页 3，Eq. (1)–(6)）
-
-**4. 在 `Tmin` 内安排 start time 和资源复用。** 约束要求 predecessor 完成后 successor 才能开始，所有 operation 的 `start + latency` 不超过 `Tmin`，每个 clock cycle 同类 operation 的占用数不超过该类 unit 数；若 consumer start 晚于 producer 的 `start + latency`，则相应依赖边启用 FIFO。目标是最小化 `w_ALM R_ALM + w_BMB R_BMB`。[pdf:E05]（物理页 5，Eq. (13)–(19)）
-
-**5. Park transformation 示例展示了 start time、binding、latency 与 FIFO 的关系。** 该例有 4 个 add、5 个 multiply、1 个 sin 和 1 个 cos；优化后只保留 1 个 adder、2 个 multiplier、1 个 sin unit、1 个 cos unit。unit latency 分别是 add 7、multiply 5、sin 36、cos 35 clock cycles。[pdf:E05]（物理页 5，Section 3.2 起始段）[pdf:E06]（物理页 6，Fig. 3 与 Table 1）
-
-| Operation | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| start / cycle | 13 | 1 | 18 | 32 | 25 | 32 | 1 | 2 | 37 | 37 | 42 |
-| end / cycle | 18 | 8 | 25 | 37 | 32 | 37 | 37 | 37 | 42 | 42 | 49 |
-| binding | Mult 1 | Adder | Adder | Mult 1 | Adder | Mult 2 | Sin | Cos | Mult 1 | Mult 2 | Adder |
-
-这些数值来自 PDF 物理页 6 的 Fig. 3 与 Table 1。[pdf:E06] operation #2 在 cycle 8 得到 `x2`，但 operation #4 到 cycle 32 才开始，因此中间结果要缓存 24 cycles；作者用这个例子解释 FIFO 的插入。Table 1 中每个 `end-start` 又恰好等于相应 unit 的 output latency。[pdf:E06]（物理页 6，Section 3.2 与 Table 1）
-
-**6. 把优化结果写入六字段 input file。** 每个 operation 记录：operation type、被分配的 unit number、start time、提供输入的 predecessor type、predecessor unit number、predecessor start time；文件还记录每类 unit 的总数量。这是 schedule/binding 到 HDL 的显式接口。[pdf:E07]（物理页 7，Section 3.3.1）
-
-**7. 用模板生成静态 HDL。** template file 中有 static objects（通用 timer、signal generator、MUX、FIFO、arithmetic units）、dynamic objects（随 case 改变的控制时刻等）和三层 nested objects。generator 根据 unit 数量实例化 core computation，根据 Items 1–3 生成 MUX 控制，根据 Items 4–6 配置 MUX 输入与 FIFO/read-write signal，并生成与 electrical system 的 data-exchange block。[pdf:E07]（物理页 7，Section 3.3.2–3.3.3）[pdf:E08]（物理页 8，Fig. 5）
-
-**8. 运行时执行的是静态时序。** global control 的 timer/signal generator 按预定 cycle 产生 MUX、FIFO 和 exchange signals；data integration 选数据，core computation 执行，data storage/buffering 缓存并把结果送往 electrical system。Appendix A 的 HDL 片段展示了按固定 `t_mux`、`t_fifo_write`、`t_fifo_read` 和 `t_ex` 产生信号以及用 `generate` 实例化 MUX、multiplier、FIFO；Appendix B 展示了模块连线。[pdf:E06]（物理页 6，Fig. 2）[pdf:E12]（物理页 12，Appendix A）[pdf:E13]（物理页 13，Appendix B）
-
-**必须严格限定论文实际生成的东西。** 本文支持的表述是：它生成控制侧的静态 operation schedule、资源数量、论文声称的 arithmetic-unit binding、MUX/FIFO 配置和模板化 HDL。全文没有给出以下内容，不能从本文外推：
-
-- electrical network 的 elimination/partition/reordering 结构选择；电气系统模块明确来自前作且不是本文重点；[pdf:E05]（物理页 5，Section 3.1）
-- Schur complement 的构造、exact full-state back-substitution 或全状态恢复；
-- BMB 的 bank/address 分配、FIFO depth/word-width 推导、真实 dual-port RAM 的逐 cycle 端口冲突证明；
-- 整个 EMT step 的 atomic commit 协议。Appendix A 只显示在固定 `t_ex` 拉起 `exchange_signal`，没有给出全部状态同时可见、跨模块提交或 read-during-write 语义的完整证明。[pdf:E12]（物理页 12，Appendix A）
+1. **资源需求模型。** 以 Intel FPGA 的 ALM（逻辑）与 BMB（块存储位）为指标：RALM = γMUX + γFIFO + Σ nAU_i·γAU_i,ALM，RBMB = γFIFO,BMB + Σ nAU_j·γAU_j,BMB（Eq. (1)–(3)）。FIFO 开销按需要缓冲的运算对计数（Eq. (4)–(5)）；n 输入选择器由 n 个二选一构成，选择器 ALM 与每个单元承担的运算次数成正比（Eq. (6)）。[pdf:E03]（PDF 物理页 3）
+2. **时间约束。** 反馈回路插入一步延迟，控制系统成为 DAG；节点为浮点运算，边长为输出延迟；Floyd–Warshall 求最长路径，其长度即最短求解时间 Tmin（Eq. (7)–(12)）。[pdf:E03][pdf:E04]（PDF 物理页 3–4，Fig. 1）
+3. **优化模型。** 目标 min wALM·RALM + wBMB·RBMB（Eq. (13)）；约束包括运算依赖（后继的开始时刻不早于前驱开始时刻加延迟，全部运算在 Tmin 内完成，Eq. (14)–(16)）、每个时钟同类运算并发数不超过单元数（Eq. (17)）、结果未被立即使用时启用 FIFO（Eq. (18)–(19)）。原问题是整数非线性规划，用 0/1 开始、结束、占用标志和大 M 法线性化（Eq. (20)–(27)）。[pdf:E05]（PDF 物理页 5）
+4. **硬件架构。** 五个模块：全局控制（定时器与信号发生器，按调度选数据）、数据整合（选择器，把中间数据合成数据流）、核心计算（浮点加法器、乘法器等）、数据存储与缓冲（FIFO）、电气系统求解（沿用作者课题组前作 Fu 等的设计）。[pdf:E05][pdf:E06]（PDF 物理页 5 右栏；物理页 6，Fig. 2）
+5. **示例：Park 变换。** 4 次加法、5 次乘法、1 次正弦、1 次余弦；优化后用 1 个加法器、2 个乘法器、1 个正弦单元、1 个余弦单元，延迟分别为 7、5、36、35 个周期；中间量 x2 被缓存，使 4 号运算推迟 24 个周期开始。[pdf:E06]（PDF 物理页 5–6，Fig. 3，Table 1）
+6. **自动 HDL 生成。** 优化结果按六项信息（运算类型、执行单元号、开始时刻、输入来源的类型、单元号、开始时刻）写入输入文件；模板分静态对象（通用运算单元、定时器等）、动态对象（随算例变化的信号发生器等）与三层嵌套对象；生成器据此输出完整 HDL。源代码已在 GitHub 开源。[pdf:E07][pdf:E11]（PDF 物理页 7，Fig. 4–5；物理页 11，Appendix A）
+7. **平台与算例划分。** Intel Stratix V（EP5SGSMD5K2F40C2）开发板经 PCIe 与主机通信。光伏系统分为 15 个光伏子系统加一个网络，风电系统分为 15 个风机子系统加一个网络，各子系统在 FPGA 上流水处理；逆变器用开关函数模型，PMSG 用传递函数模型经受控电流源接入网络。[pdf:E08][pdf:E09]（PDF 物理页 8–9）
 
 ## § 6 — 核心数学推导（无形式化数学则跳过）
 
-### 6.1 资源模型：把硬件成本压成 ALM/BMB 两个标量
+**选择器开销为什么进入模型。** 一个 m 类运算单元若承担 n 次运算、每次运算有 n_in 个输入，则需要 n_in 个 n 输入选择器，每个 n 输入选择器由 n 个二选一构成。所以选择器的 ALM ∝ Σ n_in·n（Eq. (6)）。[pdf:E03]（PDF 物理页 3）直觉上，复用越多、单元越少，但每个单元前面的选择器越大；这两项在目标函数里相互抵消，最优点不在“单元越少越好”处。
 
-论文先定义
+**最短求解时间。** Floyd–Warshall 以距离矩阵 DFW 与路由矩阵 RFW 记录任意两节点间的最长路径：初始化时直接相连的节点取边长、否则取 −∞；对每个中间节点 w，若 duw + dwv ≥ duv 则更新 duv 与路由（Eq. (9)–(12)）；DFW 中的最大值即 Tmin。[pdf:E04]（PDF 物理页 4）在无环图中，最长路径也可以用一次拓扑排序在线性时间内求出；Floyd–Warshall 的复杂度是节点数的三次方，对风电算例 6525 个控制节点而言是约 2.8×10¹¹ 次基本运算。
 
-\[
-R=[R_{\mathrm{ALM}},R_{\mathrm{BMB}}],
-\]
-
-\[
-R_{\mathrm{ALM}}=\gamma^{\mathrm{MUX}}_{\mathrm{ALM}}+\gamma^{\mathrm{FIFO}}_{\mathrm{ALM}}+
-\sum_{i=1}^{N_{\mathrm{AU}}}n_i^{\mathrm{AU}}\gamma^{\mathrm{AU}}_{i,\mathrm{ALM}},
-\]
-
-\[
-R_{\mathrm{BMB}}=\gamma^{\mathrm{FIFO}}_{\mathrm{BMB}}+
-\sum_{j=1}^{N_{\mathrm{AU}}}n_j^{\mathrm{AU}}\gamma^{\mathrm{AU}}_{j,\mathrm{BMB}}.
-\]
-
-FIFO 的 ALM/BMB 成本分别是固定单价乘所有 `δ_FIFO=1` 的 producer-consumer 边数；MUX 的 ALM 成本是固定单价乘各 operation type 的输入数与 operation 数之和。[pdf:E03]（物理页 3，Eq. (1)–(6)）直觉上，优化器能改变的主要变量是各类 unit 数和需要缓存的边数。
-
-这个模型很“细”是因为落到了 arithmetic operation，但对 memory 又很“粗”：`d_{m,j,l,i}` 表示 producer 完成到 consumer 启动之间的等待长度，Eq. (19) 只把 `d=0` 与 `d≠0` 二分为不用/使用一个 FIFO；FIFO 的成本没有随 delay depth、data width、BMB packing 或端口数量变化。[pdf:E05]（物理页 5，Eq. (18)–(19)）因此，“BMB 最小”在论文中是其固定 FIFO 单价模型下的最小，不是物理 RAM banking 后的精确最小。
-
-### 6.2 `Tmin`：无限资源时的 critical-path lower bound
-
-论文定义 distance matrix `D_FW=[d_uv]` 和 routing matrix `R_FW=[r_uv]`。直连节点的 `d_uv` 取边长，非直连取 `-∞`；若
-
-\[
-d_{uw}+d_{wv}\ge d_{uv},
-\]
-
-则更新
-
-\[
-d_{uv}=d_{uw}+d_{wv},\qquad r_{uv}=r_{uw}.
-\]
-
-遍历所有中间节点后，`D_FW` 的最大元素被定义为最长 path 长度，也就是 `Tmin`。[pdf:E04]（物理页 4，Eq. (7)–(12)）这实际上是 DAG 上的 max-plus all-pairs longest path。它给出的是 operation dependency 与 unit latency 决定的 clock-cycle 下界；论文随后把它当约束，不再把它作为可优化目标。
-
-反馈环插入 one-step delay 是这一步成立的前提：没有切环，正 latency cycle 会破坏最长路问题的有限性，且本步迭代次数不再固定。[pdf:E03]（物理页 3，Section 2.2）
-
-### 6.3 固定 `Tmin` 下的资源最小化
-
-目标函数是
-
-\[
-\min f=w_{\mathrm{ALM}}R_{\mathrm{ALM}}+w_{\mathrm{BMB}}R_{\mathrm{BMB}},
-\]
-
-权重由目标 FPGA 的可用 ALM/BMB 决定。[pdf:E05]（物理页 5，Eq. (13)）关键约束包括：
-
-\[
-\delta^{\mathrm{AU}}_{m,j,l,i}\bigl(t^{\mathrm{STA}}_{m,j}+t^{\mathrm{LAT}}_m\bigr)
-\le t^{\mathrm{STA}}_{l,i},
-\]
-
-\[
-t^{\mathrm{STA}}_{l,i}+t^{\mathrm{LAT}}_l\le T_{\min},
-\]
-
-\[
-\max_t n^{\mathrm{PD}}_{t,l}\le n^{\mathrm{AU}}_l,
-\]
-
-以及
-
-\[
-d_{m,j,l,i}=\delta^{\mathrm{AU}}_{m,j,l,i}
-\bigl(t^{\mathrm{STA}}_{l,i}-t^{\mathrm{STA}}_{m,j}-t^{\mathrm{LAT}}_m\bigr),
-\]
-
-`d=0` 时不用 FIFO，`d≠0` 时启用 FIFO。[pdf:E05]（物理页 5，Eq. (14)–(19)）第一式保证依赖，第二式把所有 operation 压进 critical-path deadline，第三式把每个 cycle 的同类型并发数转成所需 unit 数，第四式把 schedule slack 转成 buffer 需求。
-
-所以论文的准确表述是：**在固定 `Tmin` 下最小化加权 ALM/BMB。** `T_commit` 这个变量在论文中不存在；真实 time-step 时间还等于 clock period 乘 cycle 数，并受综合后的 `fmax`、电气系统模块及同步时刻影响。[pdf:E03]（物理页 3，Section 2.2 首段）[pdf:E10]（物理页 10，Table 3）
-
-### 6.4 latency 与 occupancy 不是同一个量
-
-` t_l^{LAT}` 是 arithmetic unit 从输入到输出的 pipeline latency，用于 dependency 和 deadline；Park 例中 add/multiply/sin/cos 分别是 7/5/36/35 cycles，Table 1 的 `end-start` 与这些 latency 一致。[pdf:E06]（物理页 6，Section 3.2 与 Table 1）
-
-为线性化 unit capacity，论文又引入 one-hot 的 `δ_STA`、`δ_END` 和逐 cycle 的 `δ_PD`：
-
-\[
-t^{\mathrm{STA}}_{l,i}=\sum_{t=1}^{T_{\min}}t\,\delta^{\mathrm{STA}}_{t,l,i},\qquad
-\sum_t\delta^{\mathrm{STA}}_{t,l,i}=1,
-\]
-
-\[
-t^{\mathrm{END}}_{l,i}=\sum_{t=1}^{T_{\min}}t\,\delta^{\mathrm{END}}_{t,l,i},\qquad
-\sum_t\delta^{\mathrm{END}}_{t,l,i}=1,
-\]
-
-\[
-\delta^{\mathrm{PD}}_{t,l,i}=\delta^{\mathrm{PD}}_{t-1,l,i}
-+\delta^{\mathrm{STA}}_{t,l,i}-\delta^{\mathrm{END}}_{t,l,i},
-\quad \delta^{\mathrm{PD}}_{0,l,i}=0,
-\]
-
-\[
-\sum_{t=1}^{T_{\min}}\delta^{\mathrm{PD}}_{t,l,i}=n_{ss}.
-\]
-
-[pdf:E05]（物理页 5，Eq. (20)–(26)）结合 nomenclature，`δ_PD` 更像某个 operation 向流水 unit 连续输入 `n_ss` 个重复子系统数据时的**输入占用窗口**，不是 output latency；这是基于公式的解释。论文没有把这层语义讲透，而且 Eq. (23) 附近把 `t_END` 解释为输入结束，Table 1 又把 `end time` 用成 `start+latency` 的 operation 完成时刻，存在记号复用或表述歧义。[pdf:E02]（物理页 2，Nomenclature）[pdf:E06]（物理页 6，Table 1）
-
-Eq. (19) 的二值关系再用 big-M 线性化：
-
-\[
--\delta^{\mathrm{FIFO}}_{m,j,l,i}M\le d_{m,j,l,i}
-\le \delta^{\mathrm{FIFO}}_{m,j,l,i}M.
-\]
-
-[pdf:E05]（物理页 5，Eq. (27)）
-
-### 6.5 start time 有显式变量，binding 在数学模型中没有闭合
-
-论文明确说，求解结果包含每个 operation 的 start time 和“指定在哪个 floating-point arithmetic unit 上执行”；HDL input file 的 Item 2 也确实需要 unit number。[pdf:E05]（物理页 5，Section 2.3.2 末段）[pdf:E07]（物理页 7，Section 3.3.1）
-
-但就 PDF 给出的 Eq. (13)–(27) 而言，模型只有每类 unit 的总数和 aggregate occupancy，没有展示 `x_{operation,unit}` 一类 assignment variable、同一具体 unit 上 interval 不重叠的约束，也没有给出从 aggregate schedule 到 unit binding 的构造算法。Park 例提供了一个实际 binding，但一般情形的 binding 完备性是**论文未证明的缺口**，不能把“作者声称会输出 binding”改写成“公式已经逐 unit 证明可绑定”。[pdf:E05]（物理页 5，Eq. (13)–(27)）[pdf:E06]（物理页 6，Fig. 3）
+**资源最小化的时间约束。** Eq. (16) 要求所有运算在 Tmin 内完成，即优化只在“不比最短路径更慢”的调度中寻找最省资源的一个。[pdf:E05]（PDF 物理页 5）这把控制系统的求解时间固定在它自身的下限，而没有利用控制系统求解与电气系统求解之间可能存在的时间余量。
 
 ## § 7 — 实验设计与结论
 
-**问题 1：优化能否在不放宽 time-step 的情况下显著减少资源？ → 实验：15-PV 系统，和经验式手工 traditional design 对比。 → 答案：能减少 ALM，但 total step 没有缩短。** 该系统的 admittance matrix 维度约 400，control graph 有 2850 nodes，FPGA clock 为 160 MHz，time-step 为 9 μs。[pdf:E08]（物理页 8，Section 4.1）Table 2 中 proposed/traditional 的 total ALM 为 48.5%/77.8%，control-system ALM 为 14.0%/43.3%，作者据此报告 control ALM 降低 67.7%、total ALM 降低 37.0%；control BMB 从 0.2% 增到 0.3%。两者 total solution time 都是 8.91 μs，因为 control solution 仅约 2.02/2.03 μs，电气系统的 8.91 μs 成为主路径。[pdf:E08]（物理页 8，Section 4.1.1）[pdf:E09]（物理页 9，Table 2）这组结果恰好说明本文不是在最小化全步 `T_commit`。
+**问题一：光伏系统。** 15 个详细光伏单元（每个 10 kW，经逆变器、LC 滤波与升压变压器接入 PCC），外环 Udc–Q 控制、内环电流控制；电气系统导纳矩阵约 400 维，控制系统 2850 个节点；步长 9 μs，时钟 160 MHz；PV 单元 4 在 2.70 s 发生 A 相电压跌落至 0.2 p.u.、持续 0.18 s。[pdf:E08]（PDF 物理页 8，Fig. 7）Table 2：优化设计总 ALM 48.5%、总 BMB 56.4%，控制系统 ALM 14.0%、BMB 0.3%，电气系统 ALM 34.5%、BMB 56.1%，控制系统 323 个周期（2.02 μs），电气系统 8.91 μs，总求解时间 8.91 μs；传统设计总 ALM 77.8%，控制系统 ALM 43.3%、325 个周期（2.03 μs），总求解时间同为 8.91 μs。控制系统 ALM 减少 67.7%，总 ALM 减少 37.0%。[pdf:E08][pdf:E09]（PDF 物理页 8–9，Table 2）
 
-**问题 2：资源下降能否让更大控制系统满足 10 μs 实时约束？ → 实验：15 台 1.5 MW WTG 系统，同样与 traditional design 对比。 → 答案：proposed design 满足，traditional design 不满足。** 该 case 的 electrical admittance matrix 维度为 601，control graph 有 6525 nodes。[pdf:E09]（物理页 9，Section 4.2.1）Table 3 中 proposed/traditional 的 total ALM 为 58.2%/88.1%，control ALM 为 21.4%/51.3%；较低 ALM 让综合时钟达到 155 MHz，而传统设计只有 125 MHz。两者所需 cycle 数相近，为 333/351，但 total solution time 是 9.81/12.16 μs，因此只有 proposed design 落在 10 μs 内。[pdf:E10]（物理页 10，Table 3）这里的 wall-clock 改善来自资源压力下降后 `fmax` 提高，不是优化器把 `Tmin` 作为目标继续压短。
+**问题二：风电系统。** 15 台 1.5 MW 直驱风机，电气系统导纳矩阵 601 维，控制系统 6525 个节点，步长 10 μs；风机 4 在 1.35 s 发生 A 相电压跌落至 0.4 p.u.、持续 0.18 s。[pdf:E09]（PDF 物理页 9）Table 3：优化设计总 ALM 58.2%，控制系统 ALM 21.4%，时钟 155 MHz，控制系统 333 个周期（2.15 μs），电气系统 9.81 μs；传统设计总 ALM 88.1%，控制系统 ALM 51.3%，时钟 125 MHz，351 个周期（2.81 μs），电气系统 12.16 μs。传统设计占用了大部分 ALM，只能以较低时钟满足时序，无法实现 10 μs 实时。[pdf:E10]（PDF 物理页 10，Table 3）
 
-**问题 3：静态调度、反馈 delay 和 switching-function model 是否还能保持数值一致？ → 实验：两套 FPGA waveform 与同 time-step 的 PSCAD/EMTDC 对比。 → 答案：所展示波形接近，摘要报告 relative error 小于 0.5%，但误差来源没有被完全消除。** PV case 展示 phase-A voltage/current、全部 PV 的 active/reactive power、DC-link voltage 及其 relative error；WTG case 展示对应电压、电流、功率、rotational speed 及其 relative error。[pdf:E09]（物理页 9，Fig. 8）[pdf:E10]（物理页 10，Fig. 10）作者明确说明两种结构性差异：FPGA 使用 switching-function model 而 PSCAD/EMTDC 使用 `Ron/Roff` model；FPGA 的 feedback loop 有 one-step delay，而 PSCAD/EMTDC simultaneous solve。[pdf:E08]（物理页 8，Section 4.1.2）因此这些曲线验证的是两个完整实现的接近程度，不是单独隔离 schedule 或 feedback delay 的误差。
+**问题三：精度。** 与 PSCAD/EMTDC（相同步长）相比，光伏单元直流电压相对误差小于 0.5%；误差来源一是 FPGA 用开关函数模型而 PSCAD 用 Ron/Roff 模型，二是 FPGA 在反馈回路中插入了一步延迟而 PSCAD 联立求解。[pdf:E08][pdf:E09]（PDF 物理页 8–9，Fig. 8）
 
-**问题 4：自动 HDL 生成链是否落到真实 FPGA？ → 实验：在 Intel Stratix V EP5SGSMD5K2F40C2 上运行两套 case，并展示 generator 流程、HDL 片段和综合后模块示意。 → 答案：生成结果至少足以支撑这两套实现。**[pdf:E08]（物理页 8，Fig. 5、Fig. 6）[pdf:E12]（物理页 12，Appendix A）[pdf:E13]（物理页 13，Appendix B）但论文没有报告 code-generation time、solver time、综合成功率、模板覆盖率，或与 HLS/手写 RTL 在开发时间上的量化比较，所以“提高建模效率”主要还是作者的定性结论。
-
-不得外推的范围包括：只有两个 REG case、一个 FPGA family、一个 traditional baseline；没有其他 scheduler/optimizer、跨芯片复现、不同反馈强度/步长的系统 sweep，也没有 end-to-end memory-port 或 atomic-step 正确性证明。作者在结论中把总体结果概括为资源消耗下降约 30%，并把 heterogeneous multi-FPGA 扩展列为未来工作；后者尚未被本文实验验证。[pdf:E11]（物理页 11，Conclusion）
+**覆盖范围。** 两个算例都是 15 台同构单元、单片 FPGA；优化只针对控制系统，电气系统沿用前作；摘要与结论中的“约 30%”指总资源，控制系统本身的 ALM 减少为 58%–68%。[pdf:E01][pdf:E11]
 
 ## § 8 — Take-aways
 
-**5 句话：**
+**五句话：** 论文把新能源实时仿真中的控制系统拆成浮点运算的数据流图，反馈回路插一步延迟使之无环。资源模型同时计入运算单元、选择器与 FIFO，其中选择器开销与每个单元承担的运算次数成正比。以最长路径为时间约束，用线性化的整数规划决定每类运算单元的个数、每个运算的开始时刻与执行单元，再由模板自动生成 HDL。光伏与风电两个 15 台算例中，控制系统 ALM 分别减少 67.7% 与约 58%，总 ALM 减少约 30%–37%，与 PSCAD 的误差小于 0.5%。风电算例的步长缩短来自资源下降后时钟由 125 MHz 提高到 155 MHz，控制系统本身的周期数只少了 18 个。
 
-1. 论文把 REG 控制求解编译成带 unit latency 的 operation DAG，并用最长路径定义固定 `Tmin`。[pdf:E03]（物理页 3，Section 2.2）[pdf:E04]（物理页 4，Eq. (7)–(12)）
-2. 在这个固定 deadline 内，优化器通过移动非关键 operation、复用同类 arithmetic unit 和插入 FIFO，最小化加权 ALM/BMB，而不是最小化 `T_commit`。[pdf:E05]（物理页 5，Eq. (13)–(19)）
-3. Park 示例把 start time、unit binding、pipeline latency 和 buffer delay 连成了可读的 cycle-level schedule，但一般 binding 的数学约束没有在文中闭合。[pdf:E06]（物理页 6，Fig. 3 与 Table 1）
-4. HDL generator 把六字段 operation 描述和 static/dynamic/nested templates 变成 timer、MUX、arithmetic unit、FIFO 与 data-exchange 的静态 RTL 配置。[pdf:E07]（物理页 7，Section 3.3）[pdf:E08]（物理页 8，Fig. 5）
-5. 两个单 FPGA case 证明了 ALM 下降和 9–10 μs 实时运行的可行性，但没有覆盖网络消元、精确 Schur 全状态恢复、bank/address 证明或完整 EMT-step atomic commit。[pdf:E09]（物理页 9，Table 2）[pdf:E10]（物理页 10，Table 3）[pdf:E12]（物理页 12，Appendix A）
+**三句话：** 选择器开销进入资源模型，是这篇论文相对手工设计最实质的一步。控制系统只占步长的约五分之一，求解时间由电气系统决定。省下的逻辑资源通过提高可达时钟频率间接缩短了步长。
 
-**3 句话：** 这篇论文的关键不是发明新的 EMT 数值积分，而是把控制侧的 operation graph 变成一个 resource-constrained static schedule。`Tmin` 是关键路径下界和固定约束，真正被优化的是 ALM/BMB；较低资源还可能间接提高综合后 `fmax`。自动 HDL 链把 schedule 落地了，但从 aggregate occupancy 到一般 unit binding、从 FIFO 标志到真实 memory implementation 仍缺少完整证明。[pdf:E05]（物理页 5）[pdf:E10]（物理页 10）
-
-**1 句话：** 这是一个“先锁定 critical-path `Tmin`，再以时间 slack 换 FPGA 资源，并把结果静态编译成 HDL”的控制侧硬件生成方法。[pdf:E04]（物理页 4，Fig. 1）
+**一句话：** 把新能源控制系统的 FPGA 实现写成计入选择器与缓存开销的运算级调度优化，并自动生成 HDL，在单片 FPGA 上以约 30% 更少的资源实时仿真 15 台光伏或风机。
 
 ## § 9 — 最脆弱的假设
 
-**最脆弱的假设是：把每个 feedback loop 替换成 one-time-step delay，既足以把控制图变成 DAG，又不会对目标 REG 动态造成不可接受的语义改变。** 这不是外围实现选择，而是整个 `Tmin` 计算和静态 schedule 存在的逻辑前提；若本 time-step 内必须 simultaneous solve 或迭代求解，图就不再是论文假定的 DAG，最长路径下界和后续 MILP 都不再对应原控制方程。[pdf:E03]（物理页 3，Section 2.2）
+最关键的假设是：**控制系统应当以其自身最长路径作为求解时间约束。** Eq. (16) 要求所有运算在 Tmin 内完成，优化只在“最快”的调度中找最省资源的一个。[pdf:E05]
 
-在高增益、强耦合、stiff 或近代数环的控制回路中，一个完整 time-step 的 delay 会改变离散闭环极点、相位裕度和故障瞬态。论文给出的支持证据是两套 9/10 μs case 与 PSCAD/EMTDC 的波形接近，且摘要报告 relative error 低于 0.5%；但作者也明确把“FPGA feedback 有 delay、PSCAD simultaneous solve”列为误差来源。[pdf:E01]（物理页 1，Abstract）[pdf:E08]（物理页 8，Section 4.1.2）缺失的证据是：对 feedback gain、loop bandwidth、time-step、fault severity 和 algebraic-loop stiffness 的系统 sweep，以及 delay 对稳定边界的理论分析。
+论文自己的数据说明这一约束远紧于实际需要：光伏算例中控制系统只用 323 个周期（2.02 μs），而电气系统求解需要 8.91 μs，总求解时间等于电气系统时间；风电算例中控制系统 2.15 μs、电气系统 9.81 μs，同样如此。[pdf:E09][pdf:E10]（PDF 物理页 9–10，Table 2–3）控制系统有 4 倍以上的时间余量可以用来进一步分时复用运算单元，而优化没有利用这部分余量。换句话说，论文报告的资源节省是在一个不必要的强约束下取得的，同一算例下还有更大的节省空间；反过来，论文所说的“最短求解时间”对实时性没有贡献，因为它不在关键路径上。
 
-只要存在一个实际重要的控制环在 simultaneous solve 下稳定、而插入 one-step delay 后失稳或产生不可接受误差，本文方法对该环的核心适用性就会直接失效。
+第二个薄弱点在归因：风电算例中传统设计无法满足 10 μs 的原因是时钟频率被拉低到 125 MHz，电气系统在两种设计下都是约 1520 个周期（9.81 μs × 155 MHz ≈ 12.16 μs × 125 MHz）。[pdf:E10] 步长上的改进来自布线拥塞下降后的时钟提升，这是资源优化的间接效果，而论文的优化模型并没有把时钟频率作为变量。
 
 ## § 10 — 最小复现实验
 
-一周内最有效的复现不是重做 15-PV 或 15-WTG，而是复现 PDF 物理页 6 的 Park transformation，并把论文未闭合的 unit binding 显式补上。[pdf:E06]（物理页 6，Fig. 3 与 Table 1）
+一周内最值得做的是测出“放宽时间约束”能带来多少额外节省。
 
-具体做法：
-
-1. 按 Fig. 3(a) 录入 11 个 operations、依赖边和 add/multiply/sin/cos 的 7/5/36/35-cycle latency；按论文的最长路径定义独立计算 `Tmin`。Table 1 的最大 endpoint 是 cycle 49，若实现使用 0-based indexing，应把可能的一拍差明确报告，而不是强行对齐。[pdf:E06]
-2. 建一个小型 MILP 或 CP-SAT：保留论文的 start-time、dependency、deadline、aggregate occupancy 与 FIFO-gap 约束，同时新增 `x_{op,unit}` assignment 变量和每个具体 unit 的 no-overlap 约束。
-3. 检查是否能得到论文给出的资源数与 binding：1 adder，2 multipliers，1 sin，1 cos；并核对 11 个 start/end times。计算 edge `2→4` 的等待是否为 24 cycles，进而触发 FIFO。[pdf:E06]
-4. 生成最小 Verilog 或 cycle-accurate simulator：timer 驱动 MUX selection、unit input、FIFO write/read；用随机 `Ua,Ub,Uc,θ` 与软件 Park transform 比较输出。最后做一次综合，记录 ALM/BRAM、`fmax` 与 completion cycle。
-
-支持核心 claim 的结果是：在不超过论文 critical-path bound 的情况下，显式 binding 可实现且 unit 数显著少于 one-operation-one-unit baseline，RTL 输出与软件结果一致。反驳结果包括：aggregate occupancy 满足但无法分配到具体 units、FIFO read/write 时刻导致读空/覆盖、或要保持功能正确必须超过论文的 completion bound。这个实验直接检查“DAG → schedule → binding → FIFO/MUX control → HDL”的最短闭环。
+- **实现：** 用论文开源的 HDL 生成代码（GitHub）或自行实现 Eq. (1)–(27) 的整数规划，以 Park 变换和单台光伏单元的控制系统（外环 Udc–Q、内环电流控制、MPPT）为对象。[pdf:E05][pdf:E06][pdf:E11]
+- **扫描：** 把 Eq. (16) 中的 Tmin 依次放宽为 1、1.5、2、3、4 倍，每次求解最小资源；对光伏单元，4 倍 Tmin 大约相当于 Table 2 中电气系统的求解时间。[pdf:E09]
+- **测量：** 运算单元数、选择器 ALM、FIFO BMB、总 ALM；若条件允许，综合后记录可达时钟频率。
+- **判据：** 若时间约束放宽到 4 倍时总 ALM 再下降一半以上，说明论文的约束设置浪费了大部分可复用空间；若选择器与 FIFO 开销随复用迅速增长、使总 ALM 很快饱和，则最短路径约束已接近最优，论文的设定是合理的。
 
 ## § 11 — 最强反例设计
 
-最强反例应专门攻击 feedback-delay-to-DAG 这一步，同时消除 switching model、网络规模和 FPGA 量化等混杂因素。
+**反例一：对比基准。** 传统设计是按经验手工搭建的硬件块，[pdf:E08] 每个控制元件有自己的运算单元，不做复用。任何一种基本的高层次综合调度（例如带资源约束的列表调度）都会自动复用运算单元。替代解释是：30% 的节省主要来自“有复用”对“无复用”，而非本文优化模型相对一般调度方法的优势。区分方法是把同一个控制系统数据流图交给商用 HLS 工具或经典列表调度，比较其资源与本文结果。
 
-构造一个小型但高增益的控制 algebraic loop，使 simultaneous equation 在每个 time-step 内有唯一稳定解；然后实现两个完全相同的浮点版本：A 版本在本步内 simultaneous solve，B 版本按论文方法把反馈值替换成前一步状态并做静态 DAG schedule。扫描 loop gain、controller bandwidth 和 time-step，比较闭环 pole、故障阶跃响应、峰值误差与是否失稳。两边使用相同 arithmetic precision、相同 plant、相同 operation latency，避免把差异归因于 `Ron/Roff` 与 switching-function model。[pdf:E03]（物理页 3，Section 2.2）[pdf:E08]（物理页 8，Section 4.1.2）
+**反例二：Floyd–Warshall 的可扩展性。** 求 DAG 最长路径本可以线性时间完成，论文使用三次方复杂度的 Floyd–Warshall。[pdf:E04] 风电算例已有 6525 个控制节点；控制系统规模扩大到数百台机组时（论文动机中提到 REG 系统有数百台设备），这一步本身会成为设计流程的瓶颈。整数规划的规模也随节点数与时钟数的乘积增长（Eq. (20)–(26) 中每个运算在每个时钟都有 0/1 变量），论文没有报告求解时间。[pdf:E05]
 
-如果能找到一个区域：A 稳定且误差很小，B 因一拍 delay 出现持续振荡、失稳或远超 0.5% 的状态偏差，那么论文两套 case 的好结果就有一个更强的替代解释——不是“one-step delay 普遍可接受”，而只是测试 case 的 loop 对该 delay 不敏感。这个反例会同时推翻 DAG 语义等价和由该 DAG 导出的 `Tmin` 对原系统的代表性。
+**反例三：精度对比中的延迟。** FPGA 实现在反馈回路中插入一步延迟，PSCAD 联立求解，作者把两者差异列为误差来源之一。[pdf:E08] 步长 9–10 μs 下，一步延迟对电流内环的相位影响已不可忽略；误差小于 0.5% 是在电压跌落这一类慢过程下得到的，快速控制暂态（如锁相环失稳）下这一延迟可能主导误差。
 
 ## § 12 — Follow-up Research Bet
 
-**主 idea：做一个“network elimination tree（网络消元树）—control operation DAG—memory layout”一体化的 EMT hardware compiler。** 这是候选研究判断；本任务只读了输入论文及其参考文献表，没有联网检索，因此不声称 novelty。
+**主 idea：以可达时钟频率为优化对象的调度——把布线拥塞写进资源优化模型，直接最小化“周期数 / 时钟频率”。**
 
-新的研究问题是：能否从 electrical network topology、control equations 和目标 FPGA 出发，联合选择 sparse elimination/reordering、boundary-state representation、exact back-substitution、operation schedule、unit binding 与 bank/address layout，直接最小化**完整 EMT step** 的 cycle×clock-period 和资源，而不是只在既定 electrical solver 之外最小化 control-side 资源？它首次可能让“从电网图到可执行整步 RTL”成为统一编译问题，而不是本文这种“电气模块既定、只自动生成控制模块”的分段流程。[pdf:E05]（物理页 5，Section 3.1）[pdf:E13]（物理页 13，Appendix B）
+论文中最有意思的结果不在它的优化目标里：风电算例中，传统设计与优化设计的电气系统周期数相同，优化设计因为 ALM 从 88.1% 降到 58.2%，时钟从 125 MHz 提高到 155 MHz，步长从 12.16 μs 缩短到 9.81 μs，这才让 10 μs 实时成为可能。[pdf:E10]（PDF 物理页 10，Table 3 与正文）而优化模型的目标只是加权的 ALM 与 BMB 用量，时钟频率不是变量。[pdf:E05]
 
-核心因果链是：选择 elimination tree 改变 fill-in、并行子树和边界状态规模；把 Schur boundary solve 与 exact full-state recovery 显式展开为 typed streaming DAG；再联合安排 arithmetic units、FIFO depth、bank/address 和 dual-port access，使 topology-level parallelism 与 operation-level slack 同时可用；最终用类似本文的 template generator 固化 timer、MUX、FIFO、compute kernels 和 step-boundary exchange。这里改变了至少五个基本设计变量：problem definition、state representation、hardware mapping、memory topology 和评价对象。
+**新的研究问题：** 能否建立“调度方案 → 选择器规模与布线拥塞 → 可达时钟频率”的预测模型，把时钟频率作为显式变量放进调度优化，以实际步长（周期数除以时钟频率）为目标，而不是以资源用量为目标？
 
-论文内有两条具体依据。第一，Eq. (13)–(27) 与 Fig. 1 已证明 operation-level schedule 可以被转成静态资源配置和 HDL 输入。[pdf:E04]（物理页 4，Fig. 1）[pdf:E05]（物理页 5，Eq. (13)–(27)）第二，PV case 中 control ALM 降低 67.7% 后 total solution time 仍是 8.91 μs，因为 electrical system 已经成为主路径；WTG case 又显示资源压力会通过 `fmax` 影响整个 step。[pdf:E09]（物理页 9，Table 2）[pdf:E10]（物理页 10，Table 3）这说明下一阶段的高收益空间不在继续微调 control-only objective，而在跨越 electrical/control 边界重新定义编译对象。
+**首次使什么成为可能：** 现有方法把资源和时间分开处理：资源优化假设时钟固定，时序收敛留给综合工具碰运气。把可达频率写进模型后，调度可以主动在“多用几个运算单元、少用大选择器”与“多复用、选择器变大、频率下降”之间权衡，直接为全系统（包括不在优化范围内的电气系统）争取更高的时钟。
 
-按本文对既有工作的 framing，这个押注与最近路径有四个实质区别：problem 从“固定 operation graph 上省控制资源”改成“联合选择网络求解结构与整步硬件”；mechanism 从单纯利用 schedule slack 改成 elimination-tree parallelism 与 operation slack 的耦合；representation 从扁平 control DAG 改成 elimination tree、boundary state 和 recovery DAG 的分层对象；experimental object 从 control module 的资源/波形扩展为 full-state whole-step execution。本文只说明既有 FPGA 控制硬件多为手工构建、并行关系依赖经验，因此这段比较仍是基于本文材料的候选判断，不是独立 novelty 认证。[pdf:E02]（物理页 2，Introduction）[pdf:E03]（物理页 3，Introduction 末段）
+**因果链：** 复用越多，每个运算单元前的选择器越大（Eq. (6)），扇入越大 → 选择器是长组合路径与布线拥塞的主要来源 → ALM 利用率高、选择器大时，综合工具只能降低时钟 → 电气系统等固定周期数的部分随之变慢 → 最优调度应当以全系统的步长为目标，把选择器规模对频率的影响计入。[pdf:E03][pdf:E10]
 
-最大收益是把网络结构、算术调度和存储端口从彼此独立的人工决定变成可搜索的统一设计空间，可能同时扩大模型规模、缩短 whole-step latency，并生成可审计的 full-state dataflow。最大科学风险是 elimination fill-in 和 back-substitution memory traffic 抵消并行收益；开关拓扑变化还可能破坏静态消元结构，使联合搜索复杂度失控。
+**改变的设计变量：** 评价对象（从资源用量变为全系统步长）；问题定义（资源、频率、周期数三者联合优化）；硬件映射（选择器扇入成为受约束的设计变量，而不只是被计数的开销）。
 
-最小判别实验用论文的 15-PV case，固定数值精度和控制方程，比较三种实现：A 为本文式“固定 electrical solver + optimized control”；B 固定同一 elimination tree，但做 electrical/control 联合 schedule 与 bank mapping；C 同时优化 elimination tree、联合 schedule 和 exact state recovery。测量 total step time、ALM/BMB、`fmax`、每 cycle port conflict、以及全状态与软件 EMT 的逐步一致性。若 B 与 C 收益相同，真正机制只是跨模块 schedule；只有 C 显著优于 B，才能说明 topology/elimination co-design 是新增能力的因果来源。
+**论文依据：** 方法侧是 Eq. (6) 中选择器开销与复用次数成正比的建模，以及 Eq. (13) 目标中不含时钟频率；实验侧是 Table 3 中 ALM 下降 30 个百分点带来 125 → 155 MHz 的时钟提升，以及电气系统周期数不变而求解时间缩短 19%。[pdf:E03][pdf:E05][pdf:E10]
 
-**Wild-card alternative：** 不展开 15 个近同构 PV/WTG 子系统的完整 operation DAG，而把它们编译成 parameterized cyclo-static dataflow actor，以向量化 state stream 共享一套 schedule 和 broadcast MUX 网络，研究资源随子系统数量的尺度律；这改变的是 graph representation 与 data-generation方式，而不是网络消元机制。[pdf:E08]（物理页 8，15 个 PV subsystems 的 pipeline 描述）[pdf:E09]（物理页 9，15 个 WTG subsystems 的 pipeline 描述）
+**最大收益与最大风险：** 收益是让资源优化直接转化为步长缩短，并且惠及不在优化范围内的模块，这对 FPGA 实时仿真这种“整片共享一个时钟”的系统尤其重要。风险是可达频率的预测本身很难：它依赖布局布线的随机性、器件型号和其他模块的占用，预测误差可能大于优化收益；需要在代价模型的精度与求解规模之间折中。
+
+**区分核心机制与替代解释的最小实验：** 对同一个控制系统，生成复用程度不同的 10 组调度方案，分别与固定的电气系统模块一起综合，记录每组的 ALM、最大选择器扇入和可达频率。若可达频率与最大扇入的相关性明显强于与总 ALM 的相关性，说明选择器是频率的主因、值得作为优化变量；若频率只随总利用率变化，则只需在现有模型上加一个利用率上限即可。
+
+**与已有工作的区别：** 本文与 Wang 等 2025 的 AAA 方法学都把浮点算子的分时复用和选择器代价纳入资源评估，以资源为目标；Fu 等 2022 的风电场仿真器利用模型一致性共用流水线；Ma 等 2025 的 MTOF 预先计算常量地址来复用乘加器。这些工作都在固定时钟下优化资源或周期数。这里的主张是把时钟频率这一物理实现结果纳入优化，研究对象是“调度结构—布线—频率”之间的关系。
+
+**Wild-card：** 以电气系统的求解时间为控制系统的时间预算。Table 2、Table 3 中控制系统只用了步长的约五分之一。[pdf:E09][pdf:E10] 把 Eq. (16) 的 Tmin 换成电气系统的关键路径长度，控制系统可以用少得多的运算单元完成，省下的资源再分给电气系统做更深的并行，形成两部分之间的资源再分配。

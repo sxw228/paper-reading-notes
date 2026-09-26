@@ -1,261 +1,131 @@
 # Topology-Aware Matrix Partitioning Method for FPGA Real-Time Simulation of Power Electronics Systems
 
-作者：Han Xu；Jialin Zheng；Yangbin Zeng；Weicheng Liu；Fuhai Zhao；Chunhui Qu；Zhengming Zhao
-
-出处：IEEE Transactions on Industrial Electronics, Vol. 71, No. 7
-
-年份：2024
-
-DOI：10.1109/TIE.2023.3308137
-
-Zotero key：AS5V4T4Z
-
-证据说明：公式、报告数字和关键事实均直接取自源 PDF，并在本卡引用范围内绑定可定位证据；未引用内容未做全篇转换或认证。
+**作者：** Han Xu, Jialin Zheng, Yangbin Zeng, Weicheng Liu, Fuhai Zhao, Chunhui Qu, Zhengming Zhao  
+**出处：** IEEE Transactions on Industrial Electronics, Vol. 71, No. 7, pp. 7158–7167  
+**年份：** 2024（Date of publication：2023-09-06）  
+**DOI：** 10.1109/TIE.2023.3308137  
+**Zotero key：** AS5V4T4Z  
+**证据说明：** `[pdf:E..]` 对应源 PDF 物理页与 Eq./Fig./Table 定位。
 
 ## § 1 — 研究问题与重要性
 
-论文要解决的是一个很具体的实时仿真矛盾：高开关频率 power electronics system（PES）要求很小的仿真步长，作者引用的工程经验是步长通常应为开关周期的 \(1/50\) 到 \(1/100\)；但 FPGA 虽适合低延迟并行计算，却不擅长在每一步在线做矩阵分解或求逆，而为每一种开关拓扑预存逆矩阵又会迅速耗尽片上存储。[pdf:E01]（PDF 物理页 1，Abstract 与 Section I）
+高频电力电子系统的实时仿真要求步长为开关周期的 1/50 到 1/100，FPGA 必须在极短时间内完成每步计算。显式方法计算量小、能做到很小的步长，但稳定性差；隐式方法稳定，却需要矩阵分解或求逆，这在 FPGA 上效率很低。常见的折中是离线存储所有拓扑下的逆矩阵，但存储量随开关数指数增长。[pdf:E01][pdf:E02]（PDF 物理页 1–2，Abstract 与 Introduction）
 
-现有两条捷径各有明显代价。forward Euler（FE）一类显式方法主要做 matrix-vector multiplication（MVM），计算轻，但数值稳定性弱；associated discrete circuit（ADC）模型可保持方程不随拓扑变化，却会引入人工振荡以及开关参数与步长的耦合。更准确的 two-state switch model 与隐式积分则产生随开关状态变化的方程，需要昂贵的在线求解或大量预存逆矩阵。[pdf:E01]（PDF 物理页 1，Section I）[pdf:E02]（PDF 物理页 2，Section I）
-
-作者的目标不是单纯再缩短一次步长，而是同时保住三件事：隐式积分的稳定性、FPGA 友好的固定时延 MVM 数据通路，以及不随开关数指数增长的矩阵存储。论文给出的直接工程价值是：在一块 Xilinx VC707 上，以 25 ns 步长仿真最高 200 kHz 的 n-port active bridge（NAB）案例，并在 DAB 对比中把作者所称的矩阵存储相关 memory resource 降到传统“为所有拓扑存逆矩阵”方法的约 \(1/15\)。[pdf:E01]（PDF 物理页 1，Abstract）
+论文提出拓扑感知矩阵分块（TA-MP）方法：采用隐式积分保证稳定，用迭代法求解隐式方程；系统矩阵按具有明确拓扑含义的块划分，用其中不随开关变化的对角块构造恒定迭代矩阵，并预先确定迭代次数，从而避免存储各拓扑的逆矩阵，每步只需矩阵向量乘。在 FPGA 上以 25 ns 步长仿真 n 端口有源桥变换器，200 kHz 开关频率下保持精度，存储资源只有传统方法的 1/15。[pdf:E01] 这件事重要，是因为它给出了一种让“两状态开关模型 + 隐式积分”在 FPGA 上既不求逆、也不按拓扑存逆矩阵的构造。
 
 ## § 2 — 前人工作与不足
 
-论文把 prior work 分成四条路线。第一类是显式积分和 predictor-corrector：单步以 MVM 为主，适合 FPGA，但 FE 的稳定域较小，predictor-corrector 仍属于显式方法，不能获得纯隐式方法的稳定性。第二类是 implicit-explicit 与 latency insertion：通过一步或半步延迟把开关与其余网络解耦，已经能在 FPGA 上实现小步长，但稳定性仍弱于纯隐式方法，且精度依赖接口变量的性质。[pdf:E02]（PDF 物理页 2，Section I）
+**开关模型。** ADC 模型使系统方程与拓扑无关，但会引入人工振荡，并使开关参数与步长耦合；两状态开关模型更准确，但方程随拓扑时变。[pdf:E02]（PDF 物理页 1–2）
 
-第三类是为各拓扑预存逆矩阵，或者只减少需要保存的逆矩阵数量。它把在线求解换成查表和 MVM，时延可预测，却受 FPGA 存储限制；论文还指出，已有 matrix-inversion technique 仍需保存足够多的逆矩阵才能维持精度。第四类是 network tearing / subsystem partition：把大系统拆成拓扑数较少的子系统；有的方法仍要为每个子系统保存各拓扑的 reduced inverse matrix，另一些方法虽然免存逆矩阵，却要在线做 Gauss-Jordan（GJ）过程，只有 reduced matrix 很小时才划算。[pdf:E02]（PDF 物理页 2，Section I）
+**显式与隐式–显式方法。** 显式方法以矩阵向量乘为主、能低成本更新方程，但前向欧拉等显式方法稳定性差；预测–校正提高精度但仍是显式；基于延迟的隐式–显式方法用一步延迟把开关与系统其余部分解耦，开关显式求解、其余隐式求解，已在 FPGA 上实现小步长，半步延迟可以进一步缩小步长，但稳定性仍不如隐式方法，精度严重依赖接口变量的性质。[pdf:E02]（PDF 物理页 2 左栏）
 
-TA-MP 与这些工作的差别不是“也做一次分块”，而是利用开关桥臂的拓扑语义选取分块边界，让完整方程的对角块与开关状态无关，再以这些常量块构造一个常量迭代矩阵。这样，在线开关变化只修改 interface variables，主要计算仍是 MVM；作者希望由此同时取消拓扑逆矩阵库和在线矩阵分解。[pdf:E02]（PDF 物理页 2，Section I 与 Section II-A）
+**隐式方法的存储问题。** 存储所有拓扑的逆矩阵受存储资源限制；矩阵求逆技术减少了存储但仍需存足够多的逆矩阵；把系统分成子系统，每个子系统只存自己的约化逆矩阵，或用 Gauss–Jordan 求解约化方程，后者只在约化矩阵较小时有效。[pdf:E02]
 
-需要谨慎的是，论文中的 Table III 汇集了不同电路、不同 FPGA 和不同 solver 的文献资源数据，这能说明方法在设计空间中的位置，却不是严格控制硬件与案例后的 apples-to-apples benchmark。[pdf:E10]（PDF 物理页 10，Table III）
+作者的目标：在两状态开关模型与隐式方法下，不存储各拓扑的逆矩阵，只用矩阵向量乘。[pdf:E02]（PDF 物理页 2 左栏末段）
 
 ## § 3 — 重建作者的思考路径
 
-以下是基于论文背景与失败模式的重建，不是作者逐字陈述。
+出发点是开关函数模型：一个半桥可以换成一对受控源，vE = k1·vJ、iJ = k2·iE，系数 k1、k2 由开关状态决定。[pdf:E03]（PDF 物理页 2，Eq. (1)，Fig. 1）受控源对把电路在“割点”处切开：DAB 被两个割点分成三个子系统。[pdf:E04][pdf:E05]（PDF 物理页 3–4，Fig. 2(a)）
 
-第一步，研究者会先排除“只靠显式积分”的路线：高频开关要小步长，而小步长本身并不能消除 FE 稳定域带来的参数限制；如果输入电阻等参数稍变，显式解仍可能振荡甚至发散。[pdf:E02]（PDF 物理页 2，Section I）[pdf:E07]（PDF 物理页 7，Section V-B 与 Fig. 7）
+第一步，每个子系统写状态方程与输出方程，子系统之间只通过受控源相连，受控源值是邻居子系统的“独立接口变量”乘以开关系数（Eq. (2)–(4)）。拼成全系统方程后，对角块只含本子系统自己的矩阵，与开关无关；开关系数只出现在非对角块中（Eq. (5)–(7)）。[pdf:E04]（PDF 物理页 3）
 
-第二步，若坚持 trapezoidal 等隐式方法，真正不适合 FPGA 的不是所有运算，而是每个开关状态下重新分解或求逆一个变化矩阵。于是自然的问题变成：能否把“随拓扑变化的部分”隔离成低成本的变量修改，把昂贵的主体矩阵固定下来？
+第二步，梯形法离散后得到 Gz = b（Eq. (10)–(13)）。若用块 Jacobi 迭代，只需对角块的逆，而对角块恒定，可以一次预算好。[pdf:E04][pdf:E05]（PDF 物理页 3–4，Eq. (14)）
 
-第三步，power converter 本来就由 half-bridge 等 switching leg 组成；用 switching-function approach 把每个桥臂替换为一对受控源，会在电路图中暴露 cut vertex。沿这些 cut vertex 把电路拆成子系统后，子系统内部动态不再随相邻桥臂状态改变，变化只通过 interface variables 跨边界传递。[pdf:E03]（PDF 物理页 3，Fig. 1、Section II-B、Eq. (2)-(4)）[pdf:E04]（PDF 物理页 4，Fig. 2）
+第三步，Jacobi 迭代矩阵中仍含开关系数。作者注意到 DG − G 的奇数列全为零，去掉状态变量列，再把各列的开关系数 Kk 提出来乘到接口变量上，得到恒定迭代矩阵 B̃G：z(i+1) = B̃G·ỹ(i) + fn，ỹ = [K1y1, …, KNyN]（Eq. (15)–(16)）。[pdf:E05][pdf:E06]（PDF 物理页 4–5，Fig. 3(a)）
 
-第四步，既然完整矩阵的对角块固定，就可离线求它们的逆，并用 block Jacobi 代替每步直接求解。进一步把迭代式中含开关系数的项从矩阵列中提出，乘到 interface variables 上，便得到一个固定的 \(\widetilde B_G\)。若还能在离线阶段给出固定的最大迭代次数，在线数据通路就只剩“改接口变量、做 MVM、向量相加”，正好匹配 FPGA 的细粒度并行结构。[pdf:E04]（PDF 物理页 4，Eq. (14)-(17)）[pdf:E05]（PDF 物理页 5，Fig. 3 与 Fig. 4）
+第四步，迭代矩阵恒定，所需迭代次数 imax 可以事先由谱半径算出（Eq. (17)），实时仿真的每步计算时间因此确定。[pdf:E05][pdf:E06]
 
 ## § 4 — 核心 Intuition
 
-核心 intuition 是：开关动作未必需要让整个隐式方程矩阵都变化；如果按 switching leg 的拓扑边界切开系统，变化可以被限制在子系统之间的 interface variables，而每个子系统对应的对角块保持常量。[pdf:E03]（PDF 物理页 3，Section II-B）于是作者把“为每个拓扑保存/求逆矩阵”改写成“保存一个常量迭代矩阵，并在每步先修改接口变量再做 MVM”。[pdf:E04]（PDF 物理页 4，Eq. (14)-(16)）只要 block Jacobi 在预定次数内收敛，隐式稳定性、固定时延和较低存储就能同时成立；真正决定方法是否可用的不是分块本身，而是这个固定迭代次数能否覆盖全部相关拓扑和工况。[pdf:E05]（PDF 物理页 5，Eq. (17) 后的讨论）
+在开关桥臂处把电路切开，开关只影响子系统之间的连接，不影响子系统内部。子系统内部用隐式梯形法，其矩阵恒定、可以预先求逆；子系统之间的连接用块 Jacobi 迭代处理，把开关系数移到接口变量上，迭代矩阵也就恒定了。每步只需“修改接口变量 → 乘恒定迭代矩阵”，全是矩阵向量乘，存储与拓扑数无关。[pdf:E05][pdf:E06]（PDF 物理页 4–5，Eq. (14)–(16)）
 
 ## § 5 — 具体方法与完整 Pipeline
 
-以论文的 dual-active-bridge（DAB）为例，完整 pipeline 如下。
+以 DAB 为例（开关频率 20 kHz，Table I 参数）。[pdf:E08]（PDF 物理页 7，Table I）
 
-1. **把 switching leg 改写为受控源对。** half-bridge 的端口关系写为 \(v_E=k_1v_J,\ i_J=k_2i_E\)，其中 \(k_1,k_2\) 由开关状态决定；\(v_J,i_E\) 被选作 independent interface variables。[pdf:E02]（PDF 物理页 2，Eq. (1)）[pdf:E03]（PDF 物理页 3，Fig. 1 后正文）
-2. **按 cut vertex 切分电路。** DAB 被两个 cut vertex 切成三个子系统。每个子系统都有状态 \(x_k\)、独立源 \(u_{s,k}\)、受控源 \(u_{c,k}\) 和接口输出 \(y_k\)；相邻子系统通过 \(K_jy_j\) 传递开关状态影响。[pdf:E03]（PDF 物理页 3，Section II-B、Eq. (2)-(4)）[pdf:E04]（PDF 物理页 4，Fig. 2）
-3. **组装 topology-aware block matrix。** 对角块对应子系统自身，保持常量；off-diagonal blocks 表示相邻接口的影响，并包含开关系数 \(K_j\)。这一步把“拓扑变化”从整个矩阵缩小到子系统之间的连接。[pdf:E03]（PDF 物理页 3，Eq. (5)-(7) 周边正文）[pdf:E04]（PDF 物理页 4，Fig. 2 与 Eq. (5)）
-4. **离线离散并预计算。** 论文采用 A-stable 的 trapezoidal method，把 DAE 离散为 \(Gz_{n+1}=b_n\)。随后离线构造由对角块组成的 \(D_G\)、其逆 \(D_G^{-1}\)、常量迭代矩阵 \(\widetilde B_G\)，并由收敛目标预定 \(i_{\max}\)。初始化在 PC 上执行，生成的矩阵再写入 FPGA。[pdf:E03]（PDF 物理页 3，Eq. (8)-(12)）[pdf:E04]（PDF 物理页 4，Eq. (13)-(17)）[pdf:E06]（PDF 物理页 6，Section IV-A）
-5. **在线处理开关。** ADC / gate input 先决定当前实际开关状态，LUT 给出对应 \(K_k\)；这些系数只用于逐元素修改 interface variables。对于非主动控制的二极管，实际导通状态还依赖电流方向。[pdf:E06]（PDF 物理页 6，Fig. 6 与 Section III-D、IV-A）
-6. **在线固定次数迭代。** FPGA 并行计算 \(\widetilde B_G\widetilde y_{n+1}^{(i)}\) 与 \(f_n\)，做向量相加，按 \(i_{\max}\) 重复。论文研究案例中 \(i_{\max}=1\)，因而没有额外的重复 MVM；这只是案例结果，不应外推为所有 PES 都只需一次迭代。[pdf:E06]（PDF 物理页 6，Fig. 6 与 Section IV-A）
-7. **恢复状态并输出。** interface variables 确定后，各子系统状态可独立计算；实时结果经 16-bit DAC 输出到示波器，MAB 案例还通过 ADC/DAC 与真实控制器闭环形成 RT-HIL。[pdf:E04]（PDF 物理页 4，Eq. (15) 后正文）[pdf:E08]（PDF 物理页 8，Section V-C）[pdf:E09]（PDF 物理页 9，Fig. 10 与 Fig. 11）
-
-从 EMT + FPGA 验收维度看，论文报告了 two-state switch model、trapezoidal 固定步长、开关状态处理、MVM 并行、FPX 24.24 定点表示、VC707 实板、DAB 实时输出以及三端口 MAB RT-HIL；没有把该实现表述为一个覆盖任意网络元件的通用 EMT 平台。多速率没有实现，只在结论中作为未来可组合方向；blocking state / discontinuous conduction mode 与 nonlinear element 也不能由当前 TA-MP 直接处理。[pdf:E06]（PDF 物理页 6，Section III-D、IV-B）[pdf:E10]（PDF 物理页 10，Section VI）
+1. **桥臂建模。** 每个开关桥臂用一对受控源替换，vE = k1vJ、iJ = k2iE；测量量 vJ、iE 作为独立接口变量。[pdf:E03]（PDF 物理页 2，Eq. (1)）
+2. **拓扑感知划分。** 受控源对在图中形成割点，DAB 被分为 3 个子系统：子系统 1 有 3 个状态变量、4 个独立接口变量，子系统 2、3 各有 1 个状态变量、2 个独立接口变量。[pdf:E04][pdf:E08]（PDF 物理页 3，Fig. 2；物理页 7）
+3. **全系统方程。** 每个子系统 ẋk = Akxk + Bkus,k + Ekuc,k，yk = Ckxk + Dkus,k + Fkuc,k（Eq. (2)–(3)）；uc,k = Σ Sk,jKjyj（Eq. (4)）；拼成全系统方程，对角块恒定，开关系数只在非对角块（Eq. (5)–(7)）。[pdf:E04]
+4. **梯形法离散。** Gzn+1 = bn，Gk = [[I − h/2·Ak, 0], [−Ck, I]]，Gk,j 含 h/2·Mk,jKj 与 −Nk,jKj（Eq. (10)–(13)）。[pdf:E04][pdf:E05]（PDF 物理页 3–4）
+5. **恒定迭代矩阵。** 块 Jacobi：z(i+1) = D_G⁻¹(DG − G)z(i) + D_G⁻¹bn，初值取 zn（Eq. (14)）；去零列、提出开关系数得 z(i+1) = B̃G·ỹ(i) + fn（Eq. (15)–(16)）。只需存 B̃G（DAB 为 8 维）与 D_G⁻¹（13 维）以及恒定的子系统矩阵。[pdf:E05][pdf:E06][pdf:E08]（PDF 物理页 4–5、7）
+6. **迭代次数。** imax 由迭代矩阵中对应独立接口变量的行构成的方阵的谱半径 ρ、步长 h、积分阶数 q、状态变化率 v 与绝对误差容限决定（Eq. (17)）；DAB 中容限 10⁻⁸ 时 imax = 1。[pdf:E06][pdf:E08]
+7. **FPGA 实现。** 初始化在 PC 上完成；时间推进由求解引擎执行：ADC 采集开关信号 → 查表得开关系数 → 修改接口变量 → 并行计算 Eq. (15) 右端两项。imax = 1 时，由于初值等于当前步的值，两级计算可以合并为一级。全部运算采用 48 位、24 位整数的定点格式（FPX 24.24），C++ 代码经 Vitis HLS 生成 HDL，平台为 VC707（XC7VX485T），ADC 与 DAC 经 FMC 接口连接。[pdf:E07][pdf:E09]（PDF 物理页 6–8，Fig. 6、Fig. 8）
 
 ## § 6 — 核心数学推导（无形式化数学则跳过）
 
-### 6.1 从桥臂拓扑到子系统接口
+**为什么对角块恒定。** 子系统之间的受控源值 uc,k 被写成邻居接口变量 yj 与开关系数 Kj 的乘积（Eq. (4)）。代入后，开关系数只出现在“子系统 k 受子系统 j 影响”的非对角块 Mk,jKj、Nk,jKj 中；对角块只含 Ak、Ck 等子系统自身的矩阵（Eq. (5)–(7)）。[pdf:E04]（PDF 物理页 3）梯形法离散后对角块 Gk = [[I − h/2·Ak, 0], [−Ck, I]] 恒定，可以离线求逆。
 
-switching leg 的受控源关系是
+**为什么迭代矩阵恒定。** DG − G 只有非对角块。作者观察到它的奇数列（对应状态变量 xk）全为零，因为子系统之间只通过接口变量 yk 相互影响；每个剩余列都乘了同一个 Kk，可以提出来并入接口变量。于是 BG 中的开关系数全部转移到向量 ỹ = [K1y1, …, KNyN] 上，矩阵 B̃G 与开关无关（Eq. (15)–(16)）。[pdf:E05][pdf:E06]（PDF 物理页 4–5，Fig. 3(a)）
 
-\[
-v_E=k_1v_J,\qquad i_J=k_2i_E .
-\]
+**迭代一次意味着什么。** DAB 算例中 imax = 1，初值 z(0) = zn。[pdf:E07][pdf:E08] 此时 zn+1 = B̃G·ỹn + fn：新时刻的解由上一时刻的接口变量与本步的右端项直接算出。子系统内部仍是梯形法隐式求解，但子系统之间的耦合用的是上一时刻的接口值，相当于在接口处引入了一步的时间滞后。精确解 z* 满足 z* = B̃Gỹ* + fn，一次迭代后的误差为 B̃G(ỹn − ỹ*)，其大小受 ρ 与接口量一步内的变化量约束。
 
-\(k_1,k_2\) 是由开关状态确定的 switching coefficients。这一步的工程意义是把“开关拓扑改变”写成端口变量前的系数，而不是直接重建整个电路矩阵。[pdf:E02]（PDF 物理页 2，Eq. (1)）
-
-第 \(k\) 个子系统写成
-
-\[
-\dot x_k=A_kx_k+B_ku_{s,k}+E_ku_{c,k},
-\qquad
-y_k=C_kx_k+D_ku_{s,k}+F_ku_{c,k},
-\]
-
-并把相邻子系统对它的受控源贡献写为
-
-\[
-u_{c,k}=\sum_{j\in N(k)}S_{k,j}K_jy_j .
-\]
-
-这里 \(x_k\) 是 state vector，\(u_{s,k}\) 是 independent sources，\(u_{c,k}\) 是 switching leg 引入的 controlled sources，\(y_k\) 是 independent interface variables；\(S_{k,j}\) 负责选择和扩展相邻变量，\(K_j\) 是包含开关系数的对角矩阵。[pdf:E03]（PDF 物理页 3，Eq. (2)-(4) 及变量定义）
-
-代入后，完整矩阵的 diagonal blocks 只含子系统自身矩阵，而含 \(K_j\) 的项出现在 off-diagonal blocks。Fig. 2 给出的 DAB 例子清楚显示：绿色对角块是 constant part，橙色块是由 interface variables 连接的 varying part。[pdf:E04]（PDF 物理页 4，Fig. 2 与 Eq. (5)）
-
-### 6.2 隐式离散
-
-论文从 DAE
-
-\[
-\dot x=f(x,y,t),\qquad g(x,y,t)=0
-\]
-
-出发，用 trapezoidal method 离散：
-
-\[
-x_{n+1}=x_n+\frac h2\left[f(x_n,y_n,t_n)+f(x_{n+1},y_{n+1},t_{n+1})\right],
-\qquad
-0=g(x_{n+1},y_{n+1},t_{n+1}),
-\]
-
-最后整理成
-
-\[
-Gz_{n+1}=b_n .
-\]
-
-\(h=t_{n+1}-t_n\) 是步长。隐式性来自 \(n+1\) 时刻变量同时出现在方程右侧；这带来 A-stability，但也产生每步线性方程求解需求。[pdf:E03]（PDF 物理页 3，Eq. (8)-(12)）
-
-### 6.3 从 block Jacobi 到常量迭代矩阵
-
-令 \(D_G=\operatorname{diag}(G_1,\ldots,G_N)\)，标准 block Jacobi 迭代为
-
-\[
-z_{n+1}^{(i+1)}
-=B_Gz_{n+1}^{(i)}+f_n,\qquad
-B_G=D_G^{-1}(D_G-G),\qquad
-f_n=D_G^{-1}b_n,
-\]
-
-初值取 \(z_{n+1}^{(0)}=z_n\)。因为 \(D_G\) 的块不随开关状态变化，\(D_G^{-1}\) 可以只在离线阶段计算一次。[pdf:E04]（PDF 物理页 4，Eq. (14)）
-
-原始 \(B_G\) 仍含 \(K_j\)，所以还不是常量。作者观察到 \(D_G-G\) 中对应 state variables 的列为零，并把剩余列中的 \(K_j\) 提到 interface variables 上，得到
-
-\[
-z_{n+1}^{(i+1)}
-=\widetilde B_G\widetilde y_{n+1}^{(i)}+f_n,
-\]
-
-\[
-\widetilde y_{n+1}^{(i)}
-=\left[
-(K_1y_{1,n+1}^{(i)})^T\ 
-(K_2y_{2,n+1}^{(i)})^T\ \cdots\
-(K_Ny_{N,n+1}^{(i)})^T
-\right]^T .
-\]
-
-于是 \(\widetilde B_G\) 不再含 switching coefficients；开关状态只改变 \(\widetilde y\)。同时，state variables 不参加迭代，接口收敛后各子系统状态可独立恢复。[pdf:E04]（PDF 物理页 4，Eq. (15)-(16) 及邻近正文）[pdf:E05]（PDF 物理页 5，Fig. 3）
-
-### 6.4 固定迭代次数与收敛边界
-
-论文用谱半径 \(\rho\) 和误差目标预估固定的最大迭代次数：
-
-\[
-i_{\max}
-=
-\left\lceil
-\log_{\rho}\frac{e_n}{e_0}
-\right\rceil
-=
-\left\lceil
-\log_{\rho}
-\frac{0.01\max\left((hv)^{q+1},\mathrm{tol}_{abs}\right)}{hv}
-\right\rceil ,
-\]
-
-其中 \(q\) 是积分阶数（trapezoidal method 时 \(q=2\)），\(v\) 是 state variables 的变化率，\(\mathrm{tol}_{abs}\) 是设定的 absolute error。[pdf:E04]（PDF 物理页 4，Eq. (17)）这个公式把可变的“迭代到收敛”为固定硬件时延，但成立前提是离线误差界和谱半径能覆盖运行中的全部相关拓扑与工况。
-
-作者援引的充分条件是：每个 \(G_k\) 非奇异，且完整 \(G\) strictly block diagonally dominant。论文认为 \(I-\frac h2A_k\) 在子系统特征值实部不大于零时非奇异，并指出 \(h\) 越小，\(G\) 越可能满足 block diagonal dominance；这是“小步长有利于收敛”的理论理由，而不是对所有网络与参数的无条件证明。[pdf:E06]（PDF 物理页 6，Section III-D-2）
+**稳定性。** 论文以梯形法的 A 稳定性为依据，在 Fig. 5 中把 TA-MP 标注为 A 稳定的隐式方法。[pdf:E06]（PDF 物理页 5，Fig. 5）块 Jacobi 收敛的充分条件是每个 Gk 非奇异且 G 严格块对角占优；作者指出步长越小越容易满足。[pdf:E06][pdf:E07]（PDF 物理页 5–6，Convergence Analysis）按上一段的分析，imax = 1 时整个格式的稳定性由梯形法与接口滞后共同决定，还取决于 ρ(B̃G)，与单纯的梯形法不同。
 
 ## § 7 — 实验设计与结论
 
-### 问题 1：在相同步长下，TA-MP 是否比 FE 更稳定、同时接近隐式参考？
+**问题一：精度与稳定性。** Simulink S-Function 中实现 TA-MP 与前向欧拉（FE），都用定点格式、25 ns 步长，以 ode23s 为参考；DAB 开关频率 20 kHz，二次侧移相比在 0.0125 s 由 0 变为 0.3。TA-MP 与参考一致；FE 出现数值振荡，高频电流误差约 3 A，输入电阻稍减小时发散。[pdf:E08]（PDF 物理页 7，Fig. 7）
 
-**实验。** 作者在 Simulink S-Function 中实现 TA-MP 与 FE，并用 fixed-point toolbox 模拟定点格式；两者步长均为 25 ns，以 Simulink implicit ode23s 为 benchmark。DAB 参数为：两侧直流电压 600 V / 400 V，两侧直流母线电容 1 mF / 250 \(\mu\)F，变压器漏感 42 \(\mu\)H、励磁电感 2.49 mH，端口电阻 1 m\(\Omega\)，开关频率表列范围 20-200 kHz；该精度实验取 20 kHz，并在 0.0125 s 把副边 phase-shift ratio 从 0 改为 0.3。[pdf:E07]（PDF 物理页 7，Table I、Section V-B）
+**问题二：FPGA 实时与资源。** VC707 上 DAB 开关频率从 20 kHz 变到 200 kHz，25 ns 步长仍能准确仿真移相过程。Table II：TA-MP 计算时间 18.408 ns，总 LUT 8774（2.89%），计算核 LUT 2540（0.84%），寄存器 578，DSP48 48 个（1.71%）；存储全部逆矩阵的梯形法计算时间 30.364 ns，总 LUT 46 901（15.45%），计算核 LUT 40 877（13.46%），寄存器 437，DSP48 104 个（3.71%）。作者称 TA-MP 只用 1/15 的存储资源。[pdf:E09]（PDF 物理页 8，Fig. 9，Table II）
 
-**答案。** DAB 被分为三个子系统，构造 13-D preconditioner matrix 与 8-D iterative matrix；当 absolute error 要求为 \(10^{-8}\) 时，作者报告 \(i_{\max}=1\)。Fig. 7 中 FE 出现 numerical oscillation，高频电流误差约 3 A，输入电阻略减时甚至发散；TA-MP 波形与 Simulink reference 良好一致，计算复杂度接近 FE。[pdf:E07]（PDF 物理页 7，Fig. 7 与 Section V-B）不过论文主要给出波形和 absolute-error 曲线，没有报告跨完整参数域的统一 RMSE / worst-case error 表，因此“comparable accuracy”不应外推到未测网络。
+**问题三：HIL。** 三端口有源桥（MAB）与实物控制器闭环，计算延迟 21.912 ns，占 1.64% LUT、0.11% 寄存器、3.26% DSP48；开关频率 20 kHz，实验波形与 HIL 结果一致，实验波形含开关暂态而仿真更理想。[pdf:E09][pdf:E10]（PDF 物理页 8–9，Fig. 10–11）
 
-### 问题 2：DAB 能否在 FPGA 上满足 25 ns 的真实时间预算？
+**问题四：规模。** 存储全部逆矩阵时最多仿真 8 个 DAB，TA-MP 可仿真 28 个，瓶颈变为 DSP48；按 NAB 端口数，存储逆矩阵的方法资源随开关数指数增长，TA-MP 可做到 16 端口。[pdf:E10]（PDF 物理页 9，Fig. 12）
 
-**实验。** solver 采用 48-bit、24-bit integer-width 的 FPX 24.24 定点格式，经 Vitis HLS 和 Vivado 部署到 Xilinx VC707（XC7VX485T-2FFG1761C）。平台还包括 14-bit ADS4449 ADC（最高 250 MSPS）与 16-bit DAC34H84（最高 1.25 GSPS）。[pdf:E06]（PDF 物理页 6，Section IV-B）[pdf:E08]（PDF 物理页 8，Fig. 8 与 Section V-C-1）
-
-**答案。** Table II 报告 TA-MP calculation time 为 18.408 ns，小于 25 ns 步长；实时 DAB 实验把开关频率从 20 kHz 提高到 200 kHz，并捕获副边方波相对原边从领先 \(0^\circ\) 变为领先 \(90^\circ\) 的瞬态。作者据此声称 200 kHz 下仍可准确实时仿真。[pdf:E08]（PDF 物理页 8，Fig. 9、Table II、Section V-C-2）论文没有报告板级 clock frequency、timing slack 分布、温度/电压角落或长时间 overrun 统计。
-
-### 问题 3：相对预存所有拓扑逆矩阵，资源与延迟是否下降？
-
-**实验。** 对比方法同样使用 trapezoidal method，但把全部拓扑逆矩阵预存；两者都用 C++、相同 HLS optimization instructions 转成 HDL。[pdf:E08]（PDF 物理页 8，Section V-C-2）
-
-**答案。** Table II 中 TA-MP 与对比法的 calculation time 分别为 18.408 ns 与 30.364 ns；total LUTs 为 8774（2.89%）与 46901（15.45%）；computation kernel LUTs 为 2540（0.84%）与 40877（13.46%）；slice registers 为 578（0.095%）与 437（0.072%）；DSP48 为 48（1.71%）与 104（3.71%）。作者把结果概括为 TA-MP 仅消耗约 \(1/15\) 的 memory resource，同时只需 MVM。[pdf:E08]（PDF 物理页 8，Table II 与其后正文）这里“memory resource”主要由 LUT 使用量体现；Table II 未给出 BRAM 数量，也未报告功耗。
-
-### 问题 4：方法能否闭合到真实控制器的 RT-HIL，而不只是在板上输出波形？
-
-**实验。** 作者在同一 FPGA 平台上实现三端口 multi-active bridge（MAB）RT-HIL，通过 ADC/DAC 接真实控制器，并与同一控制器驱动的 power experiment 波形比较；开关频率为 20 kHz。[pdf:E08]（PDF 物理页 8，Section V-C-3）[pdf:E09]（PDF 物理页 9，Fig. 10 与 Fig. 11）
-
-**答案。** MAB solver 的 reported computational delay 为 21.912 ns，资源为 LUT 1.64%、register 0.11%、DSP48 3.26%。作者判断实验波形与 RT-HIL 波形良好一致，同时明确说明物理实验含 switching transient，而 RT-HIL 波形更理想化。[pdf:E08]（PDF 物理页 8，Section V-C-3）[pdf:E09]（PDF 物理页 9，Fig. 11 后正文）论文未给出这组 HIL 对比的数值误差指标、controller 型号/控制周期或接口总闭环延迟。
-
-### 问题 5：资源扩展是否优于全逆矩阵方案？
-
-**实验与答案。** Fig. 12 的 resource-utilization scaling 比较显示：全存逆矩阵方案最多支持 8 个 DAB，而 TA-MP 图示可到 28 个 DAB，此时瓶颈从 LUT memory 转为 DSP48；对 NAB port 数，前者最高 4 port，TA-MP 图示最高 16 port。[pdf:E09]（PDF 物理页 9，Fig. 12 与 Section V-D）这组证据说明综合资源增长趋势，但没有同时给出最大规模 28-DAB 或 16-port 案例的实时波形、误差和 HIL 闭环结果，不能把“资源可容纳”直接等同于“大规模动态精度已验证”。
+**覆盖范围。** Table III 中作者把 TA-MP 定位为纯隐式方法、资源与显式方法同级，并在结论中把多速率仿真与非线性解耦列为后续方向。[pdf:E11]（PDF 物理页 10）算例都是由开关桥臂构成、经高频变压器连接的有源桥类变换器；二极管电流过零的阻断状态（开关系数 00）无法直接处理，需要与直接映射法结合；非线性元件需要与隐式–显式方法结合。[pdf:E07][pdf:E10]（PDF 物理页 6，Discussion 3)；物理页 9）
 
 ## § 8 — Take-aways
 
-**5 句话：**
+**五句话：** 论文用开关函数把每个桥臂换成一对受控源，受控源在图中形成割点，把电路切成若干子系统。子系统之间只经接口变量耦合，开关系数只出现在非对角块，对角块恒定、可以离线求逆。块 Jacobi 迭代中把开关系数从矩阵移到接口变量上，得到与开关无关的恒定迭代矩阵，每步只需修改接口变量和做矩阵向量乘。迭代次数可以事先确定，DAB 算例中只需一次，计算量与前向欧拉相当，FPGA 上 25 ns 步长、18.4 ns 计算时间。与存储所有逆矩阵的方法相比，计算核 LUT 从 40 877 降到 2540，可仿真的 DAB 数从 8 个增加到 28 个。
 
-1. TA-MP 用 switching-leg topology 把 PES 分成子系统，使对角块固定、开关变化只进入接口耦合项。[pdf:E03]（PDF 物理页 3，Section II-B）
-2. 作者从 block Jacobi 中提出 switching coefficients，得到可预存的常量 \(\widetilde B_G\)，把在线计算压缩为接口变量修改与 MVM。[pdf:E04]（PDF 物理页 4，Eq. (14)-(16)）
-3. 在研究案例里 \(i_{\max}=1\)，DAB 在 VC707 上以 25 ns 步长运行，reported calculation time 为 18.408 ns。[pdf:E07]（PDF 物理页 7，Section V-B）[pdf:E08]（PDF 物理页 8，Table II）
-4. 与全存逆矩阵的 trapezoidal baseline 相比，TA-MP 显著降低 LUT 与 DSP48，并完成 20 kHz 三端口 MAB 的真实控制器 RT-HIL。[pdf:E08]（PDF 物理页 8，Table II 与 Section V-C-3）
-5. 核心边界是固定次数 block Jacobi 的覆盖性：blocking state、nonlinear element、非 switching-leg topology 和未验证的大规模强耦合工况都可能破坏当前证据的外推。[pdf:E06]（PDF 物理页 6，Section III-D）[pdf:E09]（PDF 物理页 9，Section V-D）
+**三句话：** 恒定迭代矩阵来自“开关只影响子系统之间的连接”这一拓扑事实。迭代一次时，子系统之间实际上用上一步的接口值耦合。方法适用于由开关桥臂经变压器连接的变换器，阻断状态需要另外处理。
 
-**3 句话：**
-
-1. 这篇论文真正的新机制是把 topology dependence 从隐式矩阵主体挪到 interface variables，因而只保存一套常量迭代数据。[pdf:E04]（PDF 物理页 4，Fig. 2、Eq. (15)-(16)）
-2. DAB 与 MAB 证据表明该机制能在 25 ns 量级的 FPGA 数据通路上运行，并显著降低对比方案的 LUT 使用。[pdf:E08]（PDF 物理页 8，Table II 与 Section V-C）
-3. 但“一次迭代即可”只在研究案例成立，论文没有给出覆盖所有相关拓扑、参数不确定性与强耦合网络的统一收敛证书。[pdf:E06]（PDF 物理页 6，Section III-D-2）
-
-**1 句话：**
-
-TA-MP 是一种以拓扑语义换取常量隐式迭代矩阵的 FPGA solver 设计，其价值已经由小步长实板与 RT-HIL 案例支持，但其可扩展性的决定性问题仍是固定迭代次数能否对所有目标工况可靠成立。[pdf:E08]（PDF 物理页 8，Section V-C）[pdf:E09]（PDF 物理页 9，Section V-D）
+**一句话：** 在开关桥臂处切分电路，使开关只进入子系统之间的耦合，再把开关系数移到接口变量上得到恒定迭代矩阵，让两状态开关模型下的隐式求解在 FPGA 上只需矩阵向量乘、无需存储各拓扑的逆矩阵。
 
 ## § 9 — 最脆弱的假设
 
-最脆弱的假设是：**按 switching leg 得到的分块，不仅让对角块固定，而且会让全部目标开关状态与参数工况下的 block Jacobi 都在同一个预定 \(i_{\max}\) 内达到足够精度。** 如果这个假设失效，TA-MP 就必须恢复到 topology-dependent iteration count、增加最坏情况迭代硬件预算，或重新引入在线求解；固定时延、低计算量和隐式精度这三项核心收益会同时受损。
+最关键的假设是：**一次块 Jacobi 迭代就足以代表隐式方程的解，因而整个方法继承梯形法的 A 稳定性。** 论文的标题式卖点是“采用隐式方法保证稳定性”，Fig. 5 把 TA-MP 标注为 A 稳定。[pdf:E01][pdf:E06]
 
-论文为这个假设提供了两层证据。理论层面，作者给出每个 \(G_k\) 非奇异、完整 \(G\) strictly block diagonally dominant 的充分条件，并论证小步长使后者更可能成立。[pdf:E06]（PDF 物理页 6，Section III-D-2）案例层面，DAB 在 absolute error \(10^{-8}\) 时得到 \(i_{\max}=1\)，并由 25 ns 的仿真和实板波形支持该特定模型。[pdf:E07]（PDF 物理页 7，Section V-B）
+DAB 算例中 imax = 1，初值取当前时刻的值。[pdf:E07][pdf:E08] 这样得到的解中，子系统之间的耦合用的是上一时刻的接口变量（§ 6）：从数值结构上看，它与作者在 Introduction 中批评的“基于延迟的隐式–显式方法”相似——子系统内部隐式、接口处一步滞后。[pdf:E02] 两者的区别在于 TA-MP 的接口位于开关桥臂的受控源对上，且迭代矩阵恒定、可以增加迭代次数逼近精确解；但当 imax = 1 时，稳定性不再由梯形法单独决定，而取决于 ρ(B̃G) 和接口量一步内的变化。
 
-缺失的证据是：没有对所有开关组合、元件容差、强耦合程度和大规模分区做谱半径 / residual 的最坏情况扫描；Fig. 12 只给资源可扩展性，没有给 28-DAB 或 16-port 极限规模的收敛与精度结果。[pdf:E09]（PDF 物理页 9，Fig. 12）作者还明确承认 blocking state 对应的 discontinuous conduction mode 不能直接支持、nonlinear elements 需要与其他方法结合、非 switching-leg topology 需要额外矩阵更新步骤。[pdf:E06]（PDF 物理页 6，Section III-D-3）这些已知边界进一步说明，当前证据不能把“常量矩阵”与“统一固定迭代次数”当成任意 PES 的普遍性质。
+论文给出的证据是 imax 的计算公式与收敛的充分条件（每个 Gk 非奇异、G 严格块对角占优，步长小时容易满足）。[pdf:E06][pdf:E07] 缺少的是：ρ(B̃G) 的数值、步长增大时 imax 如何变化、imax = 1 的格式在什么参数下失稳。FE 的对比显示了 TA-MP 比全显式好，[pdf:E08] 但没有与“子系统隐式、接口一步延迟”的隐式–显式方法做同条件对比，而这才是区分 TA-MP 机制的关键对照。
 
 ## § 10 — 最小复现实验
 
-一周内最有价值的复现不是搭完整 RT-HIL，而是验证“常量迭代矩阵 + \(i_{\max}=1\)”是否真的闭合到 DAB 的全部开关状态和一小块参数邻域。
+一周内最值得做的是测出 imax = 1 时 TA-MP 的真实稳定边界。
 
-**数据与模型。** 使用 Table I 的 DAB 参数：600 V / 400 V、1 mF / 250 \(\mu\)F、42 \(\mu\)H 漏感、2.49 mH 励磁电感、1 m\(\Omega\) 端口电阻和 20-200 kHz 开关范围；实现论文 Fig. 2 的三子系统划分以及 Eq. (14)-(16) 的 TA-MP。[pdf:E04]（PDF 物理页 4，Fig. 2 与 Eq. (14)-(16)）[pdf:E07]（PDF 物理页 7，Table I）
-
-**实现。** 在 double precision 中同时实现三个 solver：每步直接解 \(Gz_{n+1}=b_n\) 的 trapezoidal reference、固定一次迭代的 TA-MP、FE。再把 TA-MP 量化为论文的 FPX 24.24，检查定点误差是否改变收敛结论。[pdf:E06]（PDF 物理页 6，Section IV-B）
-
-**扫描。** 枚举 DAB 的合法开关状态与论文的 phase-shift transition，并围绕端口电阻、漏感和步长做小范围 sweep；每一步记录 \(\rho\)、一次迭代后的 linear residual、与直接隐式解的最大状态误差，以及 FE 是否振荡。另记录 \(\widetilde B_G\) 是否在所有状态下字节相同，排除实现悄悄重建矩阵的可能。
-
-**支持标准。** 若全部枚举状态中 \(\rho<1\)，一次迭代 residual 达到 \(10^{-8}\) 对应的误差目标，25 ns 下 TA-MP 与直接隐式解的误差稳定且没有随时间累积，同时 FE 在论文所述低阻条件附近更早失稳，则最小实验支持论文核心机制。[pdf:E07]（PDF 物理页 7，Fig. 7 与 Section V-B）
-
-**反驳标准。** 若任一仍处于论文 piecewise-linear、two-state switch scope 内的合法状态出现 \(\rho\ge1\)、需要 topology-dependent iteration count 才能达到误差目标，或 FPX 24.24 让 residual / 状态误差超出预设阈值，则“固定一次迭代且维持隐式精度”的案例 claim 被反驳或至少需要收缩。
-
-这项复现不验证论文的板级 18.408 ns 时延、ADC/DAC 链路和 HIL 闭环；这些必须有 VC707 或等效硬件才能独立复现，论文也未提供可直接复用的公开代码或完整 HDL 工程信息。
+- **实现：** 按 Eq. (2)–(16) 在 Python 中实现 DAB 的 TA-MP，计算 B̃G 并求其谱半径 ρ；同时实现两个对照——完全隐式的梯形法（每步按当前开关状态直接求解），以及子系统隐式、接口一步延迟的隐式–显式方法。[pdf:E04][pdf:E05][pdf:E08]
+- **扫描：** 步长从 25 ns 逐步增加到 1 μs；输入电阻按论文所说“使 FE 发散”的方向逐步减小。[pdf:E08]
+- **测量：** 每组参数下的 ρ(B̃G)、按 Eq. (17) 算出的 imax、imax 固定为 1 时的误差与是否发散。
+- **判据：** 若 imax = 1 的 TA-MP 与接口一步延迟的隐式–显式方法在同样参数下同时失稳，说明一次迭代的 TA-MP 在稳定性上等同于延迟解耦；若 TA-MP 明显更稳，说明恒定迭代矩阵的构造（开关系数移到接口变量）本身带来了额外的稳定性，这正是论文应当展示的机制。
 
 ## § 11 — 最强反例设计
 
-最强反例应留在作者声称的 piecewise-linear、two-state switching-leg scope 内，而不是简单加入作者已经排除的 nonlinear device。可以构造一个由多个 DAB 紧耦合而成的低阻网络：子系统内部保持论文同类元件与桥臂模型，但把接口耦合增强到 off-diagonal blocks 与 diagonal blocks 同量级，再在若干桥臂同步换相时触发最不利拓扑。
+**反例一：“1/15 存储”的口径。** Table II 中计算核 LUT 为 2540 对 40 877（约 1/16），总 LUT 为 8774 对 46 901（约 1/5.3）；DSP48 为 48 对 104。[pdf:E09] 摘要中的“1/15 存储资源”取的是计算核的 LUT（逆矩阵以 LUT 形式存储），全设计的资源节省约为 5 倍。
 
-攻击步骤是：对全部同步开关组合计算 block Jacobi 的谱半径和一次迭代 residual；以直接 trapezoidal solve 为真值，在 25 ns 下比较长时波形、能量偏差和换相后的 peak error。若某些合法拓扑使 \(G\) 不再 strictly block diagonally dominant、\(\rho\ge1\)，或者虽然最终可收敛但所需次数随拓扑显著变化，那么同一个固定 \(i_{\max}\) 不能同时保证实时 deadline 和隐式精度。[pdf:E06]（PDF 物理页 6，Section III-D-2）
+**反例二：阻断状态。** 论文承认二极管电流过零、开关系数为 00 的阻断状态无法直接处理，需要结合直接映射法。[pdf:E07] 谐振变换器、二极管整流桥和轻载 DAB 都会出现阻断状态；而恒定迭代矩阵依赖“开关只改变受控源系数”，阻断时桥臂两端的关系不再能写成 vE = k1vJ、iJ = k2iE 的形式。在 LLC 这类以阻断为常态的变换器上，TA-MP 需要额外的逻辑，论文的“只需两步”优势会打折扣。[pdf:E10]
 
-这个反例比测试已知不支持的 blocking state 更有力，因为它不改变元件线性和 switching-leg 基本单元，只改变耦合强度与同步事件；它直接攻击“topology-aware partition 足以产生可预定的固定迭代时延”这一核心机制。论文的 Fig. 12 证明资源模型可向多 DAB 扩展，却没有提供最大规模动态收敛证据，因此该反例目前未被实验排除。[pdf:E09]（PDF 物理页 9，Fig. 12 与 Section V-D）
+**反例三：规模的瓶颈转移。** TA-MP 把瓶颈从存储转移到 DSP：28 个 DAB 时 DSP48 成为限制。[pdf:E10] B̃G 的维数等于全部独立接口变量数；对多个 DAB 组成的系统，若它们之间也有耦合，B̃G 的非零结构取决于拓扑，稠密的 B̃G 每步需要的乘法数与接口变量数的平方成正比。论文的 28 个 DAB 是否彼此耦合没有说明；若互相独立，规模扩展只是复制。
 
-## § 12 — Follow-up Research Idea
+## § 12 — Follow-up Research Bet
 
-**候选想法，不声称 novelty：面向全拓扑参数集合的可认证 partition-and-preconditioner co-design。**
+**主 idea：用恒定迭代矩阵做跨时间步的波形松弛——让 FPGA 上的变换器仿真超实时运行。**
 
-本领域的高影响工作通常不仅要给出更低的 FPGA 资源数字，还要同时闭合数值正确性、确定性实时 deadline、硬件可实现性和真实 HIL / power-stage 对比。当前未满足的需求是：设计者不知道一个按 switching leg 直觉选出的 partition，是否真的能在全部合法拓扑、元件容差和多转换器耦合下保持 \(\rho<1\) 及统一 \(i_{\max}\)。
+论文里有三个现象没被放在一起看。第一，迭代矩阵 B̃G 对所有开关状态、所有时间步都相同。[pdf:E05][pdf:E06] 第二，谱半径足够小时一次迭代就够，说明子系统之间的耦合在一步内很弱。[pdf:E08] 第三，资源占用极低：MAB 的 HIL 实现只用了 1.64% LUT 和 3.26% DSP，计算时间 18.4–21.9 ns，已接近 25 ns 的步长。[pdf:E09]
 
-研究问题应从“怎样把矩阵固定下来”改为“能否共同设计 partition、interface variables 与 preconditioner，使整个 admissible topology-parameter set 都具有可证明的收敛上界，并在 FPGA 预算内达到固定 deadline”。可借鉴相邻领域的 robust numerical linear algebra、graph partition optimization、interval / affine arithmetic 和 formal verification：离线搜索分区与缩放，输出一个覆盖全部 admissible states 的 spectral-radius / residual certificate；在线只运行已认证的数据通路，若输入越出证书范围则明确 fail closed，而不是静默继续。
+**新的研究问题：** 能否把块 Jacobi 迭代从“单个时间步内”推广到“一段时间窗口内”：每个子系统独立地向前推进 K 个时间步，子系统之间交换整段接口波形，再用同一个恒定迭代矩阵做几次窗口级迭代，使整段窗口收敛；从而在 FPGA 上以远快于实时的速度批量仿真，用于参数扫描和故障筛查？
 
-第一个可证伪实验是在一个规模仍可穷举的多 DAB 网络上，枚举全部开关拓扑并对元件容差做区间包络。如果不存在任何满足给定 LUT/DSP/25 ns 预算且对全部状态保证 \(\rho<1\) 与目标 residual 的 partition / preconditioner，或者区间证书过度保守到无法容纳论文 DAB 基线，这个想法立即失败。若能通过，再把证书预测的最坏拓扑部署到 FPGA，以直接隐式解和物理控制器 HIL 双重对照。
+**首次使什么成为可能：** 目前 TA-MP 的步长受单步计算时间限制（18.4 ns 对 25 ns），仿真速度被锁在实时。窗口级迭代让各子系统在时间方向上流水推进，FPGA 上大量空闲的资源可以同时处理同一窗口内的多个时间步或多个参数组合，仿真速度与步长解耦。
 
-它与本文的实质区别不是再增加一种 nonlinear module，也不是换一个 converter。本文先按 switching leg 分块，再在个别 DAB/MAB 案例中计算并验证 \(i_{\max}\)；候选方向则把“对所有目标状态的固定时延收敛保证”本身变成优化目标和交付物，从经验案例验证转向 solver 适用域的可机读证书。[pdf:E06]（PDF 物理页 6，Section III-D）[pdf:E09]（PDF 物理页 9，Fig. 12）
+**因果链：** B̃G 恒定，迭代的每一次都是同样的矩阵向量乘 → 子系统之间只通过接口变量耦合（Eq. (15)），内部推进可以完全独立 → 给定一段接口波形，各子系统可以一次推进 K 步 → 交换接口波形后按 Eq. (15) 更新，重复少数几次 → 耦合弱（ρ 小）时窗口迭代收敛快 → 硬件上 K 步可以流水展开，吞吐提高约 K 倍。
+
+**改变的设计变量：** 研究任务（从实时 HIL 扩展到超实时的批量仿真）；时间模型（从逐步同步变为窗口内的波形交换）；硬件映射（从单步的矩阵向量乘变为时间方向上的流水线）。
+
+**论文依据：** 方法侧是 Eq. (15)–(16) 中迭代矩阵与开关无关、子系统只经接口变量耦合，以及 Eq. (17) 中迭代次数由谱半径决定；实验侧是 DAB 中 imax = 1、MAB 实现只占 1.64% LUT 与 3.26% DSP、计算时间接近步长上限。[pdf:E05][pdf:E06][pdf:E08][pdf:E09]
+
+**最大收益与最大风险：** 收益是把一块中端 FPGA 变成变换器参数扫描和故障筛查的加速器，同一套模型既能做实时 HIL，也能做超实时批量仿真。风险是开关事件：窗口内每个子系统的开关状态依赖控制器，而控制器又依赖其他子系统的量；若控制器在 FPGA 内一并实现，窗口迭代需要把控制闭环也纳入松弛，开关时刻在迭代之间变化会拖慢收敛甚至引起振荡。
+
+**区分核心机制与替代解释的最小实验：** 在 Python 中对 DAB 实现窗口级块 Jacobi 迭代，窗口长度取 1、10、100、1000 步，记录收敛到 10⁻⁸ 所需的窗口迭代次数，并与逐步求解的结果比较。若窗口长度为 100 时只需 3–5 次迭代，说明时间方向的并行可行，理论加速比约为 20–30 倍；若迭代次数随窗口长度线性增长，则耦合在长时间尺度上不弱，这一方向不可行。
+
+**与已有工作的区别：** 本文与 Chalangar 等的直接映射法、Zheng 等的半隐式蛙跳法都在单个时间步内处理开关与耦合，目标是实时；多速率与延迟解耦方法在时间方向上错开子系统，但接口误差固定、不再迭代修正。这里的主张是利用恒定迭代矩阵，在时间窗口上做可以迭代收敛的波形交换，研究对象从“单步求解的延迟”变为“时间方向上的并行度”。
+
+**Wild-card：** 以谱半径为目标选择切分点。TA-MP 按开关桥臂处的割点切分，切法是固定的。[pdf:E04] 同一个电路往往有多种割点组合，每种组合对应不同的 B̃G 与 ρ；选择使 ρ 最小的切分，可以在更大的步长下保持 imax = 1，把 25 ns 的步长下限往上推。

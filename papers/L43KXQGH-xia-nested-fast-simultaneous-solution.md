@@ -1,245 +1,129 @@
-# Shiwei Xia et al. (2025) — Real-Time Modeling Method for Large-Scale Photovoltaic Power Stations Using Nested Fast and Simultaneous Solution
+# Real-Time Modeling Method for Large-Scale Photovoltaic Power Stations Using Nested Fast and Simultaneous Solution
 
-- DOI: `10.1109/TIE.2024.3440469`
-- Zotero parent: `L43KXQGH`
-- 阅读口径：以下“论文原文”只指本文作者在该 PDF 中明确写出的内容；“相关工作”只复述本文对参考文献的定位，未做独立的全领域检索；批评、复现方案、反例和研究方向均明确标为基于证据的推断或候选判断。
+**作者：** Shiwei Xia, Jianzhong Xu, Linhong Guo, Shengwei Li, Haiping Guo  
+**出处：** IEEE Transactions on Industrial Electronics, Vol. 72, No. 3, pp. 2679–2689  
+**年份：** 2025（Date of publication：2024-08-22）  
+**DOI：** 10.1109/TIE.2024.3440469  
+**Zotero key：** L43KXQGH  
+**证据说明：** `[pdf:E..]` 对应源 PDF 物理页与 Eq./Fig./Table 定位。
 
 ## § 1 — 研究问题与重要性
 
-**论文原文明确声称。** 本文要解决的是大型光伏电站详细 EMT（electromagnetic transient，电磁暂态）实时仿真中的三角矛盾：既要保留开关器件带来的高频动态和 HIL 接口，又要覆盖几十到上百个光伏单元，还必须在每个微秒级时间步内用有限硬件完成计算。大型电站由多层汇集网络和大量级联器件组成，节点数会迅速膨胀；同时，为反映可达数十 kHz 的动态，作者指出 EMT 步长通常需要小于开关时间的 \(1/10\) 到 \(1/50\)。因此，这不是单纯“把离线模型跑快”，而是要让模型压缩、并行调度、硬件资源和实时 deadline 同时成立。[pdf:E01]
+大型光伏电站由几十到上百个发电单元组成，经多级汇集接入电网；每个单元又由光伏阵列、Boost、逆变器、滤波器和变压器五个器件级联而成。节点数因此非常大，而为了反映数十 kHz 的开关动态，EMT 步长要小于开关时间的 1/10 到 1/50，通常在微秒级。实时仿真因而同时受精度、规模和硬件资源的约束。[pdf:E01][pdf:E02]（PDF 物理页 1，Abstract 与 Introduction）
 
-**论文原文明确声称。** 作者的目标是把 NFSS（nested fast and simultaneous solution，嵌套快速同步求解）同时用于单元层和电站层：单元层构造固定导纳值的 Norton 接口并保留被消元节点的信息，电站层把光伏单元、汇集支路、子站和外部电网组织成可递归更新的层次求解。摘要给出的结果边界是：与同规模离线模型相比，最大 relative error（RE）小于 4%，并在 \(2.5~\mu s\) 步长内实现 100 单元电站的实时仿真。[pdf:E01]
-
-其工程价值在于，同一套模型若真的能同时访问单元内部状态、保留开关级动态并稳定赶上硬实时 deadline，就比聚合模型更适合控制器 HIL、单元故障传播和站内相互作用研究。但这项价值仍受本文实验覆盖范围约束：论文验证了特定拓扑、器件模型、控制步长和 FPGA，不等于已经证明任意大型光伏电站都能达到相同误差与规模。
+论文把嵌套快速同步求解（NFSS）同时用在单元层和电站层：单元层构造固定导纳的 Norton 接口，电站层优化求解流程，并在 FPGA 上实现。与同规模离线模型相比最大相对误差小于 4%，100 个单元的电站在 2.5 μs 步长下实时运行。[pdf:E01] 这件事重要，是因为它保留了每个单元的内部信息（聚类等值做不到），同时用无损降阶避免了节点数爆炸，给出了场站级 FPGA 实时仿真的一条完整路线。
 
 ## § 2 — 前人工作与不足
 
-以下均是**本文对相关工作的归纳，不是本精读独立核验后的全领域结论**。
+**单元层简化。** 对逆变器等开关部分做平均化会丢失开关过程的高频分量和 HIL 所需的接口；NFSS 作为无损的网络矩阵降维方法已用于 MMC、PET，但光伏单元由多个器件级联，内部节点矩阵阶数高，逆解过程耗时。[pdf:E02]（PDF 物理页 1 右栏）
 
-在单元层，平均化 inverter 模型已经能显著降低计算量，但作者认为它会丢失开关过程的高频分量和 HIL 所需接口。传统 NFSS 已用于 MMC、power electronic transformer 等模块化电力电子系统，其优点是通过 Norton 等值做无损网络矩阵降维；问题是一个光伏单元包含 PV array、boost、VSC、LC filter 和 transformer 等多个级联设备，直接处理高阶内部节点矩阵仍有昂贵的逆解过程。[pdf:E01] 参考文献列表显示，作者将 Strunz 与 Carlson 2007 年的 NFSS 作为方法源头，并将 MMC/PET 的高效 EMT 建模列为直接先例。[pdf:E11]
+**电站层简化。** 主流做法是聚类等值，按温度、辐照、逆变器参数或控制策略分组聚合，用少量单元反映电站外特性；聚合后各单元的内部信息无法获取，可用性不足。[pdf:E02]
 
-在开关建模层，dual resistance value（DRV）可以针对有限开关状态预存矩阵，但若整个 VSC 的网络矩阵随状态变化，存储资源会很大；L/C-switch associative discrete circuit（ADC）可选取 L/C 以维持固定导纳，但仍把 AC、DC 两侧耦在同一网络，无法减少外部端口看到的内部节点。作者因此选择 switching-function controlled-source model：把开关动作放入受控源，使端口导纳固定，并把 AC、DC 两侧拆开。[pdf:E02]
+**并行化。** 解耦方法一类利用拓扑中的元件引入延迟（传输线、接口变压器、电容电感），另一类人为构造子系统（延迟插入、MATE），适用性与精度都有损失；RTDS、RT-Lab 用多核 CPU 的核间并行提供一定规模的电站模型，但详细器件模型的规模有限、成本很高。[pdf:E03]（PDF 物理页 2 左栏）
 
-在电站层，clustering equivalent model 通过温度、irradiance、inverter 参数或控制策略等因素聚合同类单元，已能用少量单元近似电站外部特性；作者指出其不足是通常围绕单一主导因素服务特定稳定性分析，聚合后无法访问每个单元内部信息。并行解耦方面，借助 transmission line、transformer、capacitor/inductor 的物理延迟，或人为插入 latency、使用 MATE，都能形成子系统，但作者将其局限归纳为适用性不足或不可忽略的精度损失。RTDS/RT-Lab 的多核 CPU 并行已经提供一定规模的光伏站模型，但若保留逐器件详细模型，规模和硬件成本仍受限；FPGA 有高并行、低延迟优势，却需要与之匹配的模型和求解流程。[pdf:E01] [pdf:E02]
+**开关模型的选择。** 双电阻（DRV）模型需要大量资源存储时变网络矩阵的预计算结果；L/C 开关的 ADC 模型能保证固定导纳，但交直流两侧仍合在一起，内部节点多；开关函数的受控源模型容易让交直流两侧独立求解，导纳也固定。作者据此选择受控源模型作为接口构造的基础。[pdf:E04]（PDF 物理页 2 右栏）
 
 ## § 3 — 重建作者的思考路径
 
-**基于论文背景与方法顺序的合理重建。**
+出发点是电站的“模块化”特征：每个发电单元作为独立模块嵌在电站中。若能在单元层和电站层之间建立一个交互接口，两层的求解就能分开，大规模电站仿真才有可能。[pdf:E04]（PDF 物理页 2，Section II）
 
-第一步不是先选 FPGA，而是先观察拓扑。每个光伏单元虽然内部复杂，却以相同的四端口形式嵌入 35 kV 汇集网络；多个单元再按支路、子站和主变层层聚合。于是一个自然问题是：能否只让外层网络看到每个模块的端口等值，同时保留从端口电压反解内部节点的能力？Fig. 1 和 Fig. 2 给出了这种“模块化拓扑 → 端口接口”的起点。[pdf:E02]
+第一步，NFSS 能生成单元的 Norton 等值，不引入额外延迟与误差；但 VSC 的开关使单元网络矩阵时变，而且单元内部节点多，传统 NFSS 效率上不去。[pdf:E04]
 
-第二步是消除端口矩阵随开关状态变化的障碍。若 VSC 的开关状态直接进入导纳矩阵，NFSS 所需的矩阵逆和等值量难以预计算；把 VSC 表示成 switching-function controlled sources 后，开关动作进入源项，AC、DC 两侧导纳可保持固定。代价是普通受控源解耦会引入一步延迟，因此下一问变成：能否重新排列求解顺序，让本步 AC 电流先生成 \(i_{dc}\)，本步 DC 电压再反馈到 AC，而不是使用上一时步近似？[pdf:E03] [pdf:E04]
+第二步，用开关函数受控源建模 VSC：交流侧线电压 vab = (sa − sb)vdc + [(1 − 2sa)ia + (1 − 2sb)ib]Rsw，直流侧电流 idc = sa·ia + sb·ib + sc·ic（Eq. (1)）。交直流两侧只通过电气量关联，直流侧内部节点从外部端口看就被消掉了；导纳也固定，因为开关过程全部由受控源体现。[pdf:E05]（PDF 物理页 3，Eq. (1)）
 
-第三步把同一个端口代数递归地向上应用。单元 AC 网络先用 Schur complement 压成 Norton 等值；并联单元的等值导纳和电流源直接相加；汇集支路和子站再做一次 NFSS；最后把各子站、主变和 AC grid 放入一个六节点 EMT 网络。每步求解后按相反方向恢复内部节点并更新 history current sources，形成“外层求解向下展开、内层更新向上压缩”的层次循环。[pdf:E04] [pdf:E05] [pdf:E06]
+第三步，受控源通常在两侧各引入一步延迟；作者认为通过重排求解顺序可以消除这一延迟。[pdf:E05]（PDF 物理页 3 左栏）
 
-第四步才是把已经暴露出的并行性映射到 FPGA：无数据依赖的 AC/DC 和器件更新并行执行，三相重复计算用 `HLS UNROLL` 展开，多单元和多子站循环用 `HLS PIPELINE` 做 initiation interval \(II=1\) 的流水。这样新增单元主要增加流水深度和保存 history sources 的寄存器，而不必复制所有 DSP/BRAM 计算核心。[pdf:E07]
+第四步，电站层重复同一个操作：同一子站内的单元并联，等值直接相加；子站的汇集支路再用 NFSS 压缩；子站压缩后与单元等值具有相同形式。整个电站就成了一个嵌套的 Norton 等值层级。[pdf:E08][pdf:E09]（PDF 物理页 4–5，Eq. (8)–(10)，Fig. 7）
 
 ## § 4 — 核心 Intuition
 
-把每个复杂光伏单元压成一个**固定导纳、随时间更新电流源**的 Norton 端口，并保留从端口回到内部节点的逆向恢复关系，就能让电站网络只解一个小矩阵，而不是每步重解全部器件节点。[pdf:E03] 同样的压缩再嵌套到汇集支路和子站，配合本时步内“AC 电流 → DC 求解 → AC 反馈”的顺序，就能在不主动插入一步延迟的前提下暴露大量并行和流水机会。[pdf:E04] [pdf:E05]
+把每一层的内部节点用 Schur 补消去，只留端口节点的 Norton 等值（Yeq = Y11 − Y12Y22⁻¹Y21，Jeq = JEX − Y12Y22⁻¹JIN），被消去节点的信息全部保存在等值里，端口电压求出后再逐层反解。单元等值与子站等值形式相同，所以电站可以一层层压缩到只剩一个 6 节点的网络求解，再一层层恢复。VSC 用开关函数受控源建模，使导纳固定、直流侧从交流端口看不见。[pdf:E05][pdf:E09]（PDF 物理页 3，Eq. (3)–(5)；物理页 5，Eq. (13)）
 
 ## § 5 — 具体方法与完整 Pipeline
 
-下面用论文的 20 单元、四子站案例说明一个仿真步从输入到输出如何运行。输入包括上一步电站节点电压、各器件的 history current sources、VSC/boost 的门极状态、控制器信号以及温度和 irradiance；输出是本步电站端口电压电流、每个单元内部状态和供下一步使用的新 history sources。
+电站结构：多个发电单元经 35 kV 母线汇集，再经短线形成子站；各子站经 35/220 kV 变压器组成电站，经长线接入交流电网。单元参数：VSC 与 Boost 开关频率均为 2 kHz，直流母线 0.8 kV，Boost 电容 32 000 μF，交流电感 160 μH，滤波电容 500 μF。[pdf:E04][pdf:E15]（PDF 物理页 2，Fig. 1；物理页 10，Table A-I、A-II）
 
-1. **建立固定导纳接口。** 两电平 VSC 不用开关电阻直接改写全网导纳，而用 switching function \(s_a,s_b,s_c\) 把 DC 电压、三相电流映射成 AC 线电压和 DC 电流。这样开关状态出现在受控源而不是端口导纳矩阵中，AC、DC 网络可分别求解。[pdf:E03]
-2. **压缩单元 AC 网络。** LC filter 与 transformer 的内部节点组成分块节点导纳方程；消去六个内部节点后，四个外部节点只暴露 \(\mathbf Y_{eq}\) 和 \(\mathbf J_{eq}\)。外层电站得到新端口电压后，再用式 (5) 恢复内部电压，所以“压缩”并非丢掉内部状态。[pdf:E03]
-3. **独立求解单元 DC 网络。** boost 的常见开关组合只有三类，作者用 DRV 预存相应结果；电容、电感用 trapezoidal integration 离散。求得 AC 支路电流后立即计算本步 \(i_{dc}\)，DC 网络随后求出 \(V_{dc}\) 和节点电压，再更新 DC history sources 及返回 AC 侧的受控源量。Fig. 5 的先后关系是作者“不引入一步延迟”主张的关键。[pdf:E04]
-4. **并联压缩子站。** 一个子站内 \(m\) 个单元并联，因此各单元 \(\mathbf Y_{eq,i}\) 与 \(\mathbf J_{eq,i}\) 直接求和。短传输线使用 \(\pi\)-equivalent；考虑并网开关和故障带来的大幅变化，支路 L/C 改用 backward Euler 以避免 numerical oscillation。支路不同开关状态对应的矩阵在仿真前预计算，实时阶段按控制状态调用。[pdf:E04] [pdf:E05]
-5. **再次压缩到子站端口并求全站。** 单元集合和汇集支路组成七节点子站，再用 NFSS 压成与单元同形、参数不同的端口等值。多个子站并联后与 35/220 kV transformer、AC grid 共同构成 Fig. 8 的六节点网络；AC grid 的电压源串联阻抗被离散成 Norton 形式，本步用式 (13) 完成 EMT network solution。[pdf:E05]
-6. **沿层次反向恢复和更新。** 从全站电压开始，同时更新 grid/transformer history sources，并恢复各子站内部节点；随后并行更新各单元和汇集支路；最后按“支路 → 子站 → 电站”的顺序重新生成等值电流源，进入下一时步。Fig. 9 展示了这一向下展开、向上回收的递归流程。[pdf:E06]
-7. **映射到 FPGA。** 作者用 Xilinx HLS 从 C++ 生成 HDL。单元内 AC/DC 和各器件更新走并行路径，三相循环完全 `UNROLL`；站级每个子站、支路和 PV unit 的循环用 `PIPELINE`，数组 partition 后做到 \(II=1\)。[pdf:E07]
-8. **案例参数。** 论文实验的单元采用 \(V_{dc}=0.8~\text{kV}\)，boost 与 VSC switching frequency 均为 \(2~\text{kHz}\)，\(L_{boost}=250~\mu\text{H}\)，\(C_{boost}=32000~\mu\text{F}\)，AC grid 为 50 Hz；这些数值来自 Appendix Tables A-I/A-II，是最小复现应优先锁定的事实参数。[pdf:E10]
+1. **单元交流侧 NFSS。** LC 滤波器与变压器每相先得到四节点电路，按拓扑短路收缩得到整体节点方程；外部节点 4 个、内部节点 6 个（Y11 为 4×4，Y22 为 6×6）。Schur 补得到 YeqVEX = Jeq（Eq. (4)），端口电压求出后由 VIN = Y22⁻¹(JIN − Y21VEX) 反解内部节点（Eq. (5)）。[pdf:E05][pdf:E06]（PDF 物理页 3，Eq. (2)–(5)，Fig. 3）
+2. **单元直流侧独立子网。** Boost 忽略死区只有三种开关组合，用 DRV 模型并预存预处理结果；其余电容电感用梯形法。直流侧为 3×3 节点方程 VDC = YDC⁻¹JDC（Eq. (6)–(7)）。[pdf:E06][pdf:E07]（PDF 物理页 3–4）
+3. **单元求解三步（Fig. 5）。** 步骤 I：由网络求得的外部节点电压，按 Eq. (5) 算出整个交流侧节点电压；步骤 II：算出 VSC 支路电流和交流侧各器件历史源，按 Eq. (1) 算出直流侧受控源 Idc 并求解直流侧；步骤 III：用直流侧结果更新直流侧历史源，按 Eq. (1) 算出反馈到交流侧的线电压，再按 Eq. (4) 重新形成单元等值。交直流两侧与各器件、各相的历史源更新可以并行。[pdf:E07][pdf:E08]（PDF 物理页 4，Fig. 5 与 Section III-C）
+4. **子站等值。** 单元并联，等值直接累加：YeqΣ = ΣYeqi，JeqΣ = ΣJeqi（Eq. (8)）。汇集短线用 π 型电路；由于并网开关和故障使电气量变化大，这里的电容电感改用后向欧拉以避免数值振荡（Eq. (9)–(10)）。NFSS 所用矩阵按开关状态预存。单元部分与汇集支路合成 7 节点网络，再用 NFSS 压缩，得到与单元相同形式的子站等值。[pdf:E08][pdf:E09]（PDF 物理页 4–5，Fig. 7）
+5. **电站 EMT 求解。** 各子站等值并联累加，变压器用端口等值，交流电网用理想电压源串阻抗的 Norton 形式（Eq. (11)–(12)），最终求解 6×6 的 Vstation = Ystation⁻¹Jstation（Eq. (13)）。[pdf:E09]（PDF 物理页 5，Fig. 8）
+6. **单步求解流程（Fig. 9）。** 从上一步网络解出的节点电压出发：变压器、电网源的历史源直接更新；由子站端口电压反解子站内部电压；由此更新各单元等值源和汇集支路的历史源；再按相反顺序依次压缩汇集支路、子站，得到新的等值源；最后重新求解 Eq. (13)。单元与子站的更新引入多条流水线。[pdf:E10]（PDF 物理页 6，Fig. 9 与 Section IV-C）
+7. **FPGA 实现。** Xilinx xc7vx690tffg1927-2（3600 DSP），100 MHz；用 HLS 从 C++ 生成 HDL，无数据依赖的代码段自动并行，三相循环用 UNROLL 展开，子站与单元的循环用 PIPELINE 展开为流水线，配合历史源数组分块使每条流水线的启动间隔 II = 1。控制由 RTDS（通过 Aurora 光纤）和 RCP 实物控制器实现。[pdf:E11]（PDF 物理页 6–7，Fig. 10–12）
 
-## § 6 — 核心数学推导
+## § 6 — 核心数学推导（无形式化数学则跳过）
 
-### 6.1 switching-function controlled-source interface
+**NFSS 的一层。** 把节点分成外部（EX）与内部（IN）：Y11VEX + Y12VIN = JEX，Y21VEX + Y22VIN = JIN（Eq. (3)）。以 VIN 为中间变量消去，得到 (Y11 − Y12Y22⁻¹Y21)VEX = JEX − Y12Y22⁻¹JIN，即 YeqVEX = Jeq（Eq. (4)）。[pdf:E05]（PDF 物理页 3）这是 Schur 补：Yeq 只依赖网络参数，开关与故障状态不变时可预存；Jeq 每步随历史源更新。反解 VIN = Y22⁻¹(JIN − Y21VEX)（Eq. (5)）让被消去的节点可以恢复，历史源得以递推更新。
 
-在“IGBT 与 diode 的 on-state resistance 相同、忽略 dead zone 与 forward conduction voltage”的前提下，式 (1) 把两电平 VSC 写成
+**嵌套。** 并联单元的等值直接相加（Eq. (8)），子站再把单元等值与汇集支路合成 7 节点网络做一次 Schur 补，得到与单元同形式的等值。[pdf:E08][pdf:E09] 整个电站的在线求解因此只剩 6×6 的 Eq. (13)，以及沿层级向下的反解和向上的压缩。每一层的 Y22⁻¹、Y12Y22⁻¹ 在开关状态固定时可以预存；汇集支路的故障、并网开关则按开关状态预存多套矩阵。[pdf:E09]
 
-\[
-\begin{aligned}
-v_{ab}&=(s_a-s_b)v_{dc}+\big[(1-2s_a)i_a+(1-2s_b)i_b\big]R_{sw},\\
-v_{bc}&=(s_b-s_c)v_{dc}+\big[(1-2s_b)i_b+(1-2s_c)i_c\big]R_{sw},\\
-v_{ca}&=(s_c-s_a)v_{dc}+\big[(1-2s_c)i_c+(1-2s_a)i_a\big]R_{sw},\\
-i_{dc}&=s_ai_a+s_bi_b+s_ci_c.
-\end{aligned}
-\]
-
-直觉是：\(s\) 决定 DC bus 如何投影成线电压，同时 \(R_{sw}\) 保留导通压降的电阻部分；反方向用三相瞬时电流和开关函数得到 DC current。开关动作改变源值，但不要求重建 AC/DC 两侧的固定导纳矩阵。[pdf:E03]
-
-### 6.2 NFSS 本质：Schur complement
-
-把外部节点和内部节点的方程分块：
-
-\[
-\begin{bmatrix}
-\mathbf Y_{11}&\mathbf Y_{12}\\
-\mathbf Y_{21}&\mathbf Y_{22}
-\end{bmatrix}
-\begin{bmatrix}
-\mathbf V_{EX}\\
-\mathbf V_{IN}
-\end{bmatrix}
-=
-\begin{bmatrix}
-\mathbf J_{EX}\\
-\mathbf J_{IN}
-\end{bmatrix}.
-\]
-
-从第二行得到 \(\mathbf V_{IN}=\mathbf Y_{22}^{-1}(\mathbf J_{IN}-\mathbf Y_{21}\mathbf V_{EX})\)，代回第一行：
-
-\[
-\underbrace{\left(\mathbf Y_{11}-\mathbf Y_{12}\mathbf Y_{22}^{-1}\mathbf Y_{21}\right)}_{\mathbf Y_{eq}}
-\mathbf V_{EX}
-=
-\underbrace{\left(\mathbf J_{EX}-\mathbf Y_{12}\mathbf Y_{22}^{-1}\mathbf J_{IN}\right)}_{\mathbf J_{eq}}.
-\]
-
-这就是 Norton 压缩：外层只解 \(\mathbf V_{EX}\)，但 \(\mathbf Y_{22}^{-1}\)、\(\mathbf Y_{21}\) 和 \(\mathbf J_{IN}\) 仍允许恢复 \(\mathbf V_{IN}\)。因为接口导纳固定，关键矩阵可以预计算；每步主要更新电流源。[pdf:E03]
-
-### 6.3 单元 DC 网络和子站聚合
-
-DC 侧写成
-
-\[
-\mathbf V_{DC}=\mathbf Y_{DC}^{-1}\mathbf J_{DC},
-\qquad
-\mathbf V_{DC}=
-\begin{bmatrix}
-V_1-V_4&V_2-V_4&V_3-V_4
-\end{bmatrix}^{T},
-\]
-
-其中 \(\mathbf J_{DC}\) 包含 PV current、各电感/电容 history current 和本步 \(I_{dc}\)。该式本身并不消除 AC/DC 的因果顺序；真正避免一步近似的是 Fig. 5 规定先从本步 AC branch current 形成 \(I_{dc}\)，再解 DC 并把本步 \(V_{dc}\) 反馈回 AC。[pdf:E04]
-
-对同一子站内并联的 \(m\) 个单元，端口等值直接满足
-
-\[
-\mathbf Y_{eq,P}=\sum_{i=1}^{m}\mathbf Y_{eq,i},
-\qquad
-\mathbf J_{eq,P}=\sum_{i=1}^{m}\mathbf J_{eq,i}.
-\]
-
-汇集支路满足 \(\mathbf Y_{Brh}\mathbf V_{Brh}=\mathbf J_{Brh}\)，随后再做一次 Schur complement 得到子站端口。论文式 (10) 的矩阵用空白表示部分零项；本卡不把这些排版空白擅自改写成显式数值，精确矩阵布局以 PDF 物理第 5 页为准。[pdf:E05]
-
-### 6.4 外部电网离散和全站求解
-
-AC grid 单相关系 \(v=v_s+R_si+L_s\,di/dt\) 经离散后写成 Norton 形式：
-
-\[
-\begin{aligned}
-i(t)&=g_{sys}v(t)+J_{sys}(t),\\
-g_{sys}&=\frac{\Delta t}{L_s+R_s\Delta t},\\
-J_{sys}(t)&=-g_{sys}v_s(t-\Delta t)
-+\frac{L_s}{L_s+R_s\Delta t}i(t-\Delta t).
-\end{aligned}
-\]
-
-选 Fig. 8 的地 \(G\) 为参考后，全站本步只需求
-
-\[
-\mathbf V_{station(6\times1)}
-=\mathbf Y_{station(6\times6)}^{-1}\mathbf J_{station(6\times1)}.
-\]
-
-这说明算法速度并非来自忽略电站层网络，而是把绝大多数内部节点递归压到电流源更新中，让顶层保留一个六节点线性解。[pdf:E05]
-
-### 6.5 误差指标
-
-论文用
-
-\[
-ME=\max_i|x_i-y_i|,
-\qquad
-RE=\frac{\lVert x-y\rVert_2}{\lVert y\rVert_2}
-\]
-
-比较实时结果 \(x\) 与离线 PSCAD/EMTDC 结果 \(y\)。RE 是整段波形的二范数相对误差，不是逐时刻最大百分比；因此“RE 小于 4%”不能解读成每个采样点都小于 4%。[pdf:E08]
+**受控源接口的时序。** 开关函数模型把交流侧的线电压和直流侧的电流分别写成对侧电气量的函数（Eq. (1)）。作者称通过重排求解顺序消除了一步延迟：直流侧受控源 Idc 用本步求出的交流支路电流计算，而非近似值。[pdf:E07]（PDF 物理页 4，Step II）Fig. 5 的标注是：由 ia、ib、ic(t) 算出 Idc(t)，直流侧求解得到 Vdc(t+Δt)，再算出 vab(t+Δt)。[pdf:E07]（PDF 物理页 4，Fig. 5）也就是说，t+Δt 时刻的直流电压是用 t 时刻的交流电流推出的，交流到直流方向仍有一步的时间差；重排消除的是直流到交流方向的延迟。直流母线电容为 32 000 μF，时间常数很长，这一步时间差对波形的影响很小，但它与“无延迟”的表述不同。
 
 ## § 7 — 实验设计与结论
 
-**平台事实。** 计算端使用 Xilinx `xc7vx690tffg1927-2` FPGA 和 I/O board；控制端一条路径由 RTDS 经 Aurora fiber 闭环，另一条路径由 RCP 设备经 AI/AO、DI/DO 连接，允许实际 controller HIL。精度实验在四个子站、20 个 PV units 上运行，并建立相同 topology 和 parameters 的逐器件 PSCAD/EMTDC offline model。两模型 circuit step 均为 \(2.5~\mu s\)，但实时模型 controller step 为 \(50~\mu s\)，离线模型为 \(2.5~\mu s\)；这个不一致是解释误差时不能忽略的实验条件。[pdf:E06] [pdf:E07]
+**问题一：精度。** 4 个子站、20 个单元的电站，与 PSCAD/EMTDC 中同拓扑、同参数的器件级离线模型比较。电路步长两者都是 2.5 μs；控制步长实时模型为 50 μs（受 RTDS 实时约束），离线模型为 2.5 μs。误差用最大误差与二范数相对误差（Eq. (14)–(15)）。[pdf:E11][pdf:E12]（PDF 物理页 7–8）
+- 温度与辐照变化：相对误差小于 2%。
+- 单元直流母线极间短路（过渡电阻 0.2 Ω，0.05 s，由 RCP 实物控制器做 HIL）：波形一致。
+- 汇集支路 A 相接地（0.01 Ω，0.05 s）：非故障相电压升至约 49.5 kV，相对误差约 3%，作者归因于实时仿真的通信延迟与控制步长差异。
+- PCC 三相接地（0.01 Ω，0.05 s）：直流母线电压上升到 1.12 kV 上限时斩波支路动作；波形偏移数个步长导致最大误差较大，故障期间相对误差小于 3%。[pdf:E12][pdf:E13]（PDF 物理页 8–9，Fig. 13–16，Table I）
 
-**问题 1：不同子站环境量变化时，压缩模型能否保留 MPPT 动态？** 实验在 \(t=2~s\) 改变四个子站的 temperature/irradiance：#1 温度 25→30 °C，#2 为 25→20 °C，#3 irradiance 1000→1300 W/m²，#4 为 1000→700 W/m²，记录/仿真 10 s。作者报告 DC bus voltage 轻微变化，PV port voltage/current 随 MPPT 追踪而变化，各波形 RE 小于 2%。答案是在这组异质环境阶跃下支持，但没有覆盖空间连续阴影或快速随机 irradiance。[pdf:E08]
+**问题二：规模。** 4 个子站、100 个单元，同样的 PCC 三相故障。Table II：20 单元延迟 111 个周期（1.11 μs），100 单元 198 个周期（1.98 μs），增加 87 个周期；BRAM 268（18.23%）、DSP48E 1642（45.61%）两者相同；LUT 由 135 886（31.37%）增至 239 394（55.26%），FF 由 146 785（16.94%）增至 493 137（56.92%）。每条循环只用一条流水线时，每增加一个子站延迟加 3 个周期，每增加一个单元加 1 个周期。DSP 和 BRAM 不再是规模的限制，LUT 与 FF（存储历史源的寄存器）才是；单片 xc7vx690t 最多可做 150 个单元。[pdf:E13][pdf:E14]（PDF 物理页 9–10，Table II）
 
-**问题 2：单个单元内部 DC 故障能否被详细模型和 HIL 接口保留？** 在子站 #1 的第一个 PV unit DC bus 于 \(t=2~s\) 施加 transition resistance \(0.2~\Omega\) 的 pole-to-pole fault，持续 0.05 s，由 RCP 控制，记录 10 s。作者展示故障后 DC bus voltage 快速下降，PV array voltage 和 output power 同步下降，清故障后控制使 DC bus 返回额定值。论文在该小节没有另报一个 RE 数字，所以不能从图上估读出精确误差。[pdf:E08]
-
-**问题 3：汇集支路单相接地故障能否保持相间暂态？** 在子站 #1 近单元侧支路于 \(t=2~s\) 施加 A-phase-to-ground fault，grounding resistance \(0.01~\Omega\)，持续 0.05 s。作者报告故障相接近 0，非故障相升至正常值的 \(\sqrt3\) 倍、约 49.5 kV，RE 约 3%；其解释是实时通信延迟和 controller step 差异造成偏差。[pdf:E08] [pdf:E09]
-
-**问题 4：PCC 三相短路时，站级等值是否保持 DC chopper 动态？** 在 PCC 施加 \(0.01~\Omega\)、持续 0.05 s 的 three-phase-to-ground fault。AC-side voltage 降近 0 后，DC bus 上升到 1.12 kV，即 reference 的约 1.4 倍，触发 chopper；作者报告故障期间 RE 小于 3%，并承认通信/控制 delay 使波形错开数个 time steps，从而产生较大 ME。[pdf:E09]
-
-**问题 5：扩大到 100 units 后是否仍满足实时 deadline，资源怎样增长？** 作者建立四子站、100 units 模型并重复 PCC 三相故障。100-unit latency 为 198 clocks，即 1.98 µs；20-unit 为 111 clocks，即 1.11 µs。在 100 MHz 下两者均小于 2 µs，作者留裕量后称可在 2.5 µs step 实时运行，足以支持最高 20 kHz switching frequency。BRAM 均为 268（18.23%），DSP48E 均为 1642（45.61%）；LUT 从 135886（31.37%）增至 239394（55.26%），FF 从 146785（16.94%）增至 493137（56.92%）。作者据此判断 DSP/BRAM 不再是主要 scale limit，保存 history sources 的 LUT/FF 才是，并推算单颗该型号 FPGA 最大可到 150 units。[pdf:E09] [pdf:E10]
-
-**结论边界。** 本文的证据支持“在给定器件模型、四子站拓扑、控制接口和故障/环境工况下，100-unit 模型能赶上 2.5 µs deadline，20-unit 波形与特定 PSCAD reference 的 RE 为几个百分点”。它没有直接证明 150-unit 物理实现的 timing closure，也没有用同一个 \(2.5~\mu s\) controller step 做完全同条件对照；150 units 是作者基于资源限制的推断，maximum RE <4% 是全文汇总 claim。[pdf:E10]
+**覆盖范围。** 验证电站的单元开关频率为 2 kHz（论文称 2.5 μs 足以支持 20 kHz）；所有单元参数相同；实时与离线模型的控制步长不同（50 μs 对 2.5 μs），误差中混合了接口、通信和控制离散的影响。[pdf:E11][pdf:E15]
 
 ## § 8 — Take-aways
 
-**5 句话。** ① 本文把大型光伏站的复杂度问题重新组织成单元、支路、子站和电站四层端口压缩。② switching-function controlled-source model 让 VSC 的开关状态进入源项，从而为 NFSS 保住固定导纳接口。③ Schur complement 不只缩小顶层网络，还通过逆向恢复保留被消元内部节点，所以能模拟单元故障而非只有站外等值。④ FPGA 上的真正扩展手段是 AC/DC 并行、器件/相并行和 \(II=1\) 流水，100 units 在 100 MHz 下报告 1.98 µs latency。⑤ 结果最应谨慎看待之处，是关键固定导纳/无延迟结论依赖理想化开关模型，而且实时与离线控制步长并不相同。[pdf:E03] [pdf:E07] [pdf:E10]
+**五句话：** 论文把 NFSS 同时用在光伏单元和电站两层：单元层消去 6 个内部节点得到 4 端口 Norton 等值，电站层把单元等值累加、汇集支路压缩成与单元同形式的子站等值，最终只求解一个 6×6 网络。VSC 用开关函数受控源建模，导纳固定，直流侧从交流端口看不见；求解顺序经过重排，直流到交流方向不再有一步延迟。单步流程沿层级先向下反解内部节点、更新历史源，再向上逐层压缩，最后求解电站网络。HLS 实现中单元与子站的循环展开为 II = 1 的流水线，DSP 用量不随单元数增加，延迟每个单元增加 1 个周期。20 单元的精度对比中相对误差在 3% 以内，100 单元在 xc7vx690t 上以 1.98 μs 延迟实现 2.5 μs 实时步长，单片上限约 150 个单元。
 
-**3 句话。** ① 核心方法是把每层网络变成固定 \(\mathbf Y\) 加可更新 \(\mathbf J\) 的 Norton interface，并递归恢复内部状态。② 核心实证是在四子站 20-unit 精度案例和 100-unit scale case 中，报告最高几个百分点 RE 与 2.5 µs deadline。③ 它证明了一个有约束的工程 operating point，而不是对任意器件非理想、任意拓扑和任意控制器的普遍保证。[pdf:E06] [pdf:E09]
+**三句话：** 嵌套 Schur 补让电站的在线求解规模与单元数无关，单元数只影响沿层级的反解与压缩。流水线复用使 DSP 恒定，规模由存储历史源的寄存器决定。交流到直流方向的一步时间差仍在，只是被大直流电容掩盖。
 
-**1 句话。** 这篇论文最重要的贡献是把 NFSS 的端口代数与 FPGA 的层次流水对齐，使详细光伏站 EMT 模型在特定假设下同时获得内部可见性和百单元实时规模。
+**一句话：** 用逐层同形式的 Norton 等值把整个光伏电站压缩成 6 节点网络求解，并以流水线复用在单片 FPGA 上以 2.5 μs 步长实时仿真 100 个单元。
 
 ## § 9 — 最脆弱的假设
 
-**最脆弱假设：VSC switching-function controlled-source abstraction 在目标工况下既能维持固定导纳，又能通过求解重排等效为“无一步延迟”的真实开关接口。**
+最关键的假设是：**层级求解中每一层的延迟可以通过流水线摊薄，因而电站规模只受存储资源限制。** 论文的规模结论（150 单元、DSP 恒定）建立在单元与子站循环的流水化上。[pdf:E14]
 
-这是单点失效假设。式 (1) 明确要求 IGBT 与 diode 具有相同 on-state resistance，并忽略 dead zone 和 forward conduction voltage；固定导纳与 AC/DC 解耦正是建立在开关行为能被受控源完整承载的基础上。[pdf:E03] 若实际 dead time、diode conduction、器件不对称、current zero-crossing 附近换流或 boost discontinuous-conduction 使端口关系依赖额外离散状态，那么 \(\mathbf Y\) 未必仍可视为固定，或 \(\mathbf J\) 的本步更新不足以代表真实能量交换。这样一来，NFSS 的预计算优势和“不增加 delay/error”的核心解释会同时受损，而不仅是多出一点参数误差。
+按论文自己的规律，每增加一个单元延迟加 1 个周期、每增加一个子站加 3 个周期。[pdf:E14]（PDF 物理页 10）Fig. 9 的求解流程是严格分层的：必须先有电站网络的解，才能反解子站，再更新单元，再逐层压缩回去。[pdf:E10] 这意味着单步延迟随单元数线性增长：100 MHz 下 2.5 μs 步长对应 250 个周期，扣除固定开销后，单条流水线能串行处理的单元数有一个硬上限。论文选择 2.5 μs 而实测 1.98 μs，余量只有约 50 个周期，恰好与 150 单元的存储上限处在同一量级。若要缩短步长（例如 20 kHz 开关需要更小步长）或扩大规模，必须增加流水线条数，DSP 就不再恒定。
 
-**论文提供的证据。** 20-unit 模型经历环境阶跃、单元 DC fault、汇集支路单相故障和 PCC 三相故障，离线/实时 RE 报告在几个百分点内；其中还包含 RCP HIL 和通信链路，说明方法不是纯软件 toy example。[pdf:E08] [pdf:E09]  
-**缺少的证据。** 论文没有给出 dead time、不同 \(R_{on}\)、forward voltage、非连续导通或器件温度漂移的敏感性 sweep，也没有把“重排但无一步延迟”的实现与一个明确保留一步延迟的 baseline 做消融。实时 controller step 为 50 µs、离线为 2.5 µs，更使观测误差混合了接口模型、通信和控制离散三种来源。[pdf:E07] 因此，现有实验支持所选理想化模型内的有效性，但不能隔离验证最脆弱假设在更真实 switching physics 下仍成立。
+第二个薄弱点是“无延迟接口”的表述：按 Fig. 5，直流侧在 t+Δt 的求解用的是 t 时刻的交流电流。[pdf:E07] 验证电站的直流电容为 32 000 μF，这一时间差被掩盖；对直流电容小、直流侧动态快的单元（例如储能变流器或高频 DC/DC），需要重新评估。[pdf:E15]
 
 ## § 10 — 最小复现实验
 
-**目标。** 一周内只验证最核心、最可证伪的 claim：在固定导纳接口成立的模型内，Fig. 5 的本时步求解重排比普通 one-step delayed controlled-source coupling 更接近 monolithic EMT reference。
+一周内最值得做的是量化 Fig. 5 中交流到直流方向一步时间差的影响。
 
-**数据与参数。** 不需要先做 100 units。采用 Appendix Table A-I 的单个 PV unit：\(V_{dc}=0.8~\text{kV}\)，boost/VSC 均为 2 kHz，\(L_{boost}=250~\mu H\)，\(C_{boost}=32000~\mu F\)，\(L_{VSC}=160~\mu H\)，\(C_{filt}=500~\mu F\)，仿真 circuit step 固定为 2.5 µs。[pdf:E10] 使用同一门极序列、同一 PV/MPPT 输入，运行稳态、irradiance step 和 \(0.2~\Omega\)、0.05 s DC pole-to-pole fault；后两项来自论文案例。[pdf:E08]
-
-**实现三个版本。**
-
-1. monolithic reference：单一节点网络内同步解 AC、VSC interface 和 DC；
-2. NFSS reordered：按式 (4)/(5) 压缩 AC，先用本步 branch current 形成 \(i_{dc}\)，解 DC 后把本步 \(V_{dc}\) 反馈 AC；
-3. delayed baseline：AC、DC 互相使用上一时步量，显式保留 one-step delay。
-
-前两版的离散方法、器件参数和 controller step 必须一致；否则无法把差异归因于求解顺序。测量 DC bus voltage、PV current/power、三相 current、每步 energy-balance residual、ME 和 RE，RE 按论文式 (15) 计算。[pdf:E03] [pdf:E04] [pdf:E08]
-
-**支持标准。** reordered 版本在三类工况中均保持稳定，对 monolithic reference 的关键波形 RE <4%，fault clearing 附近没有系统性的一步相移，而且 RE/energy residual 明显优于 delayed baseline。  
-**反驳标准。** reordered 与 delayed 的误差无实质差别，或在相同离散/控制步长下仍出现一步相移、RE ≥4%、错误换流或能量残差累积。这个实验不验证百单元 scale，但能直接检验论文把精度归因于“重排消除 delay”的最关键机制。
+- **实现：** 按 Table A-I 参数，在 Python 中实现单个光伏单元：交流侧按 Eq. (2)–(5) 做 NFSS，直流侧按 Eq. (6)–(7) 求解，VSC 按 Eq. (1) 的受控源连接两侧。[pdf:E05][pdf:E06][pdf:E15]
+- **对照：** 方案 A 按 Fig. 5 的顺序（Idc(t) → Vdc(t+Δt)）；方案 B 在每步内对交直流两侧做一次联立求解（把受控源关系写进同一个方程组），作为无时间差的参考。[pdf:E07]
+- **扫描：** 直流母线电容取 32 000、3200、320 μF，步长取 2.5、5、10 μs，工况为 PCC 三相短路。
+- **判据：** 若在 320 μF、10 μs 下方案 A 与方案 B 的直流电压误差仍小于 1%，则时间差可以忽略，“无延迟”在工程意义上成立；若误差随电容减小迅速增大，则这一接口只适用于大直流电容的单元。
 
 ## § 11 — 最强反例设计
 
-**基于证据的反例设计。** 构造一个“端口导纳不再近似固定”的 switching stress test：在同一个 PV unit 中加入 IGBT/diode 不同 \(R_{on}\)、非零 forward voltage、可调 dead time、current-dependent diode conduction，并让 boost 在连续/非连续导通边界往返；同时在 AC current zero-crossing 附近触发 PCC voltage sag 或 DC fault。用 0.1–0.25 µs 的详细器件 monolithic EMT 作为 reference，再以论文 2.5 µs NFSS 实现接收完全相同的门极和控制命令。[pdf:E03] [pdf:E09]
+**反例一：控制步长的混杂。** 实时模型的控制步长为 50 μs，离线模型为 2.5 μs。[pdf:E11] 汇集支路故障与 PCC 故障的误差约 3%，作者也承认来自通信延迟与控制步长差异。[pdf:E12][pdf:E13] 替代解释是：这 3% 几乎全部来自控制离散，而模型本身的误差可能远小于此，也可能被控制误差掩盖。区分方法是在离线模型中也用 50 μs 的控制步长重跑，对比时剩下的误差才属于电路模型。
 
-这比单纯再加一个更大电站更有攻击力，因为它针对的不是 FPGA 资源，而是方法成立的接口不变量。替代解释是：论文的低 RE 主要来自 reference 与实时模型共享了相同的理想化 switching abstraction，加上所选工况没有强烈激活 dead-time/diode 非线性；并非 NFSS 对真实开关系统天然无损。
+**反例二：同构单元假设。** 所有单元参数相同，温度与辐照只按子站变化。[pdf:E12][pdf:E15] 子站等值由单元等值直接累加（Eq. (8)），这在单元不同构时仍然成立；但流水线中每个单元共享同一套预存矩阵的做法，依赖单元参数相同。若电站中混有不同型号的逆变器，每种型号需要自己的一套预存矩阵，BRAM 占用会按型号数增加，"BRAM 不随规模增长"的结论需要重新检验。
 
-应扫描 dead time、器件压降、温度导致的 \(R_{on}\) 不对称、irradiance 和故障相角，测量以下四项：波形 RE/ME、开关事件时间偏差、每周期能量不守恒、错误 conduction state 次数。若存在一块有工程意义的参数区域，使 NFSS 的 RE 超过论文 4% 汇总边界、产生错误 chopper/diode 状态或不能在 2.5 µs 下稳定，而 monolithic reference 正常，那么这就是对“高精度且适用性良好”比扩展规模更强的反例。若误差仍被稳定约束，反而会显著加强论文目前缺失的鲁棒性证据。
+**反例三：高开关频率。** 论文称 2.5 μs 步长足以支持 20 kHz 开关，但验证只在 2 kHz 下进行。[pdf:E13][pdf:E15] 20 kHz 时开关周期 50 μs 只有 20 个步长，PWM 边沿的量化误差会显著增大；同时 50 μs 的控制步长与开关周期相等，控制器每个开关周期只更新一次。
 
 ## § 12 — Follow-up Research Bet
 
-**主 bet：把单轨迹 NFSS 改造成“多右端反事实因果扫描器”。** 新问题不是怎样让同一个光伏站模型再快一点，而是：能否在一个实时 EMT 步流中同时推进少量经过设计的干预副本，直接得到“哪个单元或支路的哪一种扰动，通过什么路径改变了哪些内部状态”的时变因果响应算子？若成立，这条路线将使大型光伏站在一次 HIL 时序中产生可检验的 counterfactual 数据，而不再只能被动记录一次温度阶跃或一次故障后的波形；这里的“使之成为可能”只指本候选系统新增的能力，不是对全领域首次性的宣称。
+**主 idea：以子站均值加偏差的状态表示——让同构单元的历史源用短字长存储，突破寄存器瓶颈。**
 
-**核心机制与设计变量。** 本文把开关动作放入受控源，使 AC 侧端口在给定模型假设下保持固定 \(\mathbf Y\)，每步主要改变 \(\mathbf J\)；式 (4) 对外压缩、式 (5) 对内恢复，恰好意味着多个干预副本可以共享同一组 Schur/Norton 算子，而各自携带独立的 history sources 和受控源右端项。[pdf:E03] 具体做法是在每个物理时步内沿 Fig. 5 与 Fig. 9 的原有层次推进 \(K\) 个状态副本：用正交编码的微小 irradiance、控制参考或端口电流干预生成 \(K\) 组 \(\mathbf J^{(q)}\)，批量完成顶层求解，再沿 unit—branch—substation 层级恢复每组内部电压和器件状态；对编码响应解混后，形成以“干预源 × 目标内部状态 × 时间”为索引的响应张量。[pdf:E04] [pdf:E06] 因果链是：固定导纳让不同干预共享线性网络算子 → 多右端流水复用矩阵计算 → 逆向恢复保留每个单元的内部响应 → 正交干预把共同电网扰动与源单元效应分开 → 得到可用于辨识传播路径和交互作用的站内 response operator。基本设计变量至少包括干预基 \(\mathbf P\)（位置、物理量、幅值与时间码）、副本数 \(K\) 与反事实窗口长度、恢复观测集合 \(\mathcal O\)，以及 scenario 维在 FPGA 上采用时间折叠还是并行 lane；改变的不是一个参数，而是**数据生成方式、状态表示和评价对象**。
+论文揭示了一个没被利用的资源分布：流水线复用后 DSP 与 BRAM 不随单元数增加，真正限制规模的是存储历史源的 LUT 与 FF，从 20 到 100 单元 FF 增加了约 3.4 倍。[pdf:E14]（PDF 物理页 10，Table II）另一方面，同一子站内的单元参数完全相同、共享同一组温度与辐照（Table I 中温度和辐照按子站设定），只有 PWM 相位和局部故障使它们的状态不同。[pdf:E12][pdf:E15]
 
-**为什么这从 Xia 论文里长出来。** 单元等值电流源可在子站内直接相加，子站压缩后又保持与单元相同的端口形式，说明同一套端口代数天然支持“多个不同右端、同一层次算子”的批处理，而 Fig. 9 已给出从站级端口向每个 unit/branch 恢复内部量的路径。[pdf:E05] HLS 实现中 unit 与 substation 循环已经采用 `PIPELINE`，数组 partition 后达到 \(II=1\)，因此可以把原来的 unit 轴扩展为 unit × scenario 数据流，而不是为每个反事实重新综合一套完整求解器。[pdf:E07] 实验也暴露了这个新任务所需的可分辨现象：Fig. 13 的四个子站接受不同 temperature/irradiance 改变，Fig. 14 的故障局限在一个 unit 的 DC bus，Fig. 15 的故障位于一个 collection branch，而 Fig. 16–18 改为 PCC 级共同扰动；这些不同空间尺度的激励在现文中只被分别画成波形，尚未被组织成“源—路径—内部状态”的统一对象。[pdf:E08] [pdf:E09] Table II 同时给出关键实现约束：20→100 units 时 latency 从 111 增至 198 clocks，DSP/BRAM 不变而 LUT/FF 显著增长，所以共享算子是否真的优于复制完整模型、以及每个反事实状态应存在哪里，本身就是必须实验回答的架构问题。[pdf:E10]
+**新的研究问题：** 能否把每个单元的历史源表示为“子站均值 + 单元偏差”，均值用全字长存储一份，偏差用短字长逐单元存储，使每个单元的寄存器开销降到原来的几分之一？
 
-**最大收益与最大科学风险。** 最大收益不是更安全或更容易认证，而是获得目前单次 forward simulation 给不出的科学对象：大型光伏站内部扰动传播的、可主动询问的时变耦合图谱。它可直接检验“两个相似 PCC 波形是否来自不同 unit/branch 机制”，也可用 held-out 干预预测来证伪所辨识的路径。最大科学风险是 switching、MPPT、chopper 和 fault conduction 会让不同副本跨入不同离散事件序列；此时响应不再能由少量编码方向解混，所谓因果张量可能只是某条工作轨迹附近的局部导数。论文实时模型 controller step 为 50 µs、离线 reference 为 2.5 µs，这一差异还可能把控制采样效应误写成网络传播效应。[pdf:E07] 因而该 bet 成败取决于“共享固定 \(\mathbf Y\)”能否在**状态副本彼此分离**时仍产生可迁移的干预响应，而不是取决于加一个异常检测器。
+**首次使什么成为可能：** 当前每个单元的全部历史源都以全字长存放在寄存器中，规模上限约 150 个单元。偏差表示下，同构单元的偏差通常只占全量程的一小部分，用少量位即可表示；单片 FPGA 上可承载的单元数不再由全字长寄存器决定。
 
-**区分核心机制与最强替代解释的最小实验。** 先锁定 Appendix Tables A-I/A-II 的 20-unit、四子站参数和 2.5 µs circuit step，不做 100-unit 扩展。[pdf:E10] 选 4 个分属不同子站的 unit，以 \(K=4\) 的 Hadamard 时间码分别对 irradiance reference 或 unit AC 端口注入足够小、但高于数值噪声的干预；同时保存各 unit 的 \(V_{dc}\)、PV port current、collection-branch internal voltage 和 PCC current。比较三组结果：① 共享算子的多右端 NFSS；② 四次逐一干预的独立 monolithic EMT，作为因果 ground truth；③ 只用未干预波形的相关性或电气距离排序，作为最强替代解释。先在 Fig. 13 类环境变化下辨识，再把同一 response operator 用于预测 Fig. 14 单元 DC fault 与 Fig. 15 branch fault 的最早响应位置和前几个时步波形。[pdf:E08] 若①能重建②的 held-out 干预响应、正确区分 unit 与 branch 源，而③不能，并且 C/RTL co-simulation 显示一个时步内确实完成全部副本，才支持“多右端共享 + 内部恢复”这一机制；若③同样有效，或一旦开关/控制事件分叉，①便不能预测独立干预结果，则应把主张降为局部 sensitivity engine，原 bet 被反驳。
+**因果链：** 同一子站的单元共享参数、控制与环境 → 稳态下各单元的状态轨迹相近，差别主要来自载波相位 → 历史源相对子站均值的偏差幅值远小于历史源本身 → 偏差可以用短字长表示而不损失精度 → 每单元寄存器位数下降 → 存储瓶颈后移。由于子站等值本来就是单元等值之和（Eq. (8)），均值项乘以单元数、偏差项求和，正好与 NFSS 的累加结构对应。
 
-**与本文及本文所列相邻路线的实质区别。** 在 **problem** 上，本文问“给定工况能否实时复现波形”，主 bet 问“干预源到内部状态的传播算子能否实时辨识”；在 **mechanism** 上，本文每步推进一组 \(\mathbf J\) 并恢复一次，主 bet 让多组干预右端共享固定 Schur/Norton 算子并经编码解混；在 **representation** 上，本文保存一条设备状态轨迹，主 bet 保存带 intervention 维的响应张量；在 **experimental object** 上，本文比较一次环境变化或故障的 FPGA/PSCAD 波形，主 bet 检验可迁移的 source-to-state coupling kernel。本文引用的 clustering、DRV/ADC、switching-function model、传统 NFSS 和并行 EMT 工作可说明最近的功能边界，但本卡没有检索这些工作的外部全文或 2025 年后的相关研究，因此这里只给出论文特异的候选判断，不声称 novelty。[pdf:E01] [pdf:E02] [pdf:E11]
+**改变的设计变量：** 状态表示（从每单元独立的全字长历史源变为共享均值加逐单元偏差）；数值格式（偏差采用自适应的短字长）；硬件映射（寄存器从按单元全量分配变为按偏差幅值分配）。
 
-**Wild-card alternative：** 把 Fig. 4 中各 unit 彼此独立的 DC subnetworks 改成由稀疏 DC intertie 连接的新物理拓扑，以 intertie 图和耦合阻抗为基本设计变量，研究局部 irradiance/fault 如何通过直流能量交换形成全新的跨单元功率重分配模式；这一路线改变的是物理耦合机制，而不是多右端数据生成机制。[pdf:E04]
+**论文依据：** 方法侧是 Eq. (8) 中子站等值为单元等值之和，以及 Fig. 9 中单元更新在流水线上逐个进行；实验侧是 Table II 中 DSP、BRAM 恒定而 LUT、FF 随单元数大幅增长，以及 150 单元的上限由寄存器决定。[pdf:E08][pdf:E10][pdf:E14]
 
-[pdf:E01]: _evidence/E01-p001-title-introduction.png "PDF physical page 1: title, abstract, introduction"
-[pdf:E02]: _evidence/E02-p002-topology-interface.png "PDF physical page 2: Figs. 1-2, interface construction"
-[pdf:E03]: _evidence/E03-p003-eq01-eq05-unit-nfss.png "PDF physical page 3: Eqs. (1)-(5), Figs. 3-4"
-[pdf:E04]: _evidence/E04-p004-eq06-eq08-unit-pipeline.png "PDF physical page 4: Eqs. (6)-(8), Figs. 5-6"
-[pdf:E05]: _evidence/E05-p005-eq09-eq13-station-nfss.png "PDF physical page 5: Eqs. (9)-(13), Figs. 7-8"
-[pdf:E06]: _evidence/E06-p006-fig09-fig10-platform.png "PDF physical page 6: Figs. 9-10, station process and FPGA platform"
-[pdf:E07]: _evidence/E07-p007-fig11-fig12-experiment-setup.png "PDF physical page 7: Figs. 11-12, HLS algorithms and experiment setup"
-[pdf:E08]: _evidence/E08-p008-table01-fig13-fig14.png "PDF physical page 8: Table I, Figs. 13-14, Eqs. (14)-(15)"
-[pdf:E09]: _evidence/E09-p009-fig15-fig18-scale-test.png "PDF physical page 9: Figs. 15-18, fault and scale tests"
-[pdf:E10]: _evidence/E10-p010-table02-appendix-conclusion.png "PDF physical page 10: Table II, Appendix Tables A-I/A-II, conclusion"
-[pdf:E11]: _evidence/E11-p011-references.png "PDF physical page 11: references"
+**最大收益与最大风险：** 收益是在同一块 FPGA 上把可承载的光伏单元数提高数倍，而每个单元仍保留完整的内部信息。风险来自局部故障：Fig. 14 的单元直流短路会使该单元的状态大幅偏离子站均值，偏差需要临时扩展到全字长；需要一种按偏差幅值动态分配位宽的机制，而这种机制本身的逻辑开销可能抵消部分收益。
+
+**区分核心机制与替代解释的最小实验：** 离线实现一个 20 单元子站，记录稳态、辐照变化和单元直流短路三种工况下各单元历史源相对子站均值的偏差分布，统计为保证相对误差低于 0.1% 所需的最小偏差位宽。若稳态与辐照变化下所需位宽不到全字长的一半、故障只影响个别单元，说明偏差表示可行；若载波相位差已使偏差接近全量程，则收益不存在。
+
+**与已有工作的区别：** 聚类等值（本文 [15]–[17]）把相似单元合并为一个等值单元，丢失单元个体信息；本文保留每个单元，但每个单元独立存储；Liu Yifan 等 2025 的风电场 M-NFSS 在沿串方向逐级消元，也是逐台存储。这里的主张是保留全部个体信息，同时利用同构单元的相似性压缩存储，研究对象是“同构单元群体状态的冗余度”。
+
+**Wild-card：** 递归复用同一个压缩算子。单元等值与子站等值形式相同（Fig. 7(c)），两层的 Schur 补压缩与反解在数学上是同一种操作。[pdf:E09] 若硬件上只实现一个参数化的“压缩—反解”算子，在不同层级之间分时复用，层级越多、复用越充分，资源可以进一步与电站层数解耦。
