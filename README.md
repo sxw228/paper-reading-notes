@@ -23,16 +23,18 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（375）
+## 全部精读卡（379）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
 | 2026 | `4JETCWNK` | [A Digital Twin Framework With Deep Feature Extraction and Gaussian Process for Multi-Objective Optimization in Semiconductor Manufacturing](papers/4JETCWNK-lin-2026-digital-twin-semiconductor.md) | — |
 | 2026 | `WGUS4P5R` | [A General FPGA-Based Accelerated Solver for Electromagnetic Transient Simulations](papers/WGUS4P5R-liang-2026-general-fpga-solver.md) | 10.3390/electronics15030606 |
 | 2026 | `6EN6SEVB` | [A Generalized Fixed-Admittance ADC Model for Two-Level Converters in EMT Simulation](papers/6EN6SEVB-cao-2026-generalized-fixed-admittance-adc.md) | — |
+| 2026 | `NNSBT8RA` | [A High-Speed and High-Precision Real-Time Simulation Method for Power Electronic Converters With Low FPGA Resource Consumption](papers/NNSBT8RA-sun-2026-high-speed-high-precision-real-time-simulation-power-electronic-converters.md) | 10.1109/TPEL.2026.3705740 |
 | 2026 | `BDZJXT4T` | [Deep Learning-Based Modeling for Power Converters via Physics-Enhanced Hierarchical Neural Network](papers/BDZJXT4T-shang-2026-physics-enhanced-hierarchical-nn.md) | 10.1109/TPEL.2025.3629881 |
 | 2026 | `SQXA23AX` | [Dissipation-Based Dynamics-Aware Learning Scheme for Transient Stability Analysis of Networked Black-Box Grid-Forming Inverters](papers/SQXA23AX-liu-2026-dissipation-dynamics-aware-learning.md) | — |
 | 2026 | `VUIJ38A8` | [EagerlyElastic: Correct-by-Construction Eager Execution in Dynamically-Scheduled HLS](papers/VUIJ38A8-eagerlyelastic-dynamic-hls.md) | 10.1145/3748173.3779196 |
+| 2026 | `XTXDGFTC` | [Fine-Grained Optimal Allocation of Wind Farm Decoupled Models for CPU-GPU Parallel EMT Simulation](papers/XTXDGFTC-liu-2026-fine-grained-allocation-wind-farm-cpu-gpu-emt.md) | 10.1109/TEC.2026.3669438 |
 | 2026 | `AUH78FB2` | [Harmonic-Preserved Average-Value Model for Converters in Electromagnetic Transient Simulation](papers/AUH78FB2-cao-2026-harmonic-preserved-avm.md) | — |
 | 2026 | `XBMXWRW2` | [High-Fidelity Real-Time Simulation of Power Electronics Converters via FPGA-Accelerated Dynamic Connectionist Neural Network](papers/XBMXWRW2-weng-2026-fpga-dynamic-connectivity.md) | — |
 | 2026 | `4XBSVW9U` | [Hybrid Data-Physics-Driven Modeling Method for Real-Time Simulation of Cascaded Power Electronics Systems](papers/4XBSVW9U-gao-2026-hybrid-data-physics-driven-modeling-method.md) | — |
@@ -265,10 +267,12 @@
 | 2021 | `PVZ8FUEY` | [一种面向实时仿真的两电平 VSC 建模方法](papers/PVZ8FUEY-lin-chang-yi-zhong-mian-xiang-shi-shi-fang-zhen-de-liang-dian-ping-vscjian-mo-fang-fa2021.md) | — |
 | 2021 | `BME3QXGI` | [基于FPGA的电力电子系统实时仿真算法](papers/BME3QXGI-wang-ran-ji-yu-fpgade-dian-li-dian-zi-xi-tong-shi-shi-fang-zhen-suan-fa2021.md) | — |
 | 2020 | `RQUEF5PX` | [A Device-Level Transient Modeling Approach for the FPGA-Based Real-Time Simulation of Power Converters](papers/RQUEF5PX-bai-device-level-transient-modeling2020.md) | — |
+| 2020 | `EZGA894Q` | [A Latency-Insensitive Design Approach to Programmable FPGA-Based Real-Time Simulators](papers/EZGA894Q-montano-2020-latency-insensitive-programmable-fpga-real-time-simulators.md) | 10.3390/electronics9111838 |
 | 2020 | `5U6PBZ3T` | [A Pulse-Source-Pair-Based AC/DC Interactive Simulation Approach for Multiple-VSC Grids](papers/5U6PBZ3T-yu-2020-pulse-source-pair-acdc.md) | 10.1109/TPWRD.2020.2984275 |
 | 2020 | `48BGU93J` | [An Inverter Model Simulating Accurate Harmonics With Low Computational Burden for Electromagnetic Transient Simulations](papers/48BGU93J-horiuchi-inverter-model-simulating2020.md) | — |
 | 2020 | `XTMQVVBV` | [egg: Fast and Extensible Equality Saturation](papers/XTMQVVBV-egg-equality-saturation.md) | 10.1145/3434304 |
 | 2020 | `77AIWIPB` | [Electrothermal Transient Behavioral Modeling of Thyristor-Based Ultrafast Mechatronic Circuit Breaker for Real-Time DC Grid Emulation](papers/77AIWIPB-lin-electrothermal-transient-behavioral2020a.md) | — |
+| 2020 | `WEGH54HG` | [FPGA-based hardware-in-the-loop real-time simulation implementation for high-speed train electrical traction system](papers/WEGH54HG-guo-2020-fpga-hil-real-time-simulation-high-speed-train-traction.md) | 10.1049/iet-epa.2019.0655 |
 | 2020 | `QWGMUZH5` | [FPGA-based real-time simulation for EV station with multiple high-frequency chargers based on C-EMTP algorithm](papers/QWGMUZH5-li-fpgabased-realtime-simulation2020a.md) | 10.1186/s41601-020-00171-x |
 | 2020 | `WNRAZ79Z` | [FPGA-Based Sub-Microsecond-Level Real-Time Simulation for Microgrids With a Network-Decoupled Algorithm](papers/WNRAZ79Z-xu-fpgabased-sub-microsecond-level-real-time2020.md) | — |
 | 2020 | `2JDC4NQ2` | [FPGA-Based Submicrosecond-Level Real-Time Simulation of Solid-State Transformer With a Switching Frequency of 50 kHz](papers/2JDC4NQ2-xu-fpgabased-submicrosecond-level-real-time2020b.md) | 10.1109/JESTPE.2020.3037233 |

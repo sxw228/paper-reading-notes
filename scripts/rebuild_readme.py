@@ -109,6 +109,7 @@ def render_readme(cards: list[dict[str, str]]) -> str:
         "",
         f"- Codex 本地索引：`{README_PATH}`",
         f"- Codex 本地卡片目录：`{PAPERS_DIR}`",
+        "- 跨卡片术语账本：[TERMINOLOGY.md](TERMINOLOGY.md)",
         f"- ChatGPT 网页端索引：{GITHUB_ROOT}",
         "- 下表中的相对链接在本地解析为 Codex 可读路径，在 GitHub 上解析为 ChatGPT 可打开的网页链接。",
         "- 文献检索先搜索全部卡片正文和 Zotero；这两者都是本地候选发现源，不只是外部结果的查重工具。",
