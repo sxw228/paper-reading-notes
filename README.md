@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（379）
+## 全部精读卡（382）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -35,6 +35,7 @@
 | 2026 | `SQXA23AX` | [Dissipation-Based Dynamics-Aware Learning Scheme for Transient Stability Analysis of Networked Black-Box Grid-Forming Inverters](papers/SQXA23AX-liu-2026-dissipation-dynamics-aware-learning.md) | — |
 | 2026 | `VUIJ38A8` | [EagerlyElastic: Correct-by-Construction Eager Execution in Dynamically-Scheduled HLS](papers/VUIJ38A8-eagerlyelastic-dynamic-hls.md) | 10.1145/3748173.3779196 |
 | 2026 | `XTXDGFTC` | [Fine-Grained Optimal Allocation of Wind Farm Decoupled Models for CPU-GPU Parallel EMT Simulation](papers/XTXDGFTC-liu-2026-fine-grained-allocation-wind-farm-cpu-gpu-emt.md) | 10.1109/TEC.2026.3669438 |
+| 2026 | `I725DDEW` | [FPGA-Based Real-Time Simulation and Hardware Configuration for Large-Scale Renewable Power Plants](papers/I725DDEW-lian-2026-fpga-real-time-simulation-hardware-configuration-large-scale-renewable-plants.md) | 10.1088/1742-6596/3229/1/012040 |
 | 2026 | `AUH78FB2` | [Harmonic-Preserved Average-Value Model for Converters in Electromagnetic Transient Simulation](papers/AUH78FB2-cao-2026-harmonic-preserved-avm.md) | — |
 | 2026 | `XBMXWRW2` | [High-Fidelity Real-Time Simulation of Power Electronics Converters via FPGA-Accelerated Dynamic Connectionist Neural Network](papers/XBMXWRW2-weng-2026-fpga-dynamic-connectivity.md) | — |
 | 2026 | `4XBSVW9U` | [Hybrid Data-Physics-Driven Modeling Method for Real-Time Simulation of Cascaded Power Electronics Systems](papers/4XBSVW9U-gao-2026-hybrid-data-physics-driven-modeling-method.md) | — |
@@ -158,6 +159,7 @@
 | 2023 | `6I9KI3B7` | [An Efficient Half-Bridge MMC Model for EMTP-Type Simulation Based on Hybrid Numerical Integration](papers/6I9KI3B7-gao-efficient-half-bridge-mmc2023.md) | — |
 | 2023 | `NE5PGQA4` | [An FPGA-Based Hierarchical Parallel Real-Time Simulation Method for Cascaded Solid-State Transformer](papers/NE5PGQA4-li-fpgabased-hierarchical-parallel2023a.md) | — |
 | 2023 | `IIP2G4XE` | [Basics of Electromagnetic Transients: Underlying mathematics](papers/IIP2G4XE-ma-basics-electromagnetic-transients2023.md) | — |
+| 2023 | `ECLDNFNT` | [Compact Real-time Simulator with Spatial-temporal Parallel Design for Large-scale Wind Farms](papers/ECLDNFNT-fu-2023-compact-real-time-simulator-spatial-temporal-parallel-large-scale-wind-farms.md) | 10.17775/CSEEJPES.2021.00200 |
 | 2023 | `UXWRM3U7` | [Comparative Modeling and Analysis of EMT and Phasor RMS Grid-Forming Converters Under Different Power System Dynamics](papers/UXWRM3U7-favuzza-comparative-modeling-analysis2023.md) | — |
 | 2023 | `I7PMA3DJ` | [Compensation Method for Parallel and Iterative Real-Time Simulation of Electromagnetic Transients](papers/I7PMA3DJ-bruned-2023-compensation-method-parallel-iterative-real-time-simulation-electromagnetic.md) | — |
 | 2023 | `SWBQS25Q` | [Comprehensive Mapping of Continuous/Switching Circuits in CCM and DCM to Machine Learning Domain Using Homogeneous Graph Neural Networks](papers/SWBQS25Q-khamis-agamy-2023-homogeneous-gnn-circuits.md) | — |
@@ -316,6 +318,7 @@
 | 2018 | `75JVEBMG` | [Detailed Device-Level Electrothermal Modeling of the Proactive Hybrid HVDC Breaker for Real-Time Hardware-in-the-Loop Simulation of DC Grids](papers/75JVEBMG-lin-detailed-device-level-electrothermal2018a.md) | 10.1109/TPEL.2017.2685423 |
 | 2018 | `IDUSA32I` | [Extendable multirate real-time simulation of active distribution networks based on field programmable gate arrays](papers/IDUSA32I-wang-extendable-multirate-realtime2018.md) | 10.1016/j.apenergy.2018.07.099 |
 | 2018 | `J635WZ8H` | [Graph-Theoretically Optimal Memory Banking for Stencil-Based Computing Kernels](papers/J635WZ8H-escobedo-2018-graph-theoretically-optimal-memory-banking.md) | 10.1145/3174243.3174251 |
+| 2018 | `GRHHCM8J` | [Hardware in the Loop Real-time Simulation for the Associated Discrete Circuit Modeling Optimization Method of Power Converters](papers/GRHHCM8J-guo-2018-hil-real-time-simulation-adc-modeling-optimization-power-converters.md) | 10.3390/en11113237 |
 | 2018 | `JKF7XR53` | [High-Speed EMT Modeling of MMCs With Arbitrary Multiport Submodule Structures Using Generalized Norton Equivalents](papers/JKF7XR53-xu-high-speed-emtmodeling2017.md) | 10.1109/TPWRD.2017.2740857 |
 | 2018 | `BFRVBV2Z` | [On the Numerical Accuracy of Electromagnetic Transient Simulation With Power Electronics](papers/BFRVBV2Z-tant-numerical-accuracy-electromagnetic2018.md) | 10.1109/TPWRD.2018.2797259 |
 | 2018 | `KNJRSBSA` | [Real-Time Device-Level Simulation of MMC-Based MVDC Traction Power System on MPSoC](papers/KNJRSBSA-liang-real-time-device-level-simulation2018.md) | 10.1109/TTE.2018.2823059 |
