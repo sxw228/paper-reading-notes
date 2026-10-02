@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（382）
+## 全部精读卡（388）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -279,6 +279,7 @@
 | 2020 | `77AIWIPB` | [Electrothermal Transient Behavioral Modeling of Thyristor-Based Ultrafast Mechatronic Circuit Breaker for Real-Time DC Grid Emulation](papers/77AIWIPB-lin-electrothermal-transient-behavioral2020a.md) | — |
 | 2020 | `WEGH54HG` | [FPGA-based hardware-in-the-loop real-time simulation implementation for high-speed train electrical traction system](papers/WEGH54HG-guo-2020-fpga-hil-real-time-simulation-high-speed-train-traction.md) | 10.1049/iet-epa.2019.0655 |
 | 2020 | `QWGMUZH5` | [FPGA-based real-time simulation for EV station with multiple high-frequency chargers based on C-EMTP algorithm](papers/QWGMUZH5-li-fpgabased-realtime-simulation2020a.md) | 10.1186/s41601-020-00171-x |
+| 2020 | `82D4M8TI` | [FPGA-Based Real-Time Simulation for Multiple Energy Storage Systems](papers/82D4M8TI-tang-2020-multiple-energy-storage-systems.md) | — |
 | 2020 | `WNRAZ79Z` | [FPGA-Based Sub-Microsecond-Level Real-Time Simulation for Microgrids With a Network-Decoupled Algorithm](papers/WNRAZ79Z-xu-fpgabased-sub-microsecond-level-real-time2020.md) | — |
 | 2020 | `2JDC4NQ2` | [FPGA-Based Submicrosecond-Level Real-Time Simulation of Solid-State Transformer With a Switching Frequency of 50 kHz](papers/2JDC4NQ2-xu-fpgabased-submicrosecond-level-real-time2020b.md) | 10.1109/JESTPE.2020.3037233 |
 | 2020 | `H945MNEB` | [High-Speed Electromagnetic Transient (EMT) Equivalent Modelling of Power Electronic Transformers](papers/H945MNEB-xu-high-speed-electromagnetic-transient2020a.md) | — |
@@ -368,19 +369,23 @@
 | 2008 | `B5F7FGPC` | [Numerical Integration by the 2-Stage Diagonally Implicit Runge-Kutta Method for Electromagnetic Transient Simulations](papers/B5F7FGPC-noda-numerical-integration2-stage2008.md) | — |
 | 2007 | `DSATQRHR` | [A Low-Cost Real-Time Hardware-in-the-Loop Testing Approach of Power Electronics Controls](papers/DSATQRHR-lu-low-cost-real-time-hardwareinthe-loop2007.md) | 10.1109/TIE.2007.892253 |
 | 2007 | `I4ZM9CCW` | [An Optimization-Enabled Electromagnetic Transient Simulation-Based Methodology for HVDC Controller Design](papers/I4ZM9CCW-filizadeh-optimization-enabled-electromagnetic-transient2007.md) | — |
+| 2007 | `939WIU94` | [Compatibility Path Based Binding Algorithm for Interconnect Reduction in High Level Synthesis](papers/939WIU94-kim-2007-compatibility-path-binding.md) | — |
 | 2007 | `X42DCC9J` | [Real-Time Digital Hardware Simulation of Power Electronics and Drives](papers/X42DCC9J-parma-real-time-digital-hardware2007.md) | 10.1109/TPWRD.2007.893620 |
 | 2006 | `6KBUIWBJ` | [A Versatile Cluster-Based Real-Time Digital Simulator for Power Engineering Research](papers/6KBUIWBJ-pak-versatile-cluster-based-real-time2006.md) | 10.1109/TPWRS.2006.873414 |
 | 2006 | `WMSCF7WU` | [A Voltage-Behind-Reactance Synchronous Machine Model for the EMTP-Type Solution](papers/WMSCF7WU-wang-voltage-behind-reactance-synchronous-machine2006.md) | 10.1109/TPWRS.2006.883670 |
+| 2006 | `6J7M57IZ` | [Platform-Based Resource Binding Using a Distributed Register-File Microarchitecture](papers/6J7M57IZ-cong-2006-distributed-register-file-binding.md) | — |
 | 2005 | `KBDGFVZS` | [Real-Time Simulation of Voltage Source Converters Based on Time Average Method](papers/KBDGFVZS-lian-real-time-simulation-voltage2005.md) | 10.1109/TPWRS.2004.831254 |
 | 2004 | `TN5WKIIU` | [Flexible Numerical Integration for Efficient Representation of Switching in Real Time Electromagnetic Transients Simulation](papers/TN5WKIIU-strunz-flexible-numerical-integration2004.md) | 10.1109/TPWRD.2004.824387 |
 | 2003 | `77RFV9T6` | [Real Time Network Simulation With PC-Cluster](papers/77RFV9T6-hollman-real-time-network2003.md) | 10.1109/TPWRS.2002.804917 |
 | 2000 | `ZKE3JAMD` | [Efficient and Accurate Representation of Asynchronous Network Structure Changing Phenomena in Digital Real Time Simulators](papers/ZKE3JAMD-strunz-efficient-accurate-representation2000.md) | 10.1109/59.867145 |
+| 2000 | `72JIPCV3` | [让线性递推算得更快：拆开共享依赖，再重组时间](papers/72JIPCV3-potkonjak-2000-fast-linear-feedback-computations.md) | — |
 | 1999 | `SU58NJKX` | [Real Time Digital Power System Simulator Design Considerations and Relay Performance Evaluation](papers/SU58NJKX-jakominich-real-time-digital1999.md) | 10.1109/61.772314 |
 | 1997 | `J2DWNXG9` | [Creating an Electromagnetic Transients Program in MATLAB: MatEMTP](papers/J2DWNXG9-mahseredjian-creating-electromagnetic-transients1997.md) | 10.1109/61.568262 |
 | 1996 | `RUVP93QN` | [Design, implementation and validation of a real-time digital simulator for protection relay testing](papers/RUVP93QN-kezunovic-design-implementation-validation1996a.md) | 10.1109/61.484012 |
 | 1995 | `2PA879GG` | [Comparison of the ATP version of the EMTP and the NETOMAC program for simulation of HVDC systems](papers/2PA879GG-lehn-comparison-atpversion1995a.md) | 10.1109/61.473344 |
 | 1992 | `DTXXBU2G` | [A real time digital simulator for testing relays](papers/DTXXBU2G-mclaren-real-time-digital1992.md) | 10.1109/61.108909 |
 | 1992 | `TUDTMNXF` | [Highly Parallel Sparse Cholesky Factorization](papers/TUDTMNXF-gilbert-schreiber-1992-highly-parallel-sparse-cholesky.md) | — |
+| 1992 | `HQTCN65V` | [Maximally Fast and Arbitrarily Fast Implementation of Linear Computations](papers/HQTCN65V-potkonjak-1992-fast-linear-computations.md) | — |
 | 1992 | `X39IQQMX` | [Real-time digital simulator for power system analysis on a hypercube computer](papers/X39IQQMX-taoka-realtime-digital-simulator1992a.md) | 10.1109/59.141680 |
 | 1991 | `QNSJH7TM` | [Power converter simulation module connected to the EMTP](papers/QNSJH7TM-mahseredjian-power-converter-simulation1991.md) | 10.1109/59.76692 |
 | 1990 | `WMRKXT92` | [A Real Time Power System Simulation Laboratory Environment](papers/WMRKXT92-foley-real-time-power1990a.md) | 10.1109/59.99392 |
@@ -388,6 +393,7 @@
 | 1989 | `GKDER7DW` | [Real-time digital simulator of the electromagnetic transients of transmission lines with frequency dependence](papers/GKDER7DW-wang-realtime-digital-simulator1989a.md) | 10.1109/61.35654 |
 | 1989 | `B49IQ77A` | [Suppression of Numerical Oscillations in the EMTP](papers/B49IQ77A-marti-suppression-numerical-oscillations1989.md) | 10.1109/59.193849 |
 | 1989 | `U6HIF8TT` | [Task Scheduling for Parallel Sparse Cholesky Factorization](papers/U6HIF8TT-geist-ng-1989-parallel-sparse-cholesky-scheduling.md) | — |
+| 1981 | `MGI4MS4J` | [The Maximum Sampling Rate of Digital Filters Under Hardware Speed Constraints](papers/MGI4MS4J-renfors-1981-maximum-sampling-rate.md) | — |
 | 1974 | `BR8MRFK8` | [Computation of Electromagnetic Transients](papers/BR8MRFK8-dommel-computation-electromagnetic-transients1974a.md) | 10.1109/PROC.1974.9550 |
 | 1971 | `CT8HAT9V` | [Nonlinear and Time-Varying Elements in Digital Simulation of Electromagnetic Transients](papers/CT8HAT9V-dommel-nonlinear-time-varying-elements1971.md) | 10.1109/TPAS.1971.292905 |
 | 1969 | `3MTIVAU5` | [Digital Computer Solution of Electromagnetic Transients in Single- and Multiphase Networks](papers/3MTIVAU5-dommel-digital-computer-solution1969.md) | 10.1109/TPAS.1969.292459 |
