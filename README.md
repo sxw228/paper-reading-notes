@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（406）
+## 全部精读卡（407）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -339,6 +339,7 @@
 | 2018 | `C95T96KI` | [Real-Time FEM Computation of Nonlinear Magnetodynamics of Moving Structures on FPGA for HIL Emulation](papers/C95T96KI-jandaghi-real-time-femcomputation2018a.md) | 10.1109/TIE.2018.2801843 |
 | 2018 | `2REETHNT` | [Real-Time FPGA-RTDS Co-Simulator for Power Systems](papers/2REETHNT-yang-2018.md) | 10.1109/ACCESS.2018.2862893 |
 | 2018 | `BHAH8H6B` | [电力系统高效电磁暂态仿真技术综述](papers/BHAH8H6B-dong-yi-feng-dian-li-xi-tong-gao-xiao-dian-ci-zan-tai-fang-zhen-ji-shu-zong-shu2018.md) | 10.13334/j.0258-8013.pcsee.171055 |
+| 2017 | `VDDG32T6` | [A Novel Approach for Handling Discontinuities in Non-iterative Co-simulation](papers/VDDG32T6-dejaco-2017-discontinuities-noniterative-cosimulation.md) | 10.5220/0006440402880295 |
 | 2017 | `VJM8SKS5` | [Behavioral Device-Level Modeling of Modular Multilevel Converters in Real Time for Variable-Speed Drive Applications](papers/VJM8SKS5-lin-behavioral-device-level-modeling2017.md) | 10.1109/JESTPE.2017.2673818 |
 | 2017 | `LEPB3LJE` | [Dynamic Variable Time-Stepping Schemes for Real-Time FPGA-Based Nonlinear Electromagnetic Transient Emulation](papers/LEPB3LJE-shen-dynamic-variable-time-stepping2017.md) | 10.1109/TIE.2017.2652403 |
 | 2017 | `2PHB9G4M` | [Synchronisation mechanism and interfaces design of multi-FPGA-based real-time simulator for microgrids](papers/2PHB9G4M-li-2017-synchronisation-multi-fpga-microgrids.md) | — |
