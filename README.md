@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（407）
+## 全部精读卡（414）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -173,6 +173,7 @@
 | 2023 | `UXWRM3U7` | [Comparative Modeling and Analysis of EMT and Phasor RMS Grid-Forming Converters Under Different Power System Dynamics](papers/UXWRM3U7-favuzza-comparative-modeling-analysis2023.md) | — |
 | 2023 | `I7PMA3DJ` | [Compensation Method for Parallel and Iterative Real-Time Simulation of Electromagnetic Transients](papers/I7PMA3DJ-bruned-2023-compensation-method-parallel-iterative-real-time-simulation-electromagnetic.md) | — |
 | 2023 | `SWBQS25Q` | [Comprehensive Mapping of Continuous/Switching Circuits in CCM and DCM to Machine Learning Domain Using Homogeneous Graph Neural Networks](papers/SWBQS25Q-khamis-agamy-2023-homogeneous-gnn-circuits.md) | — |
+| 2023 | `TEICSRA9` | [Defect Analysis of a Non-Iterative Co-Simulation](papers/TEICSRA9-glumac-2023-defect-analysis-cosimulation.md) | 10.3390/math11061342 |
 | 2023 | `CUCXEQHE` | [Detailed Parametric Modeling of AC-DC Converters for EMT Simulators](papers/CUCXEQHE-hosseinian-detailed-parametric-modeling2023a.md) | — |
 | 2023 | `AFZ7V45M` | [Effinformer: A Deep-Learning-Based Data-Driven Modeling of DC-DC Bidirectional Converters](papers/AFZ7V45M-shang-2023-effinformer-deep-learning-data-driven-modeling-dc-dc.md) | 10.1109/TIM.2023.3318701 |
 | 2023 | `KDH2T488` | [Extended Discrete-State Event-Driven Hardware-in-the-Loop Simulation for Power Electronic Systems Based on Virtual-Time-Ratio Regulation](papers/KDH2T488-zeng-extended-discrete-state-event-driven2023.md) | 10.1109/JESTPE.2023.3266348 |
@@ -198,6 +199,7 @@
 | 2023 | `CHDX75V7` | [Streaming Task Graph Scheduling for Dataflow Architectures](papers/CHDX75V7-streaming-task-graph-scheduling.md) | 10.1145/3588195.3592999 |
 | 2023 | `ZF6SEKTE` | [Supervisory Control System for a Grid-Connected MVDC Microgrid Based on Z-Source Converters With PV, Battery Storage, Green Hydrogen System and Charging Station of Electric Vehicles](papers/ZF6SEKTE-garcia-trivino-2023-supervisory-control-system-for-a-grid-connected-mvdc-microgrid.md) | — |
 | 2023 | `ITT9T857` | [System Identification–Based Adaptive Real-Time Simulators for Power Electronic Converters—Application to Three-Phase and NPC Inverters](papers/ITT9T857-system-identification-adaptive-erts.md) | 10.3390/electronics12051094 |
+| 2023 | `MD6QA74X` | [Time-Domain Generalization of Kron Reduction](papers/MD6QA74X-singh-2023-time-domain-kron-reduction.md) | 10.1109/LCSYS.2022.3185939 |
 | 2023 | `BJA95GRI` | [Unified Buffer: Compiling Image Processing and Machine Learning Applications to Push-Memory Accelerators](papers/BJA95GRI-unified-buffer-push-memory-accelerators.md) | 10.1145/3572908 |
 | 2023 | `PZAPQ5B3` | [Unified Real-Time Simulation Method for DC/DC Conversion Systems Consisting of Cascaded Dual-Port Submodules](papers/PZAPQ5B3-li-unified-real-time-simulation2023a.md) | — |
 | 2023 | `5EF8STIQ` | [Universal Equivalent Model for Real-Time CPU/FPGA Co-Simulation of Hybrid Cascaded Multilevel Converters](papers/5EF8STIQ-bieber-2023.md) | — |
@@ -238,6 +240,7 @@
 | 2022 | `88NW8NQG` | [Machine Learning Based Modeling for Real-Time Inferencer-in-the-Loop Hardware Emulation of High-Speed Rail Microgrid](papers/88NW8NQG-zhang-machine-learning-based2022.md) | — |
 | 2022 | `P7CRNXAX` | [Massively Parallel Modeling of Battery Energy Storage Systems for AC/DC Grid High-Performance Transient Simulation](papers/P7CRNXAX-lin-2022-massively-parallel-modeling-of-battery-energy-storage-systems-for-ac-dc-grid.md) | 10.1109/TPWRS.2022.3196286 |
 | 2022 | `8SKXZQBK` | [Methods for the Accurate Real-Time Simulation of High-Frequency Power Converters](papers/8SKXZQBK-chalangar-methods-accurate-real-time2022.md) | — |
+| 2022 | `Z9HBTD49` | [Multirate linearly-implicit GARK schemes](papers/Z9HBTD49-gunther-2022-linearly-implicit-gark.md) | 10.1007/s10543-021-00898-5 |
 | 2022 | `DWXFPT5X` | [On Modeling Depths of Power Electronic Circuits for Real-Time Simulation - A Comparative Analysis for Power Systems](papers/DWXFPT5X-carne-modeling-depths-power2022.md) | — |
 | 2022 | `JW323723` | [Optimal Control of Semi-Dual Active Bridge DC/DC Converter With Wide Voltage Gain in a Fast-Charging Station With Battery Energy Storage](papers/JW323723-rafi-2022-optimal-control-of-semi-dual-active-bridge-dc-dc-converter-with-wide-voltage.md) | 10.1109/TTE.2022.3170737 |
 | 2022 | `IGDDM7VQ` | [Parameter Estimation of Power Electronic Converters With Physics-Informed Machine Learning](papers/IGDDM7VQ-zhao-2022-parameter-estimation-of-power-electronic-converters-with-physics-informed.md) | 10.1109/TPEL.2022.3176468 |
@@ -287,6 +290,7 @@
 | 2020 | `EZGA894Q` | [A Latency-Insensitive Design Approach to Programmable FPGA-Based Real-Time Simulators](papers/EZGA894Q-montano-2020-latency-insensitive-programmable-fpga-real-time-simulators.md) | 10.3390/electronics9111838 |
 | 2020 | `5U6PBZ3T` | [A Pulse-Source-Pair-Based AC/DC Interactive Simulation Approach for Multiple-VSC Grids](papers/5U6PBZ3T-yu-2020-pulse-source-pair-acdc.md) | 10.1109/TPWRD.2020.2984275 |
 | 2020 | `48BGU93J` | [An Inverter Model Simulating Accurate Harmonics With Low Computational Burden for Electromagnetic Transient Simulations](papers/48BGU93J-horiuchi-inverter-model-simulating2020.md) | — |
+| 2020 | `X9QJWTZ4` | [Coupled Multirate Infinitesimal GARK Schemes for Stiff Systems with Multiple Time Scales](papers/X9QJWTZ4-roberts-2020-coupled-mri-gark.md) | 10.1137/19M1266952 |
 | 2020 | `XTMQVVBV` | [egg: Fast and Extensible Equality Saturation](papers/XTMQVVBV-egg-equality-saturation.md) | 10.1145/3434304 |
 | 2020 | `77AIWIPB` | [Electrothermal Transient Behavioral Modeling of Thyristor-Based Ultrafast Mechatronic Circuit Breaker for Real-Time DC Grid Emulation](papers/77AIWIPB-lin-electrothermal-transient-behavioral2020a.md) | — |
 | 2020 | `WEGH54HG` | [FPGA-based hardware-in-the-loop real-time simulation implementation for high-speed train electrical traction system](papers/WEGH54HG-guo-2020-fpga-hil-real-time-simulation-high-speed-train-traction.md) | 10.1049/iet-epa.2019.0655 |
@@ -351,6 +355,7 @@
 | 2016 | `CAT5QBIK` | [Characteristics and Design of Power Hardware-in-the-Loop Simulations for Electrical Power Systems](papers/CAT5QBIK-lauss-characteristics-design-power2015a.md) | 10.1109/TIE.2015.2464308 |
 | 2016 | `WANJHN6H` | [Detailed Magnetic Equivalent Circuit Based Real-Time Nonlinear Power Transformer Model on FPGA for Electromagnetic Transient Studies](papers/WANJHN6H-liu-detailed-magnetic-equivalent2016a.md) | — |
 | 2016 | `UNKVFU4P` | [Model-Based Fault Current Estimation for Low Fault-Energy 380VDC Distribution Systems](papers/UNKVFU4P-2016-model-based-fault-current-estimation-for-low-fault-energy-380vdc-distribution-systems.md) | 10.1109/INTLEC.2016.7749126 |
+| 2016 | `B7JA245N` | [Multirate generalized additive Runge Kutta methods](papers/B7JA245N-gunther-2016-multirate-gark.md) | 10.1007/s00211-015-0756-z |
 | 2016 | `TWTFXPGE` | [Real-Time Simulation-Based Multisolver Decoupling Technique for Complex Power-Electronics Circuits](papers/TWTFXPGE-gregoire-2016-multisolver-decoupling.md) | — |
 | 2016 | `WFT6K3AE` | [Static and Dynamic Power System Load Emulation in a Converter-Based Reconfigurable Power Grid Emulator](papers/WFT6K3AE-wang-static-dynamic-power2016.md) | 10.1109/TPEL.2015.2448548 |
 | 2015 | `GAMCUNPR` | [A Network Tearing Technique for FPGA-Based Real-Time Simulation of Power Converters](papers/GAMCUNPR-ould-bachir-network-tearing-technique2015.md) | — |
@@ -372,6 +377,7 @@
 | 2013 | `ENI8NE24` | [Comprehensive Real-Time Simulation of the Smart Grid](papers/ENI8NE24-guo-comprehensive-real-time-simulation2013a.md) | — |
 | 2013 | `KTMEQFWG` | [Fault Detection and Isolation in Low-Voltage DC-Bus Microgrid System](papers/KTMEQFWG-2013-fault-detection-and-isolation-in-low-voltage-dc-bus-microgrid-system.md) | 10.1109/TPWRD.2013.2243478 |
 | 2013 | `HKDKQIIF` | [Inclusion of Rational Models in an Electromagnetic Transients Program: Y-Parameters, Z-Parameters, S-Parameters, Transfer Functions](papers/HKDKQIIF-gustavsen-inclusion-rational-models2013a.md) | — |
+| 2013 | `QHCBGXCQ` | [Kron Reduction of Graphs With Applications to Electrical Networks](papers/QHCBGXCQ-dorfler-2013-kron-reduction.md) | 10.1109/TCSI.2012.2215780 |
 | 2013 | `JCK2ZZKM` | [Multi-FPGA digital hardware design for detailed large-scale real-time electromagnetic transient simulation of power systems](papers/JCK2ZZKM-chen-multi-fpgadigital-hardware2013.md) | 10.1049/iet-gtd.2012.0374 |
 | 2013 | `CTQUEIHA` | [Real-Time Simulation of MMCs Using CPU and FPGA](papers/CTQUEIHA-saad-real-time-simulation-mmcs2013a.md) | — |
 | 2011 | `PHUPVIVA` | [A Combined State-Space Nodal Method for the Simulation of Power System Transients](papers/PHUPVIVA-dufour-2011-state-space-nodal.md) | — |
@@ -397,6 +403,7 @@
 | 2003 | `77RFV9T6` | [Real Time Network Simulation With PC-Cluster](papers/77RFV9T6-hollman-real-time-network2003.md) | 10.1109/TPWRS.2002.804917 |
 | 2000 | `ZKE3JAMD` | [Efficient and Accurate Representation of Asynchronous Network Structure Changing Phenomena in Digital Real Time Simulators](papers/ZKE3JAMD-strunz-efficient-accurate-representation2000.md) | 10.1109/59.867145 |
 | 2000 | `72JIPCV3` | [让线性递推算得更快：拆开共享依赖，再重组时间](papers/72JIPCV3-potkonjak-2000-fast-linear-feedback-computations.md) | — |
+| 1999 | `WWHIPX7V` | [Hypergraph-Partitioning-Based Decomposition for Parallel Sparse-Matrix Vector Multiplication](papers/WWHIPX7V-catalyurek-1999-hypergraph-spmv.md) | 10.1109/71.780863 |
 | 1999 | `SU58NJKX` | [Real Time Digital Power System Simulator Design Considerations and Relay Performance Evaluation](papers/SU58NJKX-jakominich-real-time-digital1999.md) | 10.1109/61.772314 |
 | 1997 | `J2DWNXG9` | [Creating an Electromagnetic Transients Program in MATLAB: MatEMTP](papers/J2DWNXG9-mahseredjian-creating-electromagnetic-transients1997.md) | 10.1109/61.568262 |
 | 1996 | `RUVP93QN` | [Design, implementation and validation of a real-time digital simulator for protection relay testing](papers/RUVP93QN-kezunovic-design-implementation-validation1996a.md) | 10.1109/61.484012 |
