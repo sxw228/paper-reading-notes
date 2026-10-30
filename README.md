@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（414）
+## 全部精读卡（418）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -44,6 +44,7 @@
 | 2026 | `HQQHEMP5` | [Lotus: A Multi-FPGA Task Dataflow Architecture to Accelerate Cycle-Level Simulation](papers/HQQHEMP5-lotus-multi-fpga-task-dataflow.md) | 10.1109/ISCA66397.2026.00129 |
 | 2026 | `EY822HYI` | [Matrix Low-dimensional Qubit Casting Based Quantum Electromagnetic Transient Network Simulation Program](papers/EY822HYI-lou-2026-matrix-low-dimensional-qubit-casting-quantum.md) | — |
 | 2026 | `GTP6BF5S` | [Multilayer Device-Level Electro-Thermal Real-Time Simulation and Multipurpose HIL Testing of Power Electronics Converters](papers/GTP6BF5S-bai-2026-electro-thermal-rts-hil.md) | — |
+| 2026 | `6YXDFJS8` | [Multirate EMT Simulation of Power Electronic Transformers With High-Precision Firing Signals](papers/6YXDFJS8-wang-2026-multirate-pet-firing-signals.md) | — |
 | 2026 | `PXQN7NA7` | [Neural Controlled Differential Equations for EMT-Level Surrogate Modeling of Grid-Forming Inverters](papers/PXQN7NA7-qu-2026-neural-cde-emt-gfm-inverters.md) | 10.48550/arXiv.2607.16258 |
 | 2026 | `WDR7TD5U` | [Neural Surrogate Solver for Efficient Edge Inference of Power Electronic Hybrid Dynamics](papers/WDR7TD5U-zheng-2026-neural-surrogate-solver-efficient-edge-inference.md) | — |
 | 2026 | `NVRUXU44` | [Physics-Embedded Neural ODEs for Sim-to-Real Edge Digital Twins of Hybrid Power Electronics Systems](papers/NVRUXU44-zheng-2026-physics-embedded-neural-odes-sim-real.md) | — |
@@ -51,10 +52,12 @@
 | 2026 | `AK7IRX4K` | [Real-time Simulation Platform for a Solid-State Transformer with Multilevel Cascaded H-Bridge Dual-Active Bridge Back-to-Back Converters](papers/AK7IRX4K-2026-real-time-simulation-platform-for-a-solid-state-transformer-with-multilevel-cascaded-h-bridge-d.md) | — |
 | 2026 | `IZFCMVP8` | [Real-Time Surrogate Modeling for Fast Transient Prediction in Inverter-Based Microgrids Using CNN and LightGBM](papers/IZFCMVP8-ogiesoba-eguakun-2026-cnn-lightgbm-microgrid-surrogate.md) | — |
 | 2026 | `PZMEFVMK` | [Short-Circuit Analysis of Solid-State Transformer-Based DC Distribution in Data Center](papers/PZMEFVMK-2026-short-circuit-analysis-of-solid-state-transformer-based-dc-distribution-in-data-center.md) | 10.1109/APEC51134.2026.11516866 |
+| 2026 | `4H5DQD2H` | [System-Level Modeling of Single-Phase Solid-State Transformers for High-Speed, Resource-Efficient FPGA-Based Real-Time Simulation](papers/4H5DQD2H-woo-2026-single-phase-sst-fpga-modeling.md) | — |
 | 2026 | `RUA77GAI` | [从日月负荷到800 V直流母线：SST数据中心时序运行仿真精读](papers/RUA77GAI-2026-sequential-operating-simulation-of-solid-state-transformer-driven-next-generation-800-vdc-data.md) | — |
 | 2026 | `SX3SWVWT` | [从电网到芯片：下一代AI数据中心供电架构的三次迁移](papers/SX3SWVWT-2026-toward-next-generation-ai-data-centers-power-delivery-architecture-shifts-emerging-technologies.md) | 10.48550/arxiv.2606.25095 |
 | 2025 | `YV7C8DG7` | [A Bridge-Arm-Module-Based Fixed-Admittance ADC Model for Converters in EMT Simulation — 中文深度精读](papers/YV7C8DG7-cao-bridge-arm-module-based-fixed-admittance-adc2025.md) | — |
 | 2025 | `Z6PB3WNQ` | [A Delay-Free Decoupling Method for FPGA-Based Real-Time Simulation of Power Electronic Systems](papers/Z6PB3WNQ-yang-2024-delay-free-decoupling.md) | 10.1109/JESTIE.2024.3481270 |
+| 2025 | `QQSHW2CW` | [A Fine-Grained Decoupling Method for High-Efficiency Electromagnetic Transient Simulation of Power Electronic Transformers](papers/QQSHW2CW-liaozou-2025-fine-grained-decoupling-pet.md) | — |
 | 2025 | `9Y7KA9KJ` | [A General Interface-Free Delayed Real-Time Simulation Method with A-Stability for Power Electronic Converters](papers/9Y7KA9KJ-xu-2025-interface-free-delayed-rt-sim.md) | — |
 | 2025 | `RI6H4AE3` | [A Generic Modeling Approach for Dual-Active-Bridge Converter Family via Topology Transferrable Networks](papers/RI6H4AE3-li-2025-generic-modeling-dab-family.md) | 10.1109/TIE.2024.3406858 |
 | 2025 | `6AXZCAXB` | [A Hierarchical Multiarea Hybrid Equivalent for Efficient Simulation of Scalable Power Electronics Systems](papers/6AXZCAXB-jin-2025-hierarchical-multiarea-hybrid-equivalent-efficient-simulation.md) | — |
@@ -100,6 +103,7 @@
 | 2025 | `2FFQMMBK` | [Machine-Learning-Reinforced Massively Parallel Transient Simulation for Large-Scale Renewable-Energy-Integrated Power Systems](papers/2FFQMMBK-cheng-2025-ml-reinforced-massively-parallel-transient.md) | 10.1109/TPWRS.2024.3409729 |
 | 2025 | `5WB6J2JA` | [Modeling Method for DFIG-Based Wind Farm in High-Efficiency Real-Time Electromagnetic Transient (EMT) Simulations](papers/5WB6J2JA-liu-dfig-wind-farm-real-time-emt.md) | 10.1109/TPEL.2025.3567136 |
 | 2025 | `WK32GRFH` | [MTOF: A Novel FPGA-Based EMT Toolbox in MATLAB](papers/WK32GRFH-ma-2025-mtof-fpga-emt-toolbox.md) | 10.1109/TPWRS.2025.3535841 |
+| 2025 | `VPIZ6UDI` | [Multi-Time-Scale Electromagnetic Modeling of a Battery-Integrated Solid-State Transformer](papers/VPIZ6UDI-guo-2025-multi-time-scale-battery-sst.md) | — |
 | 2025 | `UFC7VDPM` | [Mutual Information-Enhanced NARX-NN Digital Twins for Power Electronics in Smart Grid Applications — 中文精读证据卡](papers/UFC7VDPM-nalepa-2025-mutual-information-narx-nn.md) | — |
 | 2025 | `AF87BKAC` | [Physics Informed Neural Network—Estimated Circuit Parameter Adaptive Modulation of DAB](papers/AF87BKAC-dey-2025-physics-informed-neural-network-estimated-circuit.md) | — |
 | 2025 | `VW2EPBB4` | [PoCo: Extending Task-Parallel HLS Programming with Shared Multi-Producer Multi-Consumer Buffer Support](papers/VW2EPBB4-poco-shared-mpmc-buffer.md) | 10.1145/3771938 |
