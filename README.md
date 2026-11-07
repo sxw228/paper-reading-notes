@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（426）
+## 全部精读卡（427）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -398,6 +398,7 @@
 | 2010 | `NK7GZT2W` | [Efficient Modeling of Modular Multilevel HVDC Converters (MMC) on Electromagnetic Transient Simulation Programs](papers/NK7GZT2W-gnanarathna-efficient-modeling-modular2010.md) | — |
 | 2010 | `4WXTWIBC` | [Hardware-in-the-Loop Simulation of Power Electronic Systems Using Adaptive Discretization](papers/4WXTWIBC-faruque-hardwareinthe-loop-simulation-power2009.md) | 10.1109/TIE.2009.2036647 |
 | 2010 | `IQ3FF3TB` | [Massively Parallel Implementation of AC Machine Models for FPGA-Based Real-Time Simulation of Electromagnetic Transients](papers/IQ3FF3TB-matar-massively-parallel-implementation2010.md) | — |
+| 2010 | `2H38QFKG` | [MATE Network Tearing Techniques for Multiprocessor Solution of Large Power System Networks](papers/2H38QFKG-tomim-2010-mate-network-tearing.md) | 10.1109/pes.2010.5590110 |
 | 2009 | `Z4RFE9X6` | [Simulation Tools for Electromagnetic Transients in Power Systems: Overview and Challenges](papers/Z4RFE9X6-mahseredjian-simulation-tools-electromagnetic2009a.md) | — |
 | 2009 | `KZFHKZP7` | [低压直流微网的故障通路与保护配合：Protection of Low-Voltage DC Microgrids](papers/KZFHKZP7-2009-protection-of-low-voltage-dc-microgrids.md) | 10.1109/TPWRD.2009.2016622 |
 | 2008 | `HZWN86RV` | [FPGA-Based Real-Time EMTP](papers/HZWN86RV-yuan-fpgabased-real-time-emtp2008.md) | 10.1109/TPWRD.2008.923392 |
