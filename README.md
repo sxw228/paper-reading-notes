@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（425）
+## 全部精读卡（426）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -364,6 +364,7 @@
 | 2016 | `TX8IWQ2Z` | [An Advanced HIL Simulation Battery Model for Battery Management System Testing](papers/TX8IWQ2Z-barreras-advanced-hilsimulation2016.md) | 10.1109/TIA.2016.2585539 |
 | 2016 | `KVPMC7K7` | [An Equivalent Circuit Method for Modelling and Simulation of Modular Multilevel Converters in Real-Time HIL Test Bench](papers/KVPMC7K7-li-equivalent-circuit-method2016a.md) | 10.1109/TPWRD.2016.2541461 |
 | 2016 | `CAT5QBIK` | [Characteristics and Design of Power Hardware-in-the-Loop Simulations for Electrical Power Systems](papers/CAT5QBIK-lauss-characteristics-design-power2015a.md) | 10.1109/TIE.2015.2464308 |
+| 2016 | `NHSUNSCM` | [Delay-Free Parallelization for Real-Time Simulation of a Large Active Distribution Grid Model](papers/NHSUNSCM-hooshyar-2016-delay-free-parallelization.md) | 10.1109/iecon.2016.7793885 |
 | 2016 | `WANJHN6H` | [Detailed Magnetic Equivalent Circuit Based Real-Time Nonlinear Power Transformer Model on FPGA for Electromagnetic Transient Studies](papers/WANJHN6H-liu-detailed-magnetic-equivalent2016a.md) | — |
 | 2016 | `UNKVFU4P` | [Model-Based Fault Current Estimation for Low Fault-Energy 380VDC Distribution Systems](papers/UNKVFU4P-2016-model-based-fault-current-estimation-for-low-fault-energy-380vdc-distribution-systems.md) | 10.1109/INTLEC.2016.7749126 |
 | 2016 | `B7JA245N` | [Multirate generalized additive Runge Kutta methods](papers/B7JA245N-gunther-2016-multirate-gark.md) | 10.1007/s00211-015-0756-z |
