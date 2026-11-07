@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（422）
+## 全部精读卡（423）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -176,6 +176,7 @@
 | 2023 | `ENTJJJZG` | [A Widely Applicable Modeling and Efficient Simulation Method for Power Electronics Grids Based on Unit Switching Circuits](papers/ENTJJJZG-wang-2023-widely-applicable-modeling-efficient-simulation-method-power-electronics.md) | 10.1109/TSG.2023.3261440 |
 | 2023 | `6I9KI3B7` | [An Efficient Half-Bridge MMC Model for EMTP-Type Simulation Based on Hybrid Numerical Integration](papers/6I9KI3B7-gao-efficient-half-bridge-mmc2023.md) | — |
 | 2023 | `NE5PGQA4` | [An FPGA-Based Hierarchical Parallel Real-Time Simulation Method for Cascaded Solid-State Transformer](papers/NE5PGQA4-li-fpgabased-hierarchical-parallel2023a.md) | — |
+| 2023 | `RJSP392X` | [Asynchronous multi-rate method of real-time simulation for active distribution networks](papers/RJSP392X-fu-2022-asynchronous-multirate-adn.md) | — |
 | 2023 | `IIP2G4XE` | [Basics of Electromagnetic Transients: Underlying mathematics](papers/IIP2G4XE-ma-basics-electromagnetic-transients2023.md) | — |
 | 2023 | `ECLDNFNT` | [Compact Real-time Simulator with Spatial-temporal Parallel Design for Large-scale Wind Farms](papers/ECLDNFNT-fu-2023-compact-real-time-simulator-spatial-temporal-parallel-large-scale-wind-farms.md) | 10.17775/CSEEJPES.2021.00200 |
 | 2023 | `UXWRM3U7` | [Comparative Modeling and Analysis of EMT and Phasor RMS Grid-Forming Converters Under Different Power System Dynamics](papers/UXWRM3U7-favuzza-comparative-modeling-analysis2023.md) | — |
