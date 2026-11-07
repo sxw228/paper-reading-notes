@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（420）
+## 全部精读卡（421）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -135,6 +135,7 @@
 | 2024 | `XPWVTPC2` | [A Model Review for Controller-Hardware-in-the-Loop Simulation in EV Powertrain Application](papers/XPWVTPC2-gong-2024-model-review-controller-hardware-loop-simulation-ev-powertrain.md) | 10.1109/TTE.2023.3290999 |
 | 2024 | `85WBSMAJ` | [A Modified Algorithm for the L/C-based Switch Model of Power Converters in Real-Time Simulation Based on FPGA](papers/85WBSMAJ-wang-2024-modified-algorithm-l-c-switch-model-power-converters.md) | — |
 | 2024 | `QE8CSJG9` | [A Multiport Power Electronic Transformer With MVDC Integration Interface for Multiple DC Units](papers/QE8CSJG9-zhu-2023-multiport-power-electronic-transformer-mvdc-integration-interface-multiple.md) | 10.1109/TIE.2023.3331147 |
+| 2024 | `T5NBFD24` | [A New Approach to Modeling Switching in Power Electronics Networks](papers/T5NBFD24-damle-2024-switching-compensation.md) | 10.1109/NPSC61626.2024.10987083 |
 | 2024 | `9ELPM74G` | [A Semi-Implicit Parallel Leapfrog Solver With Half-Step Sampling Technique for FPGA-Based Real-Time HIL Simulation of Power Converters](papers/9ELPM74G-zheng-2024-semi-implicit-parallel-leapfrog-solver-half-step-sampling.md) | — |
 | 2024 | `RMHNNZAK` | [Adaptive Neuron Adjustment for Transient Accuracy Enhancement in FPGA-Based Power Electronics Simulation](papers/RMHNNZAK-adaptive-neuron-fpga-simulation.md) | 10.23919/ICEMS60997.2024.10921361 |
 | 2024 | `2HRFCGK4` | [Admittance-Based Modeling for Electromagnetic Transient and Stability Analysis of Power-Electronic-Based Energy Conversion Systems](papers/2HRFCGK4-vahabzadeh-2024-admittance-modeling-electromagnetic-transient-stability-analysis-power.md) | 10.1109/TEC.2024.3373794 |
