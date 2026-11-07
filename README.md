@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（424）
+## 全部精读卡（425）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -197,6 +197,7 @@
 | 2023 | `IIZI5QDP` | [On Model Order Reduction and Exponential Integrator for Transient Circuit Simulation](papers/IIZI5QDP-wang-2023-model-order-reduction-exponential-integrator-transient-circuit-simulation.md) | — |
 | 2023 | `3T22B4ZQ` | [Oversampling Techniques to Improve the Accuracy of Hardware-in-the-Loop Switching Models](papers/3T22B4ZQ-yushkova-oversampling-techniques-improve2023.md) | 10.1109/TPEL.2023.3243702 |
 | 2023 | `V3X4JZ7M` | [Overview of Interface Algorithms, Interface Signals, Communication and Delay in Real-Time Co-Simulation of Distributed Power Systems](papers/V3X4JZ7M-buraimoh-2023-rt-cosimulation-interface-survey.md) | — |
+| 2023 | `PCB9KZG3` | [Parallel kernel solver of an FPGA-based real-time simulator for active distribution networks](papers/PCB9KZG3-li-2022-parallel-kernel-solver.md) | 10.1049/rpg2.12462 |
 | 2023 | `S3UTQMTH` | [Physics-Aware Neural Dynamic Equivalence of Power Systems](papers/S3UTQMTH-shen-2023-physics-aware-neural-dynamic-equivalence-power-systems.md) | 10.1109/TPWRS.2023.3328162 |
 | 2023 | `PIZZEKQZ` | [Physics-Informed Neural Network Based Online Impedance Identification of Voltage Source Converters](papers/PIZZEKQZ-zhang-2023-physics-informed-neural-network-online-impedance-identification-voltage.md) | 10.1109/TIE.2022.3177791 |
 | 2023 | `SKEEWQ9V` | [Portal Analysis Approach Used for the Efficient Electromagnetic Transient (EMT) Simulation of Power Electronic Systems](papers/SKEEWQ9V-gao-portal-analysis-approach2023.md) | — |
