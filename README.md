@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（419）
+## 全部精读卡（420）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -38,6 +38,7 @@
 | 2026 | `VUIJ38A8` | [EagerlyElastic: Correct-by-Construction Eager Execution in Dynamically-Scheduled HLS](papers/VUIJ38A8-eagerlyelastic-dynamic-hls.md) | 10.1145/3748173.3779196 |
 | 2026 | `XTXDGFTC` | [Fine-Grained Optimal Allocation of Wind Farm Decoupled Models for CPU-GPU Parallel EMT Simulation](papers/XTXDGFTC-liu-2026-fine-grained-allocation-wind-farm-cpu-gpu-emt.md) | 10.1109/TEC.2026.3669438 |
 | 2026 | `I725DDEW` | [FPGA-Based Real-Time Simulation and Hardware Configuration for Large-Scale Renewable Power Plants](papers/I725DDEW-lian-2026-fpga-real-time-simulation-hardware-configuration-large-scale-renewable-plants.md) | 10.1088/1742-6596/3229/1/012040 |
+| 2026 | `2MFNNB7H` | [FPGA-Based Real-Time Simulation of Microgrids with a State-Space Splitting Approach](papers/2MFNNB7H-fu-2026-state-space-splitting-microgrids.md) | 10.1109/PESGM58988.2026.11733891 |
 | 2026 | `AUH78FB2` | [Harmonic-Preserved Average-Value Model for Converters in Electromagnetic Transient Simulation](papers/AUH78FB2-cao-2026-harmonic-preserved-avm.md) | — |
 | 2026 | `XBMXWRW2` | [High-Fidelity Real-Time Simulation of Power Electronics Converters via FPGA-Accelerated Dynamic Connectionist Neural Network](papers/XBMXWRW2-weng-2026-fpga-dynamic-connectivity.md) | — |
 | 2026 | `4XBSVW9U` | [Hybrid Data-Physics-Driven Modeling Method for Real-Time Simulation of Cascaded Power Electronics Systems](papers/4XBSVW9U-gao-2026-hybrid-data-physics-driven-modeling-method.md) | — |
