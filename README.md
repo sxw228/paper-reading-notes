@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（428）
+## 全部精读卡（429）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -109,6 +109,7 @@
 | 2025 | `VPIZ6UDI` | [Multi-Time-Scale Electromagnetic Modeling of a Battery-Integrated Solid-State Transformer](papers/VPIZ6UDI-guo-2025-multi-time-scale-battery-sst.md) | — |
 | 2025 | `UFC7VDPM` | [Mutual Information-Enhanced NARX-NN Digital Twins for Power Electronics in Smart Grid Applications — 中文精读证据卡](papers/UFC7VDPM-nalepa-2025-mutual-information-narx-nn.md) | — |
 | 2025 | `QTJ8TPPD` | [Partial Refactorization Techniques for Electromagnetic Transient Simulations](papers/QTJ8TPPD-bruned-2025-partial-refactorization.md) | 10.1109/TPWRD.2025.3574482 |
+| 2025 | `S4QT4BDU` | [PE-GPT: A New Paradigm for Power Electronics Design](papers/S4QT4BDU-lin-2025-pe-gpt-power-electronics-design.md) | 10.1109/TIE.2024.3454408 |
 | 2025 | `AF87BKAC` | [Physics Informed Neural Network—Estimated Circuit Parameter Adaptive Modulation of DAB](papers/AF87BKAC-dey-2025-physics-informed-neural-network-estimated-circuit.md) | — |
 | 2025 | `VW2EPBB4` | [PoCo: Extending Task-Parallel HLS Programming with Shared Multi-Producer Multi-Consumer Buffer Support](papers/VW2EPBB4-poco-shared-mpmc-buffer.md) | 10.1145/3771938 |
 | 2025 | `AGUTJ7RM` | [Power Grid Model Generation Based on the Tool-Augmented Large Language Model](papers/AGUTJ7RM-deng-2025-power-grid-model-generation-llm.md) | 10.1109/TPWRS.2025.3609049 |
