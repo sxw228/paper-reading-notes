@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（429）
+## 全部精读卡（430）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -188,6 +188,7 @@
 | 2023 | `TEICSRA9` | [Defect Analysis of a Non-Iterative Co-Simulation](papers/TEICSRA9-glumac-2023-defect-analysis-cosimulation.md) | 10.3390/math11061342 |
 | 2023 | `CUCXEQHE` | [Detailed Parametric Modeling of AC-DC Converters for EMT Simulators](papers/CUCXEQHE-hosseinian-detailed-parametric-modeling2023a.md) | — |
 | 2023 | `AFZ7V45M` | [Effinformer: A Deep-Learning-Based Data-Driven Modeling of DC-DC Bidirectional Converters](papers/AFZ7V45M-shang-2023-effinformer-deep-learning-data-driven-modeling-dc-dc.md) | 10.1109/TIM.2023.3318701 |
+| 2023 | `33DIT9ZF` | [Event-Synchronous Time-Asynchronous Method for Controller HIL Simulation of 10 kVA Modular Multilevel Converters](papers/33DIT9ZF-zeng-2023-event-sync-mmc-chil.md) | 10.1109/TPEL.2023.3277190 |
 | 2023 | `KDH2T488` | [Extended Discrete-State Event-Driven Hardware-in-the-Loop Simulation for Power Electronic Systems Based on Virtual-Time-Ratio Regulation](papers/KDH2T488-zeng-extended-discrete-state-event-driven2023.md) | 10.1109/JESTPE.2023.3266348 |
 | 2023 | `F5D8K2X9` | [Fast DC Charging Infrastructures for Electric Vehicles: Overview of Technologies, Standards, and Challenges](papers/F5D8K2X9-franzese-2023-fast-dc-charging-infrastructures-electric-vehicles-overview-technologies.md) | 10.1109/TTE.2023.3239224 |
 | 2023 | `IH3ZEJ96` | [Harmonic State-Space Modeling and Closed-Loop Control of Single-Stage High-Frequency Isolated DC–AC Converter](papers/IH3ZEJ96-wang-2023-harmonic-state-space-modeling-closed-loop-control-single.md) | 10.1109/TIE.2023.3281682 |
