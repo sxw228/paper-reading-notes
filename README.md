@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（432）
+## 全部精读卡（433）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -362,6 +362,7 @@
 | 2017 | `VDDG32T6` | [A Novel Approach for Handling Discontinuities in Non-iterative Co-simulation](papers/VDDG32T6-dejaco-2017-discontinuities-noniterative-cosimulation.md) | 10.5220/0006440402880295 |
 | 2017 | `VJM8SKS5` | [Behavioral Device-Level Modeling of Modular Multilevel Converters in Real Time for Variable-Speed Drive Applications](papers/VJM8SKS5-lin-behavioral-device-level-modeling2017.md) | 10.1109/JESTPE.2017.2673818 |
 | 2017 | `LEPB3LJE` | [Dynamic Variable Time-Stepping Schemes for Real-Time FPGA-Based Nonlinear Electromagnetic Transient Emulation](papers/LEPB3LJE-shen-dynamic-variable-time-stepping2017.md) | 10.1109/TIE.2017.2652403 |
+| 2017 | `VUCVVSC7` | [Linear time complexity sorting algorithms for electromagnetic transient simulation of MMC-HVdc system](papers/VUCVVSC7-xu-2017-linear-sorting-mmc-hvdc.md) | 10.1049/iet-gtd.2017.0397 |
 | 2017 | `2PHB9G4M` | [Synchronisation mechanism and interfaces design of multi-FPGA-based real-time simulator for microgrids](papers/2PHB9G4M-li-2017-synchronisation-multi-fpga-microgrids.md) | — |
 | 2017 | `UH7E95KD` | [Three-Phase Power Converter-Based Real-Time Synchronous Generator Emulation](papers/UH7E95KD-yang-three-phase-power-converter-based2017.md) | 10.1109/TPEL.2016.2553168 |
 | 2017 | `MKZBHF94` | [基于多FPGA的电力电子实时仿真系统](papers/MKZBHF94-zhu-jian-xin-ji-yu-duo-fpgade-dian-li-dian-zi-shi-shi-fang-zhen-xi-tong2017.md) | 10.7500/AEPS20160907050 |
