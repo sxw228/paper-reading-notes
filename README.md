@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（430）
+## 全部精读卡（431）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -259,6 +259,7 @@
 | 2022 | `JW323723` | [Optimal Control of Semi-Dual Active Bridge DC/DC Converter With Wide Voltage Gain in a Fast-Charging Station With Battery Energy Storage](papers/JW323723-rafi-2022-optimal-control-of-semi-dual-active-bridge-dc-dc-converter-with-wide-voltage.md) | 10.1109/TTE.2022.3170737 |
 | 2022 | `IGDDM7VQ` | [Parameter Estimation of Power Electronic Converters With Physics-Informed Machine Learning](papers/IGDDM7VQ-zhao-2022-parameter-estimation-of-power-electronic-converters-with-physics-informed.md) | 10.1109/TPEL.2022.3176468 |
 | 2022 | `48CPC5RW` | [Passivity-Based Design of a Fractional-Order Virtual Capacitor for Active Damping of Multiparalleled Grid-Connected Current-Source Inverters](papers/48CPC5RW-azghandi-2022-passivity-based-design-of-a-fractional-order-virtual-capacitor-for.md) | 10.1109/TPEL.2022.3148242 |
+| 2022 | `8CZGF44R` | [Real-Time Simulation of Hybrid Three-Level and Modular Multilevel Converter Based on Complete Equivalent Model for High Voltage Direct Current Transmission System](papers/8CZGF44R-han-2022-hybrid-three-level-mmc.md) | 10.1109/OAJPE.2021.3138345 |
 | 2022 | `CAQJVVPV` | [Real-Time Simulation of Power System Electromagnetic Transients on FPGA Using Adaptive Mixed-Precision Calculations](papers/CAQJVVPV-ma-2022.md) | — |
 | 2022 | `R6RA22XZ` | [Research on Harmonic State-Space Modeling and Calculation Analysis of Low-Switching-Frequency Grid-Connected Inverter Considering the Impact of Digitization](papers/R6RA22XZ-cai-2022-research-on-harmonic-state-space-modeling-and-calculation-analysis-of-low.md) | 10.1109/TPEL.2022.3201626 |
 | 2022 | `IWAB26RM` | [Scalable Many-Core Algorithms for Tridiagonal Solvers](papers/IWAB26RM-balogh-2022-scalable-many-core-tridiagonal.md) | — |
