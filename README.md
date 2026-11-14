@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（427）
+## 全部精读卡（428）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -111,6 +111,7 @@
 | 2025 | `QTJ8TPPD` | [Partial Refactorization Techniques for Electromagnetic Transient Simulations](papers/QTJ8TPPD-bruned-2025-partial-refactorization.md) | 10.1109/TPWRD.2025.3574482 |
 | 2025 | `AF87BKAC` | [Physics Informed Neural Network—Estimated Circuit Parameter Adaptive Modulation of DAB](papers/AF87BKAC-dey-2025-physics-informed-neural-network-estimated-circuit.md) | — |
 | 2025 | `VW2EPBB4` | [PoCo: Extending Task-Parallel HLS Programming with Shared Multi-Producer Multi-Consumer Buffer Support](papers/VW2EPBB4-poco-shared-mpmc-buffer.md) | 10.1145/3771938 |
+| 2025 | `AGUTJ7RM` | [Power Grid Model Generation Based on the Tool-Augmented Large Language Model](papers/AGUTJ7RM-deng-2025-power-grid-model-generation-llm.md) | 10.1109/TPWRS.2025.3609049 |
 | 2025 | `I46Z825J` | [Progress and Application of Equivalent Models for Power System Simulation With Renewable Penetration: A Review](papers/I46Z825J-progress-application-equivalent2025.md) | — |
 | 2025 | `TUX7SRER` | [Pruner: A Draft-then-Verify Exploration Mechanism to Accelerate Tensor Program Tuning](papers/TUX7SRER-pruner-draft-verify-tensor-tuning.md) | 10.1145/3676641.3716269 |
 | 2025 | `L43KXQGH` | [Real-Time Modeling Method for Large-Scale Photovoltaic Power Stations Using Nested Fast and Simultaneous Solution](papers/L43KXQGH-xia-nested-fast-simultaneous-solution.md) | 10.1109/TIE.2024.3440469 |
