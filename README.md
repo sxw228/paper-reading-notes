@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（437）
+## 全部精读卡（438）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -37,6 +37,7 @@
 | 2026 | `6DIE4586` | [Deadline-Deterministic Sparse Matrix Updates with Versioned Factor Banks for Real-Time Distribution Network EMT Simulation](papers/6DIE4586-zou-2026-versioned-factor-banks.md) | 10.3390/electronics15173934 |
 | 2026 | `ZCTMZQ9T` | [Decoupled Detailed Equivalent Model for Parallel and Multi-Rate EMT-Type Simulation of Modular Multilevel Converter With Battery Energy Storage](papers/ZCTMZQ9T-hatahet-2026-multirate-mmc-bess.md) | 10.1109/TPWRD.2025.3648650 |
 | 2026 | `BDZJXT4T` | [Deep Learning-Based Modeling for Power Converters via Physics-Enhanced Hierarchical Neural Network](papers/BDZJXT4T-shang-2026-physics-enhanced-hierarchical-nn.md) | 10.1109/TPEL.2025.3629881 |
+| 2026 | `B55NXSRW` | [Design and Implementation of a Large Language Model-Driven Electromagnetic Transient Simulation System Based on the Model Context Protocol](papers/B55NXSRW-gao-2026-mcp-emt-simulation-system.md) | — |
 | 2026 | `SQXA23AX` | [Dissipation-Based Dynamics-Aware Learning Scheme for Transient Stability Analysis of Networked Black-Box Grid-Forming Inverters](papers/SQXA23AX-liu-2026-dissipation-dynamics-aware-learning.md) | — |
 | 2026 | `VUIJ38A8` | [EagerlyElastic: Correct-by-Construction Eager Execution in Dynamically-Scheduled HLS](papers/VUIJ38A8-eagerlyelastic-dynamic-hls.md) | 10.1145/3748173.3779196 |
 | 2026 | `XTXDGFTC` | [Fine-Grained Optimal Allocation of Wind Farm Decoupled Models for CPU-GPU Parallel EMT Simulation](papers/XTXDGFTC-liu-2026-fine-grained-allocation-wind-farm-cpu-gpu-emt.md) | 10.1109/TEC.2026.3669438 |
