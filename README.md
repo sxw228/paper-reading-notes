@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（441）
+## 全部精读卡（442）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -49,6 +49,7 @@
 | 2026 | `4XBSVW9U` | [Hybrid Data-Physics-Driven Modeling Method for Real-Time Simulation of Cascaded Power Electronics Systems](papers/4XBSVW9U-gao-2026-hybrid-data-physics-driven-modeling-method.md) | — |
 | 2026 | `6U2FKKJD` | [Hybrid Modeling Approach Combining Analytical and Neural Ordinary Differential Equations for Accelerated Simulation of Grid-Tied Inverter｜论文精读证据卡](papers/6U2FKKJD-liang-2026-hybrid-modeling.md) | — |
 | 2026 | `6BPQ9TJX` | [Interpolation-Free Hybrid Bergeron–π Line Model with Accurate Zero-Sequence Impedance](papers/6BPQ9TJX-zou-2026-hybrid-bergeron-pi-zim.md) | 10.3390/en19051164 |
+| 2026 | `R4F8A86N` | [Long-Horizon Analog Design Bench: Benchmarking Agents on Hours-Long Analog and Mixed-Signal Circuit Design Tasks](papers/R4F8A86N-zhang-2026-long-horizon-analog-design-bench.md) | — |
 | 2026 | `HQQHEMP5` | [Lotus: A Multi-FPGA Task Dataflow Architecture to Accelerate Cycle-Level Simulation](papers/HQQHEMP5-lotus-multi-fpga-task-dataflow.md) | 10.1109/ISCA66397.2026.00129 |
 | 2026 | `EY822HYI` | [Matrix Low-dimensional Qubit Casting Based Quantum Electromagnetic Transient Network Simulation Program](papers/EY822HYI-lou-2026-matrix-low-dimensional-qubit-casting-quantum.md) | — |
 | 2026 | `GTP6BF5S` | [Multilayer Device-Level Electro-Thermal Real-Time Simulation and Multipurpose HIL Testing of Power Electronics Converters](papers/GTP6BF5S-bai-2026-electro-thermal-rts-hil.md) | — |
