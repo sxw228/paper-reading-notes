@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（436）
+## 全部精读卡（437）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -59,6 +59,7 @@
 | 2026 | `IZFCMVP8` | [Real-Time Surrogate Modeling for Fast Transient Prediction in Inverter-Based Microgrids Using CNN and LightGBM](papers/IZFCMVP8-ogiesoba-eguakun-2026-cnn-lightgbm-microgrid-surrogate.md) | — |
 | 2026 | `PZMEFVMK` | [Short-Circuit Analysis of Solid-State Transformer-Based DC Distribution in Data Center](papers/PZMEFVMK-2026-short-circuit-analysis-of-solid-state-transformer-based-dc-distribution-in-data-center.md) | 10.1109/APEC51134.2026.11516866 |
 | 2026 | `4H5DQD2H` | [System-Level Modeling of Single-Phase Solid-State Transformers for High-Speed, Resource-Efficient FPGA-Based Real-Time Simulation](papers/4H5DQD2H-woo-2026-single-phase-sst-fpga-modeling.md) | — |
+| 2026 | `FAATZDWW` | [Your Simulation Runs but Solves the Wrong Physics: PDE-Grounded Intent Verification for LLM-Generated Multiphysics Simulation Code](papers/FAATZDWW-song-2026-wrong-physics-intent-verification.md) | — |
 | 2026 | `RUA77GAI` | [从日月负荷到800 V直流母线：SST数据中心时序运行仿真精读](papers/RUA77GAI-2026-sequential-operating-simulation-of-solid-state-transformer-driven-next-generation-800-vdc-data.md) | — |
 | 2026 | `SX3SWVWT` | [从电网到芯片：下一代AI数据中心供电架构的三次迁移](papers/SX3SWVWT-2026-toward-next-generation-ai-data-centers-power-delivery-architecture-shifts-emerging-technologies.md) | 10.48550/arxiv.2606.25095 |
 | 2025 | `YV7C8DG7` | [A Bridge-Arm-Module-Based Fixed-Admittance ADC Model for Converters in EMT Simulation — 中文深度精读](papers/YV7C8DG7-cao-bridge-arm-module-based-fixed-admittance-adc2025.md) | — |
