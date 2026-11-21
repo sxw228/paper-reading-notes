@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（438）
+## 全部精读卡（439）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -55,6 +55,7 @@
 | 2026 | `PXQN7NA7` | [Neural Controlled Differential Equations for EMT-Level Surrogate Modeling of Grid-Forming Inverters](papers/PXQN7NA7-qu-2026-neural-cde-emt-gfm-inverters.md) | 10.48550/arXiv.2607.16258 |
 | 2026 | `WDR7TD5U` | [Neural Surrogate Solver for Efficient Edge Inference of Power Electronic Hybrid Dynamics](papers/WDR7TD5U-zheng-2026-neural-surrogate-solver-efficient-edge-inference.md) | — |
 | 2026 | `NVRUXU44` | [Physics-Embedded Neural ODEs for Sim-to-Real Edge Digital Twins of Hybrid Power Electronics Systems](papers/NVRUXU44-zheng-2026-physics-embedded-neural-odes-sim-real.md) | — |
+| 2026 | `H6CGSD35` | [Physics-Informed Autonomous LLM Agents for Explainable Power Electronics Modulation Design](papers/H6CGSD35-liu-2026-phia-modulation-agents.md) | — |
 | 2026 | `ZJQX2CU8` | [Rake–Compress Riccati Recursions for Parallel Scenario-Tree Model Predictive Control](papers/ZJQX2CU8-sousa-pinto-2026-rake-compress-riccati-recursions.md) | — |
 | 2026 | `AK7IRX4K` | [Real-time Simulation Platform for a Solid-State Transformer with Multilevel Cascaded H-Bridge Dual-Active Bridge Back-to-Back Converters](papers/AK7IRX4K-2026-real-time-simulation-platform-for-a-solid-state-transformer-with-multilevel-cascaded-h-bridge-d.md) | — |
 | 2026 | `IZFCMVP8` | [Real-Time Surrogate Modeling for Fast Transient Prediction in Inverter-Based Microgrids Using CNN and LightGBM](papers/IZFCMVP8-ogiesoba-eguakun-2026-cnn-lightgbm-microgrid-surrogate.md) | — |
