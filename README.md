@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（435）
+## 全部精读卡（436）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -33,6 +33,7 @@
 | 2026 | `NNSBT8RA` | [A High-Speed and High-Precision Real-Time Simulation Method for Power Electronic Converters With Low FPGA Resource Consumption](papers/NNSBT8RA-sun-2026-high-speed-high-precision-real-time-simulation-power-electronic-converters.md) | 10.1109/TPEL.2026.3705740 |
 | 2026 | `JID4F5KH` | [A Numerically Efficient and Accurate Model for Real-Time Simulation of Solid-State Transformer Using Implicit-Explicit Integration Methods](papers/JID4F5KH-2026-a-numerically-efficient-and-accurate-model-for-real-time-simulation-of-solid-state-transformer.md) | 10.1109/TPEL.2025.3650144 |
 | 2026 | `CAGZTXZP` | [AnalogCoder-Pro: Unifying Analog Circuit Generation and Optimization via Multi-modal LLMs](papers/CAGZTXZP-lai-2026-analogcoder-pro.md) | — |
+| 2026 | `WZB7TMTK` | [AutoSizer: Automatic Sizing of Analog and Mixed-Signal Circuits via Large Language Model (LLM) Agents](papers/WZB7TMTK-yu-2026-autosizer-circuit-sizing-agents.md) | — |
 | 2026 | `6DIE4586` | [Deadline-Deterministic Sparse Matrix Updates with Versioned Factor Banks for Real-Time Distribution Network EMT Simulation](papers/6DIE4586-zou-2026-versioned-factor-banks.md) | 10.3390/electronics15173934 |
 | 2026 | `ZCTMZQ9T` | [Decoupled Detailed Equivalent Model for Parallel and Multi-Rate EMT-Type Simulation of Modular Multilevel Converter With Battery Energy Storage](papers/ZCTMZQ9T-hatahet-2026-multirate-mmc-bess.md) | 10.1109/TPWRD.2025.3648650 |
 | 2026 | `BDZJXT4T` | [Deep Learning-Based Modeling for Power Converters via Physics-Enhanced Hierarchical Neural Network](papers/BDZJXT4T-shang-2026-physics-enhanced-hierarchical-nn.md) | 10.1109/TPEL.2025.3629881 |
