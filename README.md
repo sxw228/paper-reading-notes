@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（434）
+## 全部精读卡（435）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -162,6 +162,7 @@
 | 2024 | `NGZA9TJT` | [FPGA-Based Real-Time Simulation of Five-Phase PMSM System for Fault Tolerant Controller-HIL Applications](papers/NGZA9TJT-bai-2024-fpga-real-time-simulation-five-phase-pmsm-system.md) | 10.1109/TIA.2024.3439490 |
 | 2024 | `SEBQTF7G` | [General Linearized Model of Voltage Source Converter With Fixed Nodal Admittance Matrix](papers/SEBQTF7G-zhang-2024-fixed-nodal-admittance.md) | 10.1109/TPEL.2024.3409537 |
 | 2024 | `TWHDM94J` | [Generalized Envelope-Based Modeling of Single-Phase Grid-Connected Power Converters](papers/TWHDM94J-azcondo-2024-generalized-envelope-modeling-single-phase-grid-connected-power.md) | 10.1109/TIE.2024.3379631 |
+| 2024 | `58HTEDAV` | [LaMAGIC: Language-Model-based Topology Generation for Analog Integrated Circuits](papers/58HTEDAV-chang-2024-lamagic-topology-generation.md) | — |
 | 2024 | `8SJQSIC8` | [Low Cost and Optimized FPGA-HIL Real Time Simulation of a Boost Converter Powered by a Photovoltaic Panel](papers/8SJQSIC8-low-cost-optimized-fpga-hil-pv-boost.md) | 10.1109/TLA.2024.10738270 |
 | 2024 | `7G3RKDGD` | [Modeling Method for the Real-Time Simulation of Bridge-Based High-Switching-Frequency Power Electronic Converters](papers/7G3RKDGD-sun-2024-modeling-method-real-time-simulation-bridge-high-switching.md) | 10.1109/TPEL.2024.3402428 |
 | 2024 | `2RVAK9MA` | [Modeling of Inverter-Based Resources for Power System Harmonics Studies](papers/2RVAK9MA-xu-2024-modeling-inverter-resources-power-system-harmonics-studies.md) | 10.1109/TPWRD.2024.3486566 |
