@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（446）
+## 全部精读卡（447）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -144,6 +144,7 @@
 | 2025 | `B4XIDARI` | [State-Space Driven Digital Twin for Condition Monitoring and Predictive Health Assessment in Grid-Integrated Power Converter System](papers/B4XIDARI-kumar-2025-state-space-driven-digital-twin-condition.md) | 10.1109/TICPS.2025.3586823 |
 | 2025 | `XRMS6SCG` | [Switching-Period-Synchronization-Based Real-Time Simulation Method Suitable for Power Converters With High Switching Frequency](papers/XRMS6SCG-xu-2025-switching-period-synchronization.md) | 10.1109/TIE.2025.3553165 |
 | 2025 | `MTD6NVL4` | [Transfer Learnable Physics-Informed Neural Network Surrogating Grid-Tied Inverters for Renewable Power System Simulation](papers/MTD6NVL4-yuan-2025-transfer-learnable-pinn.md) | 10.1109/TIE.2025.3613652 |
+| 2025 | `2ZWWBPPS` | [VeriOpt: PPA-Aware High-Quality Verilog Generation via Multi-Role LLMs](papers/2ZWWBPPS-tasnia-2025-veriopt-ppa-verilog.md) | — |
 | 2025 | `5CT7KTF3` | [万兆以太网高带宽低延迟接口的 FPGA 轻量化设计：论文精读](papers/5CT7KTF3-song-2025-10gbe-fpga-interface.md) | — |
 | 2025 | `7E5QP3C2` | [环网为何需要双极开断：Control Hardware in the Loop Simulations of a Bipolar SSCB in Ring Topology MVDC Grid](papers/7E5QP3C2-2025-control-hardware-in-the-loop-simulations-of-a-bipolar-sscb-in-ring-topology-mvdc-grid.md) | 10.1109/ECCE-EUROPE62795.2025.11238478 |
 | 2025 | `6JIN636Z` | [用硬件滞环争取保护配合时间：Fault Current Limiting Control of Solid-State Circuit Breakers for Protection Coordination in DC Distribution](papers/6JIN636Z-2025-fault-current-limiting-control-of-solid-state-circuit-breakers-for-protection-coordination-in-d.md) | 10.1109/ECCE58356.2025.11260405 |
