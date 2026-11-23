@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（443）
+## 全部精读卡（444）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -33,6 +33,7 @@
 | 2026 | `NNSBT8RA` | [A High-Speed and High-Precision Real-Time Simulation Method for Power Electronic Converters With Low FPGA Resource Consumption](papers/NNSBT8RA-sun-2026-high-speed-high-precision-real-time-simulation-power-electronic-converters.md) | 10.1109/TPEL.2026.3705740 |
 | 2026 | `PWUVQHDI` | [A Knowledge-Grounded Agent for Real-Time Electromagnetic Transient Simulation Engineering](papers/PWUVQHDI-liang-2026-knowledge-grounded-rt-emtse-agent.md) | — |
 | 2026 | `JID4F5KH` | [A Numerically Efficient and Accurate Model for Real-Time Simulation of Solid-State Transformer Using Implicit-Explicit Integration Methods](papers/JID4F5KH-2026-a-numerically-efficient-and-accurate-model-for-real-time-simulation-of-solid-state-transformer.md) | 10.1109/TPEL.2025.3650144 |
+| 2026 | `RFDSJ7GH` | [Agentic HiL: A Multi-Agent LLM Framework for Autonomous Generation of FPGA-based Real-Time Power Electronics Simulators](papers/RFDSJ7GH-sui-2026-agentic-hil-fpga-simulators.md) | — |
 | 2026 | `XWQDCAZE` | [AnalogAgent: Self-Improving Analog Circuit Design Automation with LLM Agents](papers/XWQDCAZE-bao-2026-analogagent-self-improving-design.md) | — |
 | 2026 | `CAGZTXZP` | [AnalogCoder-Pro: Unifying Analog Circuit Generation and Optimization via Multi-modal LLMs](papers/CAGZTXZP-lai-2026-analogcoder-pro.md) | — |
 | 2026 | `WZB7TMTK` | [AutoSizer: Automatic Sizing of Analog and Mixed-Signal Circuits via Large Language Model (LLM) Agents](papers/WZB7TMTK-yu-2026-autosizer-circuit-sizing-agents.md) | — |
