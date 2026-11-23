@@ -23,7 +23,7 @@
 - Asta 当前不可用，不属于以上任一模式。
 - AnySearch 与 ai4scholar 只负责外部候选发现；外部结果仍需逐篇经过本地精读卡与 Zotero 身份门。
 
-## 全部精读卡（445）
+## 全部精读卡（446）
 
 | 年份 | Zotero key | 论文 | DOI |
 |---:|---|---|---|
@@ -49,6 +49,7 @@
 | 2026 | `2MFNNB7H` | [FPGA-Based Real-Time Simulation of Microgrids with a State-Space Splitting Approach](papers/2MFNNB7H-fu-2026-state-space-splitting-microgrids.md) | 10.1109/PESGM58988.2026.11733891 |
 | 2026 | `AUH78FB2` | [Harmonic-Preserved Average-Value Model for Converters in Electromagnetic Transient Simulation](papers/AUH78FB2-cao-2026-harmonic-preserved-avm.md) | — |
 | 2026 | `XBMXWRW2` | [High-Fidelity Real-Time Simulation of Power Electronics Converters via FPGA-Accelerated Dynamic Connectionist Neural Network](papers/XBMXWRW2-weng-2026-fpga-dynamic-connectivity.md) | — |
+| 2026 | `N6AAUW8Z` | [HLSRewriter: Efficient Refactoring and Optimization of C/C++ Code with LLMs for High-Level Synthesis](papers/N6AAUW8Z-xu-2026-hlsrewriter-c-to-hls.md) | — |
 | 2026 | `4XBSVW9U` | [Hybrid Data-Physics-Driven Modeling Method for Real-Time Simulation of Cascaded Power Electronics Systems](papers/4XBSVW9U-gao-2026-hybrid-data-physics-driven-modeling-method.md) | — |
 | 2026 | `6U2FKKJD` | [Hybrid Modeling Approach Combining Analytical and Neural Ordinary Differential Equations for Accelerated Simulation of Grid-Tied Inverter｜论文精读证据卡](papers/6U2FKKJD-liang-2026-hybrid-modeling.md) | — |
 | 2026 | `6BPQ9TJX` | [Interpolation-Free Hybrid Bergeron–π Line Model with Accurate Zero-Sequence Impedance](papers/6BPQ9TJX-zou-2026-hybrid-bergeron-pi-zim.md) | 10.3390/en19051164 |
